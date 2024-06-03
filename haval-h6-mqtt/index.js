@@ -100,7 +100,7 @@ auth()
     console.info("mqtt connected!");
   })
   .catch((e) => {
-    console.error(e);
+    console.error(e.data);
     process.exit(0);
   });
 

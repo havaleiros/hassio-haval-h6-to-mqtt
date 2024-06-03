@@ -7,7 +7,7 @@ const { MQTT_HOST, MQTT_PASS, MQTT_USER } = process.env;
 
 const mqttModule = {
   connect() {
-    return mqtt.connect(`mqtt://${MQTT_HOST}`, {
+    return mqtt.connect(MQTT_HOST, {
       password: MQTT_PASS,
       username: MQTT_USER,
     });
