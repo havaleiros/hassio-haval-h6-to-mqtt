@@ -31,7 +31,8 @@ const mqttModule = {
         JSON.stringify({
           device_class,
           unique_id: `haval_${slugName}`,
-          name: `haval_${slugName}`,
+          name,
+          friendly_name: name,
           unit_of_measurement: unit,
           state_topic: `haval/${code}/state`,
         }),
