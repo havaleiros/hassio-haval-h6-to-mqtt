@@ -1,0 +1,25 @@
+{
+  "name": "Haval H6 to MQTT",
+  "version": "0.0.1",
+  "slug": "hassio_haval_h6_to_mqtt",
+  "description": "Haval H6 to MQTT",
+  "init": false,
+  "arch": ["armhf", "armv7", "aarch64", "amd64", "i386"],
+  "url": "https://github.com/paulovitin/hassio-haval-h6-mqtt",
+  "map": ["config:rw"],
+  "options": {
+    "data_path": "/config/haval_h6_mqtt",
+    "refresh_minutes": 5,
+    "mqtt_server": "mqtt://homeassistant.local:1883"
+  },
+  "schema": {
+    "data_path": "str",
+    "haval_username": "email",
+    "haval_password": "password",
+    "haval_vin": "str",
+    "mqtt_server": "str?",
+    "mqtt_user": "str",
+    "mqtt_pass": "password?",
+    "refresh_minutes": "int"
+  }
+}
