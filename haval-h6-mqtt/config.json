@@ -1,6 +1,6 @@
 {
   "name": "Haval H6 to MQTT",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "slug": "hassio_haval_h6_to_mqtt",
   "description": "Haval H6 to MQTT",
   "init": false,
@@ -14,12 +14,12 @@
   },
   "schema": {
     "data_path": "str",
-    "haval_username": "str",
-    "haval_password": "str",
+    "haval_username": "email",
+    "haval_password": "password",
     "haval_vin": "str",
     "mqtt_server": "str?",
     "mqtt_user": "str",
-    "mqtt_pass": "str?",
+    "mqtt_pass": "password?",
     "refresh_minutes": "int"
   }
 }
