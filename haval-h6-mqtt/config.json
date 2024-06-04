@@ -1,6 +1,6 @@
 {
   "name": "Haval H6 to MQTT",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "slug": "hassio_haval_h6_to_mqtt",
   "description": "Haval H6 to MQTT",
   "init": false,

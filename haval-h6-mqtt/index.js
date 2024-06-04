@@ -6,6 +6,7 @@ const storage = require("./storage");
 const { configTopics } = require("./map");
 const { register, sendMessage, checkConnection } = require("./mqtt");
 const validationSchema = require('./schema')
+const { isTokenExpired } = require('./utils')
 
 require("dotenv").config();
 
@@ -37,7 +38,9 @@ const auth = async () => {
     account: USERNAME,
   };
 
-  if (storage.getItem("accessToken")) {
+  const accessToken = storage.getItem("accessToken")
+
+  if (accessToken && !isTokenExpired(accessToken)) {
     return;
   }
 
@@ -66,15 +69,36 @@ const auth = async () => {
 };
 
 const getCarInfo = async () => {
-  await auth();
-
   try {
+    await auth();
     const { data } = await axios.getCarInfo("vehicle/getLastStatus");
     return data.data.items;
   } catch (e) {
     console.error(e);
   }
 };
+
+const getCarData = async () => {
+  try {
+    await auth();
+    const { data } = await axios.getCarInfo('vehicle/acquireVehicles');
+    return data.data[0];
+  } catch(e) {
+    console.error(e);
+  }
+}
+
+const registerEntities = async () => {
+  console.info("Registering entities");
+  Object.keys(configTopics).forEach((code) => {
+    const { description, unit, device_class } = configTopics[code];
+    register(code, description, unit, device_class);
+  });
+
+  register('image', 'Imagem do Veículo');
+  register('model', 'Modelo do Veículo');
+  register('color', 'Cor do Veículo');
+}
 
 console.info("Flight check:");
 if (fs.existsSync("./certs/gwm_general.cer")) {
@@ -91,38 +115,35 @@ if (fs.existsSync("./certs/gwm_root.cer!")) {
 
 validationSchema.validate(process.env)
   .then(() => {
-    console.log('parameters valid!')
-    return auth();
-  })
-  .then(() => {
-    console.info("login works!");
-    return getCarInfo();
-  })
-  .then(() => {
-    console.info("car connected!");
+    console.info('Parameters valid!')
     return checkConnection();
   })
   .then(() => {
-    console.info("mqtt connected!");
+    console.info('MQTT Connected!')
+    registerEntities();
+  })
+  .then(() => {
+    console.info("Login works!");
+    return getCarData();
+  })
+  .then((data) => {
+    sendMessage('image', data.minImageUrl);
+    sendMessage('model', `${data.appShowSeriesName} ${data.powerType}`);
+    sendMessage('color', data.color);
+    console.info('Car Connected!')
   })
   .catch((e) => {
     console.error(e);
     process.exit(0);
   });
 
-console.info("Registering entities");
-Object.keys(configTopics).forEach((code) => {
-  const { description, unit, device_class } = configTopics[code];
-  register(code, description, unit, device_class);
-});
-
-setInterval(async () => {
-  auth()
-    .then(() => getCarInfo())
-    .then((data) => {
-      console.info("Update entities state!");
-      data.forEach(({ code, value }) => {
-        sendMessage(code, value);
-      });
+const updateState = () => auth()
+  .then(() => getCarInfo())
+  .then((data) => {
+    console.info("Update entities state!");
+    data.forEach(({ code, value }) => {
+      sendMessage(code, value);
     });
-}, (TIME_REFRESH || 1) * 60000);
+  });
+
+setInterval(async () => updateState(), (TIME_REFRESH || 1) * 60000);
