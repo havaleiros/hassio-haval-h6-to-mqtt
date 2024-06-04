@@ -3,7 +3,12 @@ var slugify = require("slugify");
 
 require("dotenv").config();
 
-const { MQTT_HOST, MQTT_PASS, MQTT_USER } = process.env;
+const { MQTT_HOST, MQTT_PASS, MQTT_USER, VIN } = process.env;
+
+const device = {
+  "manufacturer": "GWM",
+  "model": "HAVAL H6"
+}
 
 const mqttModule = {
   connect() {
@@ -30,11 +35,11 @@ const mqttModule = {
         topic,
         JSON.stringify({
           device_class,
-          unique_id: `haval_${slugName}`,
+          unique_id: `haval_${VIN}_${slugName}`,
+          object_id: `haval_${VIN}_${slugName}`,
           name,
-          friendly_name: name,
           unit_of_measurement: unit,
-          state_topic: `haval/${code}/state`,
+          state_topic: `haval/${code}/state`
         }),
         (err) => {
           if (err) console.log(err);
