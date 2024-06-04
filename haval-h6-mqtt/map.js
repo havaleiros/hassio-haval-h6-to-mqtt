@@ -10,7 +10,12 @@ const configTopics = {
     device_class: "battery",
   },
   2011007: {
-    description: "Autonomia",
+    description: "Autonomia Combustão",
+    unit: "km",
+    device_class: "distance",
+  },
+  2011501: {
+    description: "Autonomia HEV",
     unit: "km",
     device_class: "distance",
   },
@@ -71,6 +76,11 @@ const configTopics = {
     description: "Nível de Combustível",
     unit: "L",
     device_class: "volume",
+  },
+  2013005: {
+  	description: "Estado de Carga 12V",
+  	unit: '%',
+    device_class: "battery"
   },
   // 2208001: {
   // 	description: "Estado da Trava (1: Destravar 0: Travar)",
@@ -246,11 +256,6 @@ const configTopics = {
   // 	description: "Temperatura do Ambiente (Não Funcionando)",
   // 	unit: "null",
   // 	value: 0,
-  // },
-  // 2013005: {
-  // 	description: "SoC (Redundante)",
-  // 	unit: "null",
-  // 	value: 41,
   // },
   // 2016001: {
   // 	description: "Desconhecido (Não Funcionando)",

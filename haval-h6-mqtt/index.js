@@ -5,6 +5,7 @@ const fs = require("fs");
 const storage = require("./storage");
 const { configTopics } = require("./map");
 const { register, sendMessage, checkConnection } = require("./mqtt");
+const validationSchema = require('./schema')
 
 require("dotenv").config();
 
@@ -87,7 +88,12 @@ if (fs.existsSync("./certs/gwm_general.key")) {
 if (fs.existsSync("./certs/gwm_root.cer!")) {
   console.info("gwm root exists");
 }
-auth()
+
+validationSchema.validate(process.env)
+  .then(() => {
+    console.log('parameters valid!')
+    return auth();
+  })
   .then(() => {
     console.info("login works!");
     return getCarInfo();
@@ -100,7 +106,7 @@ auth()
     console.info("mqtt connected!");
   })
   .catch((e) => {
-    console.error(e.data);
+    console.error(e);
     process.exit(0);
   });
 
