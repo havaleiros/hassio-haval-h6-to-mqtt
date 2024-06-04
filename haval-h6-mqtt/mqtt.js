@@ -5,11 +5,6 @@ require("dotenv").config();
 
 const { MQTT_HOST, MQTT_PASS, MQTT_USER, VIN } = process.env;
 
-const device = {
-  "manufacturer": "GWM",
-  "model": "HAVAL H6"
-}
-
 const mqttModule = {
   connect() {
     return mqtt.connect(MQTT_HOST, {

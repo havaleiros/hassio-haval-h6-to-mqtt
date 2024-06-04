@@ -73,7 +73,7 @@ axios.getCarInfo = (path) => {
     refreshToken: storage.getItem("refreshToken"),
   };
 
-  return axios.get(`${apiVehicleEndpoint}/${path}`, {
+  return axios.get(`${apiVehicleEndpoint}/${path}?vin=${VIN}&flag=true`, {
     headers,
   });
 };

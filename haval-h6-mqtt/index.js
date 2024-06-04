@@ -4,7 +4,7 @@ const fs = require("fs");
 
 const storage = require("./storage");
 const { configTopics } = require("./map");
-const { register, registerImage, sendMessage, checkConnection } = require("./mqtt");
+const { register, sendMessage, checkConnection } = require("./mqtt");
 const validationSchema = require('./schema')
 const { isTokenExpired } = require('./utils')
 
@@ -137,13 +137,13 @@ validationSchema.validate(process.env)
     process.exit(0);
   });
 
-// const updateState = () => auth()
-//   .then(() => getCarInfo())
-//   .then((data) => {
-//     console.info("Update entities state!");
-//     data.forEach(({ code, value }) => {
-//       sendMessage(code, value);
-//     });
-//   });
+const updateState = () => auth()
+  .then(() => getCarInfo())
+  .then((data) => {
+    console.info("Update entities state!");
+    data.forEach(({ code, value }) => {
+      sendMessage(code, value);
+    });
+  });
 
-// setInterval(async () => updateState(), (TIME_REFRESH || 1) * 60000);
+setInterval(async () => updateState(), (TIME_REFRESH || 1) * 60000);
