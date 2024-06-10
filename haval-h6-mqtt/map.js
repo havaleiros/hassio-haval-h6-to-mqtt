@@ -82,73 +82,61 @@ const sensorTopics = {
   	unit: '%',
     device_class: "battery"
   },
+  2202001: {
+  	description: "Estado do Ar Condicionado", //(1: Ligado 0: Desligado)
+  	device_class: "None",
+  },
+  2208001: {
+  	description: "Estado da Trava", //(1: Destravar 0: Travar)
+  	device_class: "None",
+  },
+  2206001: {
+  	description: "Estado do Porta-Malas", //(1: Aberto 0: Fechado)
+  	device_class: "None",
+  },
+  2210005: {
+  	description: "Posição do Teto Solar", //(6: Aberto 3: Fechado)
+  	device_class: "None",
+  },
+  2206002: {
+  	description: "Estado da Porta Dianteira Direita", //(1: Aberta 0: Fechada)
+  	device_class: "None",
+  },
+  2206004: {
+  	description: "Estado da Porta Dianteira Esquerda", //(1: Aberta 0: Fechada)
+  	device_class: "None",
+  },
+  2206003: {
+  	description: "Estado da Porta Traseira Direita", //(1: Aberta 0: Fechada)
+  	device_class: "None",
+  },
+  2206005: {
+  	description: "Estado da Porta Traseira Esquerda", //(1: Aberta 0: Fechada)
+  	device_class: "None",
+  },
+  2210001: {
+  	description: "Posição do Vidro Dianteiro Esquerdo", //(1: Fechado 0: Aberto)
+  	device_class: "None",
+  },
+  2210002: {
+  	description: "Posição do Vidro Dianteiro Direito", //(1: Fechado 0: Aberto)
+  	device_class: "None",
+  },
+  2210003: {
+  	description: "Posição do Vidro Traseiro Esquerdo", //(1: Fechado 0: Aberto)
+  	device_class: "None",
+  },
+  2210004: {
+  	description: "Posição do Vidro Traseiro Direito", //(1: Fechado 0: Aberto)
+  	device_class: "None",
+  },
 };
 
 const attributeTopics = {
-  2202001: {
-  	description: "Estado do Ar Condicionado", //(1: Ligado 0: Desligado)
-  	unit: "null",
-  	value: 0,
-  },
   2078020: {
   	description: "Filtragem do Ar do Cockpit", //(1: Ligado 0: Desligado)
   	unit: "null",
   	value: 0,
-  },
-  2208001: {
-  	description: "Estado da Trava", //(1: Destravar 0: Travar)
-  	unit: "-",
-  	value: 0,
-  },
-  2206001: {
-  	description: "Estado do Porta-Malas", //(1: Aberto 0: Fechado)
-  	unit: "-",
-  	value: 0,
-  },
-  2210005: {
-  	description: "Posição do Teto Solar", //(6: Aberto 3: Fechado)
-  	unit: "-",
-  	value: 1,
-  },
-  2206002: {
-  	description: "Estado da Porta Dianteira Direita", //(1: Aberta 0: Fechada)
-  	unit: "-",
-  	value: 0,
-  },
-  2206004: {
-  	description: "Estado da Porta Dianteira Esquerda", //(1: Aberta 0: Fechada)
-  	unit: "-",
-  	value: 0,
-  },
-  2206003: {
-  	description: "Estado da Porta Traseira Direita", //(1: Aberta 0: Fechada)
-  	unit: "-",
-  	value: 0,
-  },
-  2206005: {
-  	description: "Estado da Porta Traseira Esquerda", //(1: Aberta 0: Fechada)
-  	unit: "-",
-  	value: 0,
-  },
-  2210001: {
-  	description: "Posição do Vidro Dianteiro Esquerdo", //(1: Fechado 0: Aberto)
-  	unit: "-",
-  	value: 1,
-  },
-  2210002: {
-  	description: "Posição do Vidro Dianteiro Direito", //(1: Fechado 0: Aberto)
-  	unit: "-",
-  	value: 1,
-  },
-  2210003: {
-  	description: "Posição do Vidro Traseiro Esquerdo", //(1: Fechado 0: Aberto)
-  	unit: "-",
-  	value: 1,
-  },
-  2210004: {
-  	description: "Posição do Vidro Traseiro Direito", //(1: Fechado 0: Aberto)
-  	unit: "-",
-  	value: 1,
   },
   2042082: {
   	description: "Estado do Controle de Carga", //(1: Conectado 0: Desconectado)
@@ -170,74 +158,79 @@ const attributeTopics = {
   	unit: "-",
   	value: 0,
   },
+  2310001: {
+  	description: "Autorização do GPS (1: Autorizado 0: Não Autorizado)",
+  	unit: "null",
+  	value: 1,
+  },
+  2102002: {
+  	description: "Estado da Pressão do Pneu Dianteiro Direito",
+  	unit: "-",
+  	value: 0,
+  },
+  2102001: {
+  	description: "Estado da Pressão do Pneu Dianteiro Esquerdo",
+  	unit: "-",
+  	value: 0,
+  },
+  2102004: {
+  	description: "Estado da Pressão do Pneu Traseiro Direito",
+  	unit: "-",
+  	value: 0,
+  },
+  2102003: {
+  	description: "Estado da Pressão do Pneu Traseiro Esquerdo",
+  	unit: "-",
+  	value: 0,
+  },
+  2102008: {
+  	description: "Estado da Temperatura do Pneu Dianteiro Direito",
+  	unit: "-",
+  	value: 0,
+  },
+  2102007: {
+  	description: "Estado da Temperatura do Pneu Dianteiro Esquerdo",
+  	unit: "-",
+  	value: 0,
+  },
+  2102010: {
+  	description: "Estado da Temperatura do Pneu Traseiro Direito",
+  	unit: "-",
+  	value: 0,
+  },
+  2102009: {
+  	description: "Estado da Temperatura do Pneu Traseiro Esquerdo",
+  	unit: "-",
+  	value: 0,
+  },
+  2210010: {
+  	description: "Estado de Aprendizado do Vidro Dianteiro Direito",
+  	unit: "-",
+  	value: 1,
+  },
+  2210011: {
+  	description: "Estado de Aprendizado do Vidro Dianteiro Esquerdo",
+  	unit: "-",
+  	value: 1,
+  },
+  2210012: {
+  	description: "Estado de Aprendizado do Vidro Traseiro Direito",
+  	unit: "-",
+  	value: 1,
+  },
+  2210013: {
+  	description: "Estado de Aprendizado do Vidro Traseiro Esquerdo",
+  	unit: "-",
+  	value: 1,
+  },
+  2202099: {
+  	description: "Estado do Purificador de Ar",
+  	unit: "null",
+  	value: 0,
+  },
 };
 
 //const notUsedTopics = {
-  // 2310001: {
-  // 	description: "Autorização do GPS (1: Autorizado 0: Não Autorizado)",
-  // 	unit: "null",
-  // 	value: 1,
-  // },
-  // 2102002: {
-  // 	description: "Estado da Pressão do Pneu Dianteiro Direito",
-  // 	unit: "-",
-  // 	value: 0,
-  // },
-  // 2102001: {
-  // 	description: "Estado da Pressão do Pneu Dianteiro Esquerdo",
-  // 	unit: "-",
-  // 	value: 0,
-  // },
-  // 2102004: {
-  // 	description: "Estado da Pressão do Pneu Traseiro Direito",
-  // 	unit: "-",
-  // 	value: 0,
-  // },
-  // 2102003: {
-  // 	description: "Estado da Pressão do Pneu Traseiro Esquerdo",
-  // 	unit: "-",
-  // 	value: 0,
-  // },
-  // 2102008: {
-  // 	description: "Estado da Temperatura do Pneu Dianteiro Direito",
-  // 	unit: "-",
-  // 	value: 0,
-  // },
-  // 2102007: {
-  // 	description: "Estado da Temperatura do Pneu Dianteiro Esquerdo",
-  // 	unit: "-",
-  // 	value: 0,
-  // },
-  // 2102010: {
-  // 	description: "Estado da Temperatura do Pneu Traseiro Direito",
-  // 	unit: "-",
-  // 	value: 0,
-  // },
-  // 2102009: {
-  // 	description: "Estado da Temperatura do Pneu Traseiro Esquerdo",
-  // 	unit: "-",
-  // 	value: 0,
-  // },
-  // 2210010: {
-  // 	description: "Estado de Aprendizado do Vidro Dianteiro Direito",
-  // 	unit: "-",
-  // 	value: 11,
-  // },
-  // 2210011: {
-  // 	description: "Estado de Aprendizado do Vidro Dianteiro Esquerdo",
-  // 	unit: "-",
-  // 	value: 11,
-  // },
-  // 2210012: {
-  // 	description: "Estado de Aprendizado do Vidro Traseiro Direito",
-  // 	unit: "-",
-  // 	value: 11,
-  // },
-  // 2210013: {
-  // 	description: "Estado de Aprendizado do Vidro Traseiro Esquerdo",
-  // 	unit: "-",
-  // 	value: 11,
-  // },
   // 2222001: {
   // 	description: "Estado do Desembaçador Dianteiro (Não Funcionando)",
   // 	unit: "null",
@@ -245,11 +238,6 @@ const attributeTopics = {
   // },
   // 2210032: {
   // 	description: "Estado do Desembaçador Traseiro (Não Funcionando)",
-  // 	unit: "null",
-  // 	value: 0,
-  // },
-  // 2202099: {
-  // 	description: "Estado do Purificador de Ar (Não Funcionando)",
   // 	unit: "null",
   // 	value: 0,
   // },
@@ -269,9 +257,19 @@ const attributeTopics = {
   // 	value: 0,
   // },
   // 2011002: {
-  // 	description: "Desconhecido_Nao_Funcionando",
+  // 	description: "Desconhecido_Nao_Funcionando_2011002",
   // 	unit: "Km",
   // 	device_class: "distance",
+  // },
+  // 2202099: {
+  // 	description: "Desconhecido_2202099",
+  // 	unit: "-",
+  // 	device_class: "None",
+  // },
+  // 4105008: {
+  // 	description: "Desconhecido_4105008",
+  // 	unit: "-",
+  // 	device_class: "None",
   // },
 //};
 
