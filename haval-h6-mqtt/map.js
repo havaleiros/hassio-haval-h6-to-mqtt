@@ -159,7 +159,7 @@ const attributeTopics = {
   	value: 0,
   },
   2310001: {
-  	description: "Autorização do GPS (1: Autorizado 0: Não Autorizado)",
+  	description: "Autorização do GPS", //(1: Autorizado 0: Não Autorizado)
   	unit: "null",
   	value: 1,
   },
