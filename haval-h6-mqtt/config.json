@@ -1,6 +1,6 @@
 {
   "name": "GWM Brasil Haval H6 com MQTT",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "slug": "hassio_haval_h6_to_mqtt",
   "description": "Integração do GWM Haval H6 com o Home Assistant usando MQTT. Esta integração não é aplicável aos modelos Ora.",
   "init": false,

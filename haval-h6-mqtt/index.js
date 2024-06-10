@@ -114,7 +114,7 @@ if (fs.existsSync("./certs/gwm_root.cer!")) {
 
 validationSchema.validate(process.env)
   .then(() => {
-    console.info('Check MQTT Parameters')
+    console.info('Check MQTT parameters')
     return checkConnection();
   })
   .then(() => {
@@ -163,7 +163,7 @@ const updateState = () => getCarInfo()
           }
           
           if (attributeTopics.hasOwnProperty(code)) {
-            attributes[slugify(attributeTopics[code].description.toLowerCase(), "_")] = value;
+            attributes[slugify(attributeTopics[code].description.toLowerCase(), "_")] = String(value);
           }
         });    
         attributes['image'] = storage.getItem('image');
