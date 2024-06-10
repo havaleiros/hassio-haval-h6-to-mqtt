@@ -7,6 +7,7 @@ export VIN=$(bashio::config 'haval_vin')
 export MQTT_HOST=$(bashio::config 'mqtt_server')
 export MQTT_USER=$(bashio::config 'mqtt_user')
 export MQTT_PASS=$(bashio::config 'mqtt_pass')
+export PRESSURE_UNIT=$(bashio::config 'pressure_unit')
 bashio::log.info "Username: ${USERNAME}."
 bashio::log.info "VIN: ${VIN}."
 

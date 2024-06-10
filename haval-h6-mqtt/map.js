@@ -1,7 +1,7 @@
-const configTopics = {
+const sensorTopics = {
   2103010: {
     description: "Quilometragem Total",
-    unit: "Km",
+    unit: "km",
     device_class: "distance",
   },
   2013021: {
@@ -21,22 +21,22 @@ const configTopics = {
   },
   2101002: {
     description: "Pressão do Pneu Dianteiro Direito",
-    unit: "PSI",
+    unit: "kPa",
     device_class: "pressure",
   },
   2101001: {
     description: "Pressão do Pneu Dianteiro Esquerdo",
-    unit: "PSI",
+    unit: "kPa",
     device_class: "pressure",
   },
   2101004: {
     description: "Pressão do Pneu Traseiro Direito",
-    unit: "PSI",
+    unit: "kPa",
     device_class: "pressure",
   },
   2101003: {
     description: "Pressão do Pneu Traseiro Esquerdo",
-    unit: "PSI",
+    unit: "kPa",
     device_class: "pressure",
   },
   2101006: {
@@ -82,91 +82,97 @@ const configTopics = {
   	unit: '%',
     device_class: "battery"
   },
-  // 2208001: {
-  // 	description: "Estado da Trava (1: Destravar 0: Travar)",
-  // 	unit: "-",
-  // 	value: 0,
-  // },
-  // 2202001: {
-  // 	description: "Estado do Ar Condicionado (1: Ligado 0: Desligado)",
-  // 	unit: "null",
-  // 	value: 0,
-  // },
-  // 2078020: {
-  // 	description: "Filtragem do Ar do Cockpit (1: Ligado 0: Desligado)",
-  // 	unit: "null",
-  // 	value: 0,
-  // },
-  // 2206002: {
-  // 	description: "Estado da Porta Dianteira Direita (1: Aberta 0: Fechada)",
-  // 	unit: "-",
-  // 	value: 0,
-  // },
-  // 2206004: {
-  // 	description: "Estado da Porta Dianteira Esquerda (1: Aberta 0: Fechada)",
-  // 	unit: "-",
-  // 	value: 0,
-  // },
-  // 2206003: {
-  // 	description: "Estado da Porta Traseira Direita (1: Aberta 0: Fechada)",
-  // 	unit: "-",
-  // 	value: 0,
-  // },
-  // 2206005: {
-  // 	description: "Estado da Porta Traseira Esquerda (1: Aberta 0: Fechada)",
-  // 	unit: "-",
-  // 	value: 0,
-  // },
-  // 2206001: {
-  // 	description: "Estado do Porta-Malas (1: Aberto 0: Fechado)",
-  // 	unit: "-",
-  // 	value: 0,
-  // },
-  // 2210001: {
-  // 	description: "Posição do Vidro Dianteiro Direito (1: Fechado 0: Aberto)",
-  // 	unit: "-",
-  // 	value: 1,
-  // },
-  // 2210002: {
-  // 	description: "Posição do Vidro Dianteiro Esquerdo (1: Fechado 0: Aberto)",
-  // 	unit: "-",
-  // 	value: 1,
-  // },
-  // 2210003: {
-  // 	description: "Posição do Vidro Traseiro Direito (1: Fechado 0: Aberto)",
-  // 	unit: "-",
-  // 	value: 1,
-  // },
-  // 2210004: {
-  // 	description: "Posição do Vidro Traseiro Esquerdo (1: Fechado 0: Aberto)",
-  // 	unit: "-",
-  // 	value: 1,
-  // },
-  // 2210005: {
-  // 	description: "Posição do Teto Solar (6: Aberto 3: Fechado)",
-  // 	unit: "-",
-  // 	value: 1,
-  // },
-  // 2042082: {
-  // 	description: "Estado do Controle de Carga (1: Conectado 0: Desconectado)",
-  // 	unit: "null",
-  // 	value: 0,
-  // },
-  // 2204007: {
-  // 	description: "Estado do Farol (1: Ligado 0: Desligado)",
-  // 	unit: "-",
-  // 	value: 0,
-  // },
-  // 2204010: {
-  // 	description: "Sinal de Setas Direita (1: Ligado 0: Desligado)",
-  // 	unit: "-",
-  // 	value: 0,
-  // },
-  // 2204009: {
-  // 	description: "Sinal de Setas Esquerda (1: Ligado 0: Desligado)",
-  // 	unit: "-",
-  // 	value: 0,
-  // },
+};
+
+const attributeTopics = {
+  2202001: {
+  	description: "Estado do Ar Condicionado", //(1: Ligado 0: Desligado)
+  	unit: "null",
+  	value: 0,
+  },
+  2078020: {
+  	description: "Filtragem do Ar do Cockpit", //(1: Ligado 0: Desligado)
+  	unit: "null",
+  	value: 0,
+  },
+  2208001: {
+  	description: "Estado da Trava", //(1: Destravar 0: Travar)
+  	unit: "-",
+  	value: 0,
+  },
+  2206001: {
+  	description: "Estado do Porta-Malas", //(1: Aberto 0: Fechado)
+  	unit: "-",
+  	value: 0,
+  },
+  2210005: {
+  	description: "Posição do Teto Solar", //(6: Aberto 3: Fechado)
+  	unit: "-",
+  	value: 1,
+  },
+  2206002: {
+  	description: "Estado da Porta Dianteira Direita", //(1: Aberta 0: Fechada)
+  	unit: "-",
+  	value: 0,
+  },
+  2206004: {
+  	description: "Estado da Porta Dianteira Esquerda", //(1: Aberta 0: Fechada)
+  	unit: "-",
+  	value: 0,
+  },
+  2206003: {
+  	description: "Estado da Porta Traseira Direita", //(1: Aberta 0: Fechada)
+  	unit: "-",
+  	value: 0,
+  },
+  2206005: {
+  	description: "Estado da Porta Traseira Esquerda", //(1: Aberta 0: Fechada)
+  	unit: "-",
+  	value: 0,
+  },
+  2210001: {
+  	description: "Posição do Vidro Dianteiro Esquerdo", //(1: Fechado 0: Aberto)
+  	unit: "-",
+  	value: 1,
+  },
+  2210002: {
+  	description: "Posição do Vidro Dianteiro Direito", //(1: Fechado 0: Aberto)
+  	unit: "-",
+  	value: 1,
+  },
+  2210003: {
+  	description: "Posição do Vidro Traseiro Esquerdo", //(1: Fechado 0: Aberto)
+  	unit: "-",
+  	value: 1,
+  },
+  2210004: {
+  	description: "Posição do Vidro Traseiro Direito", //(1: Fechado 0: Aberto)
+  	unit: "-",
+  	value: 1,
+  },
+  2042082: {
+  	description: "Estado do Controle de Carga", //(1: Conectado 0: Desconectado)
+  	unit: "null",
+  	value: 0,
+  },
+  2204007: {
+  	description: "Estado do Farol", //(1: Ligado 0: Desligado)
+  	unit: "-",
+  	value: 0,
+  },
+  2204010: {
+  	description: "Sinal de Setas Direita", //(1: Ligado 0: Desligado)
+  	unit: "-",
+  	value: 0,
+  },
+  2204009: {
+  	description: "Sinal de Setas Esquerda", //(1: Ligado 0: Desligado)
+  	unit: "-",
+  	value: 0,
+  },
+};
+
+//const notUsedTopics = {
   // 2310001: {
   // 	description: "Autorização do GPS (1: Autorizado 0: Não Autorizado)",
   // 	unit: "null",
@@ -215,22 +221,22 @@ const configTopics = {
   // 2210010: {
   // 	description: "Estado de Aprendizado do Vidro Dianteiro Direito",
   // 	unit: "-",
-  // 	value: 1,
+  // 	value: 11,
   // },
   // 2210011: {
   // 	description: "Estado de Aprendizado do Vidro Dianteiro Esquerdo",
   // 	unit: "-",
-  // 	value: 1,
+  // 	value: 11,
   // },
   // 2210012: {
   // 	description: "Estado de Aprendizado do Vidro Traseiro Direito",
   // 	unit: "-",
-  // 	value: 1,
+  // 	value: 11,
   // },
   // 2210013: {
   // 	description: "Estado de Aprendizado do Vidro Traseiro Esquerdo",
   // 	unit: "-",
-  // 	value: 1,
+  // 	value: 11,
   // },
   // 2222001: {
   // 	description: "Estado do Desembaçador Dianteiro (Não Funcionando)",
@@ -267,8 +273,9 @@ const configTopics = {
   // 	unit: "Km",
   // 	device_class: "distance",
   // },
-};
+//};
 
 module.exports = {
-  configTopics,
+  sensorTopics,
+  attributeTopics,
 };

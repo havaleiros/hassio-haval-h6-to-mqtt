@@ -1,16 +1,17 @@
 {
-  "name": "Haval H6 to MQTT",
-  "version": "0.0.6",
+  "name": "GWM Brasil Haval H6 com MQTT",
+  "version": "0.0.7",
   "slug": "hassio_haval_h6_to_mqtt",
   "description": "Haval H6 to MQTT",
   "init": false,
   "arch": ["armhf", "armv7", "aarch64", "amd64", "i386"],
-  "url": "https://github.com/paulovitin/hassio-haval-h6-mqtt",
+  "url": "https://github.com/havaleiros/hassio-haval-h6-to-mqtt",
   "map": ["config:rw"],
   "options": {
     "data_path": "/config/haval_h6_mqtt",
     "refresh_minutes": 5,
-    "mqtt_server": "mqtt://homeassistant.local:1883"
+    "mqtt_server": "mqtt://homeassistant.local:1883",
+    "pressure_unit": "psi"
   },
   "schema": {
     "data_path": "str",
@@ -20,6 +21,7 @@
     "mqtt_server": "str?",
     "mqtt_user": "str",
     "mqtt_pass": "password?",
-    "refresh_minutes": "int"
+    "refresh_minutes": "int",
+    "pressure_unit": "list(kPa|psi)"
   }
 }

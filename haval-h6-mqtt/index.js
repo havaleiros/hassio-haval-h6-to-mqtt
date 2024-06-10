@@ -3,14 +3,14 @@ const axios = require("./axios");
 const fs = require("fs");
 
 const storage = require("./storage");
-const { configTopics } = require("./map");
-const { register, sendMessage, checkConnection } = require("./mqtt");
+const { sensorTopics, attributeTopics } = require("./map");
+const { register, sendMessage, checkConnection, registerDeviceTracker, sendDeviceTrackerUpdate } = require("./mqtt");
 const validationSchema = require('./schema')
 const { isTokenExpired } = require('./utils')
 
 require("dotenv").config();
 
-const { USERNAME, PASSWORD, TIME_REFRESH } = process.env;
+const { USERNAME, PASSWORD, PRESSURE_UNIT, TIME_REFRESH } = process.env;
 
 const deviceid = storage.getItem("deviceid")
   ? storage.getItem("deviceid")
@@ -63,8 +63,8 @@ const auth = async () => {
 
     throw data;
   } catch (err) {
-    console.error("Auth error", err);
-    return err;
+    console.error("Authentication error", err);
+    process.exit(0);
   }
 };
 
@@ -72,7 +72,7 @@ const getCarInfo = async () => {
   try {
     await auth();
     const { data } = await axios.getCarInfo("vehicle/getLastStatus");
-    return data.data.items;
+    return data.data;
   } catch (e) {
     console.error(e);
   }
@@ -90,60 +90,95 @@ const getCarData = async () => {
 
 const registerEntities = async () => {
   console.info("Registering entities");
-  Object.keys(configTopics).forEach((code) => {
-    const { description, unit, device_class } = configTopics[code];
+  Object.keys(sensorTopics).forEach((code) => {
+    var { description, unit, device_class } = sensorTopics[code];
+    if (device_class === "pressure" && PRESSURE_UNIT === "psi") {
+      unit = "psi";
+    }
     register(code, description, unit, device_class);
   });
-
-  register('image', 'Imagem do Veículo');
-  register('model', 'Modelo do Veículo');
-  register('color', 'Cor do Veículo');
 }
 
 console.info("Flight check:");
 if (fs.existsSync("./certs/gwm_general.cer")) {
-  console.info("gwm general cert exists!");
+  console.info("GWM general cert exists!");
 }
 
 if (fs.existsSync("./certs/gwm_general.key")) {
-  console.info("gwm general key exists!");
+  console.info("GWM general key exists!");
 }
 
 if (fs.existsSync("./certs/gwm_root.cer!")) {
-  console.info("gwm root exists");
+  console.info("GWM root exists");
 }
 
 validationSchema.validate(process.env)
   .then(() => {
-    console.info('Parameters valid!')
+    console.info('Check MQTT Parameters')
     return checkConnection();
   })
   .then(() => {
-    console.info('MQTT Connected!')
     registerEntities();
+    console.info('Register MQTT entities')
   })
   .then(() => {
-    console.info("Login works!");
+    console.info("Retrieving car data");
     return getCarData();
   })
   .then((data) => {
-    sendMessage('image', data.minImageUrl);
-    sendMessage('model', `${data.appShowSeriesName} ${data.powerType}`);
-    sendMessage('color', data.color);
-    console.info('Car Connected!')
+    console.info('Car connected')
+    
+    storage.setItem('image', data.staticImageUrl);
+    storage.setItem('model', `${data.appShowSeriesName} ${data.powerType}`);
+    storage.setItem('color', data.color);
+    storage.setItem('simIccid', data.simIccid);
+    storage.setItem('imsi', data.imsi);    
+
+    registerDeviceTracker();
+    console.info('Device tracker registered')
+  })
+  .then(() => {
+    console.info('***STARTUP PROCESS FINISHED***')
+    console.info('Waiting for the first state update cycle...')
+
   })
   .catch((e) => {
     console.error(e);
     process.exit(0);
   });
 
-const updateState = () => auth()
-  .then(() => getCarInfo())
+const updateState = () => getCarInfo()
   .then((data) => {
-    console.info("Update entities state!");
-    data.forEach(({ code, value }) => {
-      sendMessage(code, value);
-    });
+    const attributes = {};
+    var slugify = require("slugify");
+
+    console.info("Update entities state and attributes");
+    try{
+        data.items.forEach(({ code, value }) => {      
+          if (sensorTopics.hasOwnProperty(code)) {
+            if (sensorTopics[code].device_class === "pressure" && PRESSURE_UNIT === "psi") {
+              value = Math.round(value * 0.1450377);
+            }
+            sendMessage(code, value);
+          }
+          
+          if (attributeTopics.hasOwnProperty(code)) {
+            attributes[slugify(attributeTopics[code].description.toLowerCase(), "_")] = value;
+          }
+        });    
+        attributes['image'] = storage.getItem('image');
+        attributes['model'] = storage.getItem('model');
+        attributes['color'] = storage.getItem('color');
+        attributes['simIccid'] = storage.getItem('simIccid');
+        attributes['imsi'] = storage.getItem('imsi');
+        attributes['icon'] = "mdi:car-electric-outline";
+
+        sendDeviceTrackerUpdate(String(data.latitude), String(data.longitude), attributes);
+        console.info('Update device tracker')
+    } catch (e) {
+      console.error(e);
+      process.exit(0);
+    }
   });
 
 setInterval(async () => updateState(), (TIME_REFRESH || 1) * 60000);
