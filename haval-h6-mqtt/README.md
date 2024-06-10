@@ -4,6 +4,8 @@
 
 Este add-on permite a integração do Home Assistant com o veículo GWM **Brasil** Haval H6 utilizando MQTT. Com essa integração, é possível monitorar e controlar várias funcionalidades do veículo diretamente pelo Home Assistant.
 
+[![Add Add-on to Home Assistant](https://my.home-assistant.io/badges/supervisor_add_addon_repository.svg)](https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2Fhavaleiros%2Fhassio-haval-h6-to-mqtt)
+
 ### Passo a Passo para adicionar o add-on ao Home Assistant
 
 #### 1. Adicionando o Repositório do Add-on
