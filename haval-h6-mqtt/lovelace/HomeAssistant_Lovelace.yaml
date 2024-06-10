@@ -1,0 +1,364 @@
+type: vertical-stack
+cards:
+  - type: custom:button-card
+    name: ' '
+    entity_picture: >
+      [[[ return
+      states['device_tracker.haval_{chassis}'].attributes.image ]]]
+    size: 400px
+    show_entity_picture: true
+    tap_action:
+      action: none
+    hold_action:
+      action: none
+    card_mod:
+      style: |
+        ha-card {
+          background: rgba(0,0,0,0.0);
+          border: 0px;
+          box-shadow: 0px 0px rgba(0,0,0,0);
+        }
+  - type: custom:mushroom-title-card
+    title: '{{ state_attr("device_tracker.haval_{chassis}", "model") }}'
+    subtitle: '{{ state_attr("device_tracker.haval_{chassis}", "color") }}'
+    title_tap_action:
+      action: none
+    subtitle_tap_action:
+      action: none
+    card_mod:
+      style: |
+        ha-card {
+          text-align: center;
+        }
+  - type: horizontal-stack
+    cards:
+      - type: custom:bar-card
+        title: Bateria
+        positions:
+          icon: 'off'
+          name: 'off'
+        tap_action:
+          action: none
+        hold_action:
+          action: none
+        min: 0
+        max: 100
+        severity:
+          - value: 0
+            color: '#540000'
+          - value: 50
+            color: '#ffa200'
+          - value: 100
+            color: '#009c72'
+        entities:
+          - entity: sensor.haval_{chassis}_estado_de_carga_soc
+      - type: custom:bar-card
+        title: Combustível
+        positions:
+          icon: 'off'
+          name: 'off'
+        tap_action:
+          action: none
+        hold_action:
+          action: none
+        min: 0
+        max: 60
+        severity:
+          - value: 0
+            color: '#540000'
+          - value: 30
+            color: '#ffa200'
+          - value: 60
+            color: '#009c72'
+        entities:
+          - entity: sensor.haval_{chassis}_nivel_de_combustivel
+  - type: horizontal-stack
+    cards:
+      - type: entities
+        entities:
+          - entity: sensor.haval_{chassis}_autonomia_combustao
+          - entity: sensor.haval_{chassis}_nivel_de_combustivel
+          - entity: sensor.haval_{chassis}_autonomia_hev
+          - entity: sensor.haval_{chassis}_estado_de_carga_soc
+          - entity: sensor.haval_{chassis}_quilometragem_total
+          - type: custom:template-entity-row
+            entity: device_tracker.haval_{chassis}
+            name: Ar Condicionado
+            icon: mdi:air-conditioner
+            state: >
+              {% if state_attr('device_tracker.haval_{chassis}',
+              'estado_do_ar_condicionado') == '0' %}
+                Desligado
+              {% elif state_attr('device_tracker.haval_{chassis}',
+              'estado_do_ar_condicionado') == '1' %}
+                Ligado
+              {% else %}
+                Desconhecido
+              {% endif %}   
+          - entity: sensor.haval_{chassis}_estado_de_carga_12v
+            secondary_info: last-updated
+          - type: custom:template-entity-row
+            entity: sensor.haval_{chassis}_estado_da_carga
+            name: Estado de carregamento
+            icon: mdi:power-plug-battery
+            state: >
+              {% if states('sensor.haval_{chassis}_estado_da_carga') ==
+              '0' %}
+                Desconectado
+              {% elif states('sensor.haval_{chassis}_estado_da_carga')
+              == '1' %}
+                Carregando
+              {% elif states('sensor.haval_{chassis}_estado_da_carga')
+              == '3' %}
+                Finalizado
+              {% elif states('sensor.haval_{chassis}_estado_da_carga')
+              == '5' %}
+                Aguardando liberação
+              {% else %}
+                Desconhecido
+              {% endif %} 
+          - entity: sensor.haval_{chassis}_tempo_de_carga
+            card_mod:
+              style: |
+                :host {
+                  display: {% if is_state('sensor.haval_{chassis}_estado_da_carga','1') %} block {% else %} none {% endif %};
+                }
+      - type: entities
+        entities:
+          - entity: sensor.haval_{chassis}_pressao_do_pneu_dianteiro_direito
+          - entity: sensor.haval_{chassis}_pressao_do_pneu_dianteiro_esquerdo
+          - entity: sensor.haval_{chassis}_pressao_do_pneu_traseiro_direito
+          - entity: sensor.haval_{chassis}_pressao_do_pneu_traseiro_esquerdo
+          - entity: >-
+              sensor.haval_{chassis}_temperatura_do_pneu_dianteiro_direito
+          - entity: >-
+              sensor.haval_{chassis}_temperatura_do_pneu_dianteiro_esquerdo
+          - entity: >-
+              sensor.haval_{chassis}_temperatura_do_pneu_traseiro_direito
+          - entity: >-
+              sensor.haval_{chassis}_temperatura_do_pneu_traseiro_esquerdo
+  - type: map
+    entities:
+      - entity: device_tracker.haval_{chassis}
+    theme_mode: dark
+    default_zoom: 16
+    hours_to_show: 24
+    auto_fit: true
+    aspect_ratio: '16:9'
+    card_mod:
+      style: |
+        ha-card {
+          pointer-events: none;
+        }
+  - type: horizontal-stack
+    cards:
+      - type: custom:config-template-card
+        entities:
+          - device_tracker.haval_{chassis}
+        card:
+          type: entities
+          title: Vidros
+          entities:
+            - type: custom:template-entity-row
+              entity: device_tracker.haval_{chassis}
+              name: Dianteiro direito
+              icon: mdi:car-windshield-outline
+              state: >
+                {% if state_attr('device_tracker.haval_{chassis}',
+                'posicao_do_vidro_dianteiro_direito') == '1' %}
+                  Fechado
+                {% elif state_attr('device_tracker.haval_{chassis}',
+                'posicao_do_vidro_dianteiro_direito') == '2' %}
+                  Aberto
+                {% elif state_attr('device_tracker.haval_{chassis}',
+                'posicao_do_vidro_dianteiro_direito') == '3' %}
+                  Entreaberto
+                {% else %}
+                  Desconhecido
+                {% endif %}
+            - type: custom:template-entity-row
+              entity: device_tracker.haval_{chassis}
+              name: Dianteiro esquerdo
+              icon: mdi:car-windshield-outline
+              state: >
+                {% if state_attr('device_tracker.haval_{chassis}',
+                'posicao_do_vidro_dianteiro_esquerdo') == '1' %}
+                  Fechado
+                {% elif state_attr('device_tracker.haval_{chassis}',
+                'posicao_do_vidro_dianteiro_esquerdo') == '2' %}
+                  Aberto
+                {% elif state_attr('device_tracker.haval_{chassis}',
+                'posicao_do_vidro_dianteiro_esquerdo') == '3' %}
+                  Entreaberto
+                {% else %}
+                  Desconhecido
+                {% endif %}
+            - type: custom:template-entity-row
+              entity: device_tracker.haval_{chassis}
+              name: Traseiro Direito
+              icon: mdi:car-windshield-outline
+              state: >
+                {% if state_attr('device_tracker.haval_{chassis}',
+                'posicao_do_vidro_traseiro_direito') == '1' %}
+                  Fechado
+                {% elif state_attr('device_tracker.haval_{chassis}',
+                'posicao_do_vidro_traseiro_direito') == '2' %}
+                  Aberto
+                {% elif state_attr('device_tracker.haval_{chassis}',
+                'posicao_do_vidro_traseiro_direito') == '3' %}
+                  Entreaberto
+                {% else %}
+                  Desconhecido
+                {% endif %}
+            - type: custom:template-entity-row
+              entity: device_tracker.haval_{chassis}
+              name: Traseiro Esquerdo
+              icon: mdi:car-windshield-outline
+              state: >
+                {% if state_attr('device_tracker.haval_{chassis}',
+                'posicao_do_vidro_traseiro_esquerdo') == '1' %}
+                  Fechado
+                {% elif state_attr('device_tracker.haval_{chassis}',
+                'posicao_do_vidro_traseiro_esquerdo') == '2' %}
+                  Aberto
+                {% elif state_attr('device_tracker.haval_{chassis}',
+                'posicao_do_vidro_traseiro_esquerdo') == '3' %}
+                  Entreaberto
+                {% else %}
+                  Desconhecido
+                {% endif %}
+            - type: custom:template-entity-row
+              entity: device_tracker.haval_{chassis}
+              name: Teto Solar
+              icon: mdi:car-windshield-outline
+              state: >
+                {% if state_attr('device_tracker.haval_{chassis}',
+                'posicao_do_teto_solar') == '3' %}
+                  Fechado
+                {% else %}
+                  Aberto
+                {% endif %}  
+            - type: custom:bar-card
+              entity: device_tracker.haval_{chassis}
+              attribute: posicao_do_teto_solar
+              name: Teto Solar
+              tap_action:
+                action: none
+              hold_action:
+                action: none
+              min: 0
+              max: 100
+              unit_of_measurement: '%'
+              severity:
+                - value: 0
+                  color: '#009c72'
+                - value: 50
+                  color: '#ffa200'
+                - value: 100
+                  color: '#540000'
+              card_mod:
+                style: |
+                  :host {
+                    display: {% if state_attr('device_tracker.haval_lgwffua54rh918852', 'posicao_do_teto_solar') == '3' %} none {% elif state_attr('device_tracker.haval_lgwffua54rh918852', 'posicao_do_teto_solar') is none %} none {% else %} block {% endif %};
+                  }
+
+      - type: custom:config-template-card
+        entities:
+          - device_tracker.haval_{chassis}
+        card:
+          type: entities
+          title: Portas
+          entities:
+            - type: custom:template-entity-row
+              entity: device_tracker.haval_{chassis}
+              name: Trava
+              icon: >
+                {% if state_attr('device_tracker.haval_{chassis}',
+                'estado_da_trava') == '0' %}
+                  mdi:car-door-lock
+                {% elif state_attr('device_tracker.haval_{chassis}',
+                'estado_da_trava') == '1' %}
+                  mdi:car-door-lock-open
+                {% else %}
+                  mdi:cloud-question
+                {% endif %}
+              state: >
+                {% if state_attr('device_tracker.haval_{chassis}',
+                'estado_da_trava') == '0' %}
+                  Fechado
+                {% elif state_attr('device_tracker.haval_{chassis}',
+                'estado_da_trava') == '1' %}
+                  Aberto
+                {% else %}
+                  Desconhecido
+                {% endif %}
+            - type: custom:template-entity-row
+              entity: device_tracker.haval_{chassis}
+              name: Porta malas
+              icon: mdi:car-door
+              state: >
+                {% if state_attr('device_tracker.haval_{chassis}',
+                'estado_do_porta-malas') == '0' %}
+                  Fechado
+                {% elif state_attr('device_tracker.haval_{chassis}',
+                'estado_do_porta-malas') == '1' %}
+                  Aberto
+                {% else %}
+                  Desconhecido
+                {% endif %}    
+            - type: custom:template-entity-row
+              entity: device_tracker.haval_{chassis}
+              name: Dianteira direita
+              icon: mdi:car-door
+              state: >
+                {% if state_attr('device_tracker.haval_{chassis}',
+                'estado_da_porta_dianteira_direita') == '0' %}
+                  Fechada
+                {% elif state_attr('device_tracker.haval_{chassis}',
+                'estado_da_porta_dianteira_direita') == '1' %}
+                  Aberta
+                {% else %}
+                  Desconhecido
+                {% endif %}
+            - type: custom:template-entity-row
+              entity: device_tracker.haval_{chassis}
+              name: Dianteiro esquerdo
+              icon: mdi:car-door
+              state: >
+                {% if state_attr('device_tracker.haval_{chassis}',
+                'estado_da_porta_dianteira_esquerda') == '0' %}
+                  Fechada
+                {% elif state_attr('device_tracker.haval_{chassis}',
+                'estado_da_porta_dianteira_esquerda') == '1' %}
+                  Aberta
+                {% else %}
+                  Desconhecido
+                {% endif %}
+            - type: custom:template-entity-row
+              entity: device_tracker.haval_{chassis}
+              name: Traseira Direita
+              icon: mdi:car-door
+              state: >
+                {% if state_attr('device_tracker.haval_{chassis}',
+                'estado_da_porta_traseira_direita') == '0' %}
+                  Fechada
+                {% elif state_attr('device_tracker.haval_{chassis}',
+                'estado_da_porta_traseira_direita') == '1' %}
+                  Aberta
+                {% else %}
+                  Desconhecido
+                {% endif %}
+            - type: custom:template-entity-row
+              entity: device_tracker.haval_{chassis}
+              name: Traseira Esquerda
+              icon: mdi:car-door
+              state: >
+                {% if state_attr('device_tracker.haval_{chassis}',
+                'estado_da_porta_traseira_esquerda') == '0' %}
+                  Fechada
+                {% elif state_attr('device_tracker.haval_{chassis}',
+                'estado_da_porta_traseira_esquerda') == '1' %}
+                  Aberta
+                {% else %}
+                  Desconhecido
+                {% endif %}
