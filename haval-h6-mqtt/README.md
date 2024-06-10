@@ -54,6 +54,8 @@ Agora, você deve ser capaz de monitorar o seu veículo diretamente pelo painel 
 [YAML de painel no Home Assistant](https://github.com/carvalr/hassio-haval-h6-to-mqtt/blob/main/haval-h6-mqtt/lovelace/HomeAssistant_Lovelace.yaml)
 ![Exemplo de painel no Home Assistant](https://raw.githubusercontent.com/carvalr/hassio-haval-h6-to-mqtt/main/haval-h6-mqtt/images/HomeAssistant_Example.png)
 
+Nota: Caso o campo `mqtt_pass` não esteja disponível na tela, ative a opção _Mostrar opções de configuração opcionais não utilizadas_.
+
 ## Suporte
 Para dúvidas, problemas ou sugestões, abra uma issue.
 
