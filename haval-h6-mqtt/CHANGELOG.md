@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.0.9
+- Bugfix: Fix unhandled number value from API when creating device tracker attributes
+- Fixes in the map.js file
+
 ## 0.0.8
 - Attributes related to Aircon, doors and window position moved from device tracker attributes to standalone sensors.
 - Updated README to add the information about hidden MQTT password setting.
