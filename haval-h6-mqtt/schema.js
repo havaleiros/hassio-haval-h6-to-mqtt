@@ -5,6 +5,7 @@ module.exports = yup.object({
   MQTT_PASS: yup.string(),
   MQTT_USER: yup.string().required(),
   VIN: yup.string().required(),
-  USERNAME: yup.string().required('Username from Haval APP'),
-  PASSWORD: yup.string().required('Password from Haval APP')
+  USERNAME: yup.string().required('Username from myGWM app'),
+  PASSWORD: yup.string().required('Password from myGWM app'),
+  PRESSURE_UNIT: yup.string()
 });
