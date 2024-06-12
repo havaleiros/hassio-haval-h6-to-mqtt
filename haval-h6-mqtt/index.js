@@ -4,13 +4,15 @@ const fs = require("fs");
 
 const storage = require("./storage");
 const { sensorTopics, attributeTopics } = require("./map");
-const { register, sendMessage, checkConnection, registerDeviceTracker, sendDeviceTrackerUpdate } = require("./mqtt");
+const { mqttModule, EntityType } = require('./mqttModule');
+const { checkConnection, register, sendDeviceTrackerUpdate, sendMessage } = mqttModule;
+
 const validationSchema = require('./schema')
 const { isTokenExpired } = require('./utils')
 
 require("dotenv").config();
 
-const { USERNAME, PASSWORD, PRESSURE_UNIT, TIME_REFRESH } = process.env;
+const { USERNAME, PASSWORD, PRESSURE_UNIT, TIME_REFRESH, DEVICE_TRACKER_ENABLED } = process.env;
 
 const deviceid = storage.getItem("deviceid")
   ? storage.getItem("deviceid")
@@ -91,11 +93,11 @@ const getCarData = async () => {
 const registerEntities = async () => {
   console.info("Registering entities");
   Object.keys(sensorTopics).forEach((code) => {
-    var { description, unit, device_class } = sensorTopics[code];
+    var { description, unit, device_class, entity_type } = sensorTopics[code];
     if (device_class === "pressure" && PRESSURE_UNIT === "psi") {
       unit = "psi";
     }
-    register(code, description, unit, device_class);
+    register(EntityType[entity_type.toUpperCase()], code, description, unit, device_class);
   });
 }
 
@@ -128,14 +130,45 @@ validationSchema.validate(process.env)
   .then((data) => {
     console.info('Car connected')
     
-    storage.setItem('image', data.staticImageUrl);
-    storage.setItem('model', `${data.appShowSeriesName} ${data.powerType}`);
-    storage.setItem('color', data.color);
-    storage.setItem('simIccid', data.simIccid);
-    storage.setItem('imsi', data.imsi);    
+    console.info("Registering static entities");
+    const staticEntities = {
+      image: {
+        description: "Imagem do veículo",
+        entity_type: EntityType.IMAGE,
+        value: `${data.staticImageUrl}`,
+      },
+      model: {
+        description: "Model do veículo",
+        entity_type: EntityType.SENSOR,
+        value: `${data.appShowSeriesName} ${data.powerType}`,
+      },
+      color: {
+        description: "Cor do veículo",
+        entity_type: EntityType.SENSOR,
+        value: `${data.color}`,
+      },
+      tankCapacity: {
+        description: "Capacidade do tanque",
+        entity_type: EntityType.SENSOR,
+        value: `${String(data.tankCapacity)}`,
+      },
+    }
 
-    registerDeviceTracker();
-    console.info('Device tracker registered')
+    Object.keys(staticEntities).forEach((code) => {
+      var { description, entity_type, value } = staticEntities[code];
+      register(entityType = entity_type, code = code, description = description, unit = null, device_class = "None");
+      sendMessage(code, value);
+    });
+
+
+    const isDeviceTrackerEnabled = Boolean(DEVICE_TRACKER_ENABLED === 'true');
+    if(isDeviceTrackerEnabled){
+      storage.setItem('simIccid', data.simIccid);
+      storage.setItem('imsi', data.imsi);
+
+      registerDeviceTracker();
+      console.info('Device tracker registered')
+    }
   })
   .then(() => {
     console.info('***STARTUP PROCESS FINISHED***')
@@ -165,16 +198,17 @@ const updateState = () => getCarInfo()
           if (attributeTopics.hasOwnProperty(code)) {
             attributes[slugify(attributeTopics[code].description.toLowerCase(), "_")] = String(value);
           }
-        });    
-        attributes['image'] = storage.getItem('image');
-        attributes['model'] = storage.getItem('model');
-        attributes['color'] = storage.getItem('color');
-        attributes['simIccid'] = storage.getItem('simIccid');
-        attributes['imsi'] = storage.getItem('imsi');
-        attributes['icon'] = "mdi:car-electric-outline";
+        });
 
-        sendDeviceTrackerUpdate(String(data.latitude), String(data.longitude), attributes);
-        console.info('Update device tracker')
+        const isDeviceTrackerEnabled = Boolean(DEVICE_TRACKER_ENABLED === 'true');
+        if(isDeviceTrackerEnabled){
+          attributes['simIccid'] = storage.getItem('simIccid');
+          attributes['imsi'] = storage.getItem('imsi');
+          attributes['icon'] = "mdi:car-electric-outline";
+
+          sendDeviceTrackerUpdate(String(data.latitude), String(data.longitude), attributes);
+          console.info('Update device tracker')
+        }
     } catch (e) {
       console.error(e);
       process.exit(0);
