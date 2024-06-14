@@ -7,6 +7,5 @@ module.exports = yup.object({
   VIN: yup.string().required(),
   USERNAME: yup.string().required('Username from myGWM app'),
   PASSWORD: yup.string().required('Password from myGWM app'),
-  PRESSURE_UNIT: yup.string(),
   DEVICE_TRACKER_ENABLED: yup.boolean()
 });

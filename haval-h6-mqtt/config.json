@@ -1,20 +1,18 @@
 {
   "name": "GWM Brasil Haval H6 com MQTT",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "slug": "hassio_haval_h6_to_mqtt",
-  "description": "Integração do GWM Haval H6 com o Home Assistant usando MQTT. Esta integração não é aplicável aos modelos Ora.",
+  "description": "Integração do GWM Haval H6 com o Home Assistant usando MQTT.",
   "init": false,
   "arch": ["armhf", "armv7", "aarch64", "amd64", "i386"],
   "url": "https://github.com/havaleiros/hassio-haval-h6-to-mqtt",
   "map": ["config:rw"],
   "options": {
-    "data_path": "/config/haval_h6_mqtt",
     "refresh_minutes": 5,
     "mqtt_server": "mqtt://homeassistant.local:1883",
-    "pressure_unit": "psi"
+    "device_tracker_enabled": true
   },
   "schema": {
-    "data_path": "str",
     "haval_username": "email",
     "haval_password": "password",
     "haval_vin": "str",
@@ -22,6 +20,6 @@
     "mqtt_user": "str",
     "mqtt_pass": "password?",
     "refresh_minutes": "int",
-    "pressure_unit": "list(kPa|psi)"
+    "device_tracker_enabled": "bool"
   }
 }

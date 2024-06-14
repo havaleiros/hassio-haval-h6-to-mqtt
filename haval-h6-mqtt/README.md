@@ -29,7 +29,6 @@ https://github.com/havaleiros/hassio-haval-h6-to-mqtt
 1. Após a instalação, vá até a aba **Ajustes** do add-on.
 2. Configure os parâmetros necessários como endereço do broker MQTT, credenciais, e outras opções específicas para o Haval H6.
 ```yaml
-data_path: /config/haval_h6_mqtt
 haval_username: conta_de_email_vinculada_ao_myGWM
 haval_password: senha_do_myGWM
 haval_vin: CHASSIS_DO_CARRO
@@ -37,10 +36,10 @@ mqtt_server: mqtt://homeassistant.local:1883
 mqtt_user: nome_de_usuario_do_mqtt
 mqtt_pass: senha_do_mqtt
 refresh_minutes: 5
-pressure_unit: kPa [ou] psi
+device_tracker_enabled: true [ou] false
 ```
 
-![Ajustes dos add-on](https://raw.githubusercontent.com/carvalr/hassio-haval-h6-to-mqtt/main/haval-h6-mqtt/images/addon_settings.png)
+![Ajustes dos add-on](https://raw.githubusercontent.com/havaleiros/hassio-haval-h6-to-mqtt/main/haval-h6-mqtt/images/addon_settings.png)
 
 Nota: Caso o campo `mqtt_pass` não esteja disponível na tela, ative a opção _Mostrar opções de configuração opcionais não utilizadas_.
 
@@ -55,8 +54,49 @@ Selecione Ferramentas de desenvolvedor.
 Verifique se as entidades iniciadas com *sensor.haval_* estão listados na aba Estado.
 Agora, você deve ser capaz de monitorar o seu veículo diretamente pelo painel do Home Assistant.
 
-[YAML de painel no Home Assistant](https://github.com/carvalr/hassio-haval-h6-to-mqtt/blob/main/haval-h6-mqtt/lovelace/HomeAssistant_Lovelace.yaml)
-![Exemplo de painel no Home Assistant](https://raw.githubusercontent.com/carvalr/hassio-haval-h6-to-mqtt/main/haval-h6-mqtt/images/HomeAssistant_Example.png)
+### Adicionando um Novo Dashboard no Home Assistant
+
+#### Passo a Passo
+
+1. Acesse a interface web do Home Assistant.
+2. Navegue até **Configurações** no menu lateral.
+3. Selecione **Dashboards**.
+4. Clique em **Adicionar Dashboard**.
+5. Atribua o título como `haval` e o ícone como `mdi:car-electric`. Ative a opção `Mostrar na barra lateral` e clique em _CRIAR_.
+6. Na nova linha criada com o novo dashboard, clique em _ABRIR_.
+7. No canto superior esquerdo da tela, clique em _Editar dashboard_.
+8. Clique novamente no símbolo com 3 pontos verticais e depois em _Editor de configuração RAW_.
+5. Apague o conteúdo existente que será exibido, copie o conteúdo do arquivo `HomeAssistant_Dashboard_Haval.yaml` fornecido como template e cole nesta tela. [Baixe aqui o arquivo YAML](https://github.com/havaleiros/hassio-haval-h6-to-mqtt/blob/main/haval-h6-mqtt/files/HomeAssistant_Dashboard_Haval.yaml).
+
+#### Adicionando Imagens do Veículo
+
+1. Baixe o arquivo [Baixe aqui o arquivo haval_h6.zip](https://github.com/havaleiros/hassio-haval-h6-to-mqtt/raw/main/haval-h6-mqtt/files/haval_h6.zip).
+2. Descompacte o arquivo e salve as imagens na pasta `www/images/haval_h6` do Home Assistant.
+
+O resultado esperado é que as imagens devem ficar no caminho `www/images/haval_h6/[imagem].png`
+Não salve o arquivo `haval_h6.zip` diretamente no diretório do Home Assistant, pois isto não terá efeito no uso das imagens. 
+
+#### Dica
+Recomenda-se o uso do Add-on [Samba share](https://github.com/home-assistant/addons/tree/master/samba) para acesso na pasta `www` de sua instância do Home Assistant.
+Desta forma não haverá necessidde de copiar imagem por imagem para a pasta.
+
+#### Instalando Custom Cards
+
+Para uma melhor experiência visual, é necessário instalar alguns custom cards através do HACS (Home Assistant Community Store). Siga o [guia de instalação do HACS](https://hacs.xyz/docs/setup/download) para configurá-lo no seu Home Assistant.
+
+Os seguintes custom cards são necessários:
+
+- [stack-in-card](https://github.com/custom-cards/stack-in-card)
+- [button-card](https://github.com/custom-cards/button-card)
+- [mushroom-title-card](https://github.com/piitaya/lovelace-mushroom)
+- [template-entity-row](https://github.com/thomasloven/lovelace-template-entity-row)
+
+Depois de instalar o HACS, siga as instruções específicas de cada card para adicioná-los ao seu dashboard.
+
+
+Agora, seu novo dashboard estará configurado para exibir informações detalhadas sobre o seu veículo GWM Haval H6.
+
+![Exemplo de painel no Home Assistant](https://raw.githubusercontent.com/havaleiros/hassio-haval-h6-to-mqtt/main/haval-h6-mqtt/images/HomeAssistant_Example.png)
 
 ## Suporte
 Para dúvidas, problemas ou sugestões, abra uma issue.
@@ -64,7 +104,7 @@ Para dúvidas, problemas ou sugestões, abra uma issue.
 ## Contato
 A comunidade Havaleiros está no WhatsApp. Você pode solicitar acesso enviando email para havaleiros@gmail.com ou gentefelizclube@gmail.com.
 
-![Havaleiros Brasil](https://raw.githubusercontent.com/carvalr/hassio-haval-h6-to-mqtt/main/haval-h6-mqtt/images/Havaleiros_logo_Quadrado.png)
+![Havaleiros Brasil](https://raw.githubusercontent.com/havaleiros/hassio-haval-h6-to-mqtt/main/haval-h6-mqtt/images/Havaleiros_logo_Quadrado.png)
 
 ## Contribuições
 Contribuições são bem-vindas! Sinta-se à vontade para abrir pull requests ou issues no repositório do GitHub.

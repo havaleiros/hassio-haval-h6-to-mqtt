@@ -1,0 +1,72 @@
+{
+    "en": {
+      "schema": {
+        "haval_username": { 
+            "label": "myGWM App Username",
+            "help": "The email address used during registration."
+        },
+        "haval_password": { 
+            "label": "myGWM App Password"
+        },
+        "haval_vin": { 
+            "label": "Vehicle Chassis",
+            "help": "Check in the app or on the invoice."
+        },
+        "mqtt_server": { 
+            "label": "MQTT Server Address",
+            "help": "Address of your Home Assistant's MQTT server or external broker. Keep default if installed alongside Home Assistant as a service."
+        },
+        "mqtt_user": { 
+            "label": "MQTT Broker Username",
+            "help": "Username configured on your Home Assistant's MQTT server or external broker."
+        },
+        "mqtt_pass": { 
+            "label": "MQTT Broker Password",
+            "help": "Password configured on your Home Assistant's MQTT server or external broker."
+        },
+        "refresh_minutes": { 
+            "label": "Refresh Interval (minutes)",
+            "help": "Time interval for querying the API and updating data for entities created by this integration."
+        },
+        "device_tracker_enabled": { 
+            "label": "Enable Device Tracker",
+            "help": "Registers vehicle positioning with tracking based on the configured interval."
+        }
+      }
+    },
+    "pt": {
+      "schema": {
+        "haval_username": { 
+            "label": "Nome de usuário do aplicativo myGWM",
+            "help": "O endereço de e-mail utilizado no cadastro."
+        },
+        "haval_password": { 
+            "label": "Senha do aplicativo myGWM"
+        },
+        "haval_vin": { 
+            "label": "Chassis do veículo",
+            "help": "Verifique no aplicativo ou na nota fiscal."
+        },
+        "mqtt_server": { 
+            "label": "Endereço do servidor MQTT",
+            "help": "Endereço do servidor MQTT de sua instância do Home Assistant ou broker externo. Mantenha o padrão caso esteja instalado junto ao Home Assistant como um serviço."
+        },
+        "mqtt_user": { 
+            "label": "Nome de usuário do broker MQTT",
+            "help": "Usuário configurado no servidor MQTT de sua instância do Home Assistant ou broker externo."
+        },
+        "mqtt_pass": { 
+            "label": "Senha do broker MQTT",
+            "help": "Senha configurada no servidor MQTT de sua instância do Home Assistant ou broker externo."
+        },
+        "refresh_minutes": { 
+            "label": "Intervalo de Atualização (minutos)",
+            "help": "Tempo para consulta da API e atualização dos dados das entidades criadas por esta integração"
+        },
+        "device_tracker_enabled": { 
+            "label": "Ativar o device tracker",
+            "help": "Registrará o posicionamento do veículo com rastreamento com base no intervalo configurado."
+        }
+      }
+    }
+  }
