@@ -4,7 +4,7 @@ const fs = require("fs");
 
 const storage = require("./storage");
 const { sensorTopics, attributeTopics } = require("./map");
-const { mqttModule, EntityType } = require('./mqttModule');
+const { mqttModule, EntityType } = require('./mqtt');
 const { checkConnection, register, sendDeviceTrackerUpdate, sendMessage } = mqttModule;
 
 const validationSchema = require('./schema')
@@ -12,7 +12,7 @@ const { isTokenExpired } = require('./utils')
 
 require("dotenv").config();
 
-const { USERNAME, PASSWORD, PRESSURE_UNIT, TIME_REFRESH, DEVICE_TRACKER_ENABLED } = process.env;
+const { USERNAME, PASSWORD, TIME_REFRESH, DEVICE_TRACKER_ENABLED } = process.env;
 
 const deviceid = storage.getItem("deviceid")
   ? storage.getItem("deviceid")
@@ -90,29 +90,15 @@ const getCarData = async () => {
   }
 }
 
-const registerEntities = async () => {
-  console.info("Registering entities");
-  Object.keys(sensorTopics).forEach((code) => {
-    var { description, unit, device_class, entity_type } = sensorTopics[code];
-    if (device_class === "pressure" && PRESSURE_UNIT === "psi") {
-      unit = "psi";
-    }
-    register(EntityType[entity_type.toUpperCase()], code, description, unit, device_class);
-  });
-}
-
 console.info("Flight check:");
-if (fs.existsSync("./certs/gwm_general.cer")) {
-  console.info("GWM general cert exists!");
-}
+if (!fs.existsSync("./certs/gwm_general.cer"))
+  console.info("GWM general cert not found");
 
-if (fs.existsSync("./certs/gwm_general.key")) {
-  console.info("GWM general key exists!");
-}
+if (!fs.existsSync("./certs/gwm_general.key"))
+  console.info("GWM general key not found");
 
-if (fs.existsSync("./certs/gwm_root.cer!")) {
-  console.info("GWM root exists");
-}
+if (!fs.existsSync("./certs/gwm_root.cer"))
+  console.info("GWM root cert not found");
 
 validationSchema.validate(process.env)
   .then(() => {
@@ -120,43 +106,55 @@ validationSchema.validate(process.env)
     return checkConnection();
   })
   .then(() => {
-    registerEntities();
-    console.info('Register MQTT entities')
+    console.info('Retrieving car info')
+    return getCarInfo();
+  })
+  .then((data) => {
+    console.info("Registering entities");
+    data.items.forEach(({ code, value }) => {
+      if (sensorTopics.hasOwnProperty(code)) {
+        var { description, unit, device_class, entity_type, icon } = sensorTopics[code];
+        register(EntityType[entity_type.toUpperCase()], code, description, unit, device_class, icon);
+        sendMessage(code, value);
+      }
+    });  
   })
   .then(() => {
     console.info("Retrieving car data");
     return getCarData();
   })
   .then((data) => {
-    console.info('Car connected')
-    
     console.info("Registering static entities");
     const staticEntities = {
       image: {
         description: "Imagem do veículo",
-        entity_type: EntityType.IMAGE,
+        entity_type: EntityType.SENSOR,
         value: `${data.staticImageUrl}`,
+        icon: "mdi:image",
       },
       model: {
-        description: "Model do veículo",
+        description: "Modelo do veículo",
         entity_type: EntityType.SENSOR,
         value: `${data.appShowSeriesName} ${data.powerType}`,
+        icon: "mdi:car-estate",
       },
       color: {
         description: "Cor do veículo",
         entity_type: EntityType.SENSOR,
         value: `${data.color}`,
+        icon: "mdi:palette",
       },
       tankCapacity: {
         description: "Capacidade do tanque",
         entity_type: EntityType.SENSOR,
         value: `${String(data.tankCapacity)}`,
+        icon: "mdi:gas-station",
       },
     }
 
     Object.keys(staticEntities).forEach((code) => {
-      var { description, entity_type, value } = staticEntities[code];
-      register(entityType = entity_type, code = code, description = description, unit = null, device_class = "None");
+      var { description, entity_type, value, icon } = staticEntities[code];
+      register(entityType = entity_type, code = code, description = description, unit = null, device_class = "None", icon);
       sendMessage(code, value);
     });
 
@@ -166,14 +164,13 @@ validationSchema.validate(process.env)
       storage.setItem('simIccid', data.simIccid);
       storage.setItem('imsi', data.imsi);
 
-      registerDeviceTracker();
+      var desc = `${data.appShowSeriesName} ${data.powerType} - ${data.color}`;
+      register(EntityType.DEVICE_TRACKER, code = "None", description = desc, unit = null, device_class = "None");
       console.info('Device tracker registered')
     }
   })
   .then(() => {
     console.info('***STARTUP PROCESS FINISHED***')
-    console.info('Waiting for the first state update cycle...')
-
   })
   .catch((e) => {
     console.error(e);
@@ -185,14 +182,24 @@ const updateState = () => getCarInfo()
     const attributes = {};
     var slugify = require("slugify");
 
-    console.info("Update entities state and attributes");
+    function getCurrentDateTime() {
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0'); // Mês começa do zero
+        const day = String(now.getDate()).padStart(2, '0');
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        const seconds = String(now.getSeconds()).padStart(2, '0');
+
+        return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+    }
+
+    console.info(`[${getCurrentDateTime()}] - Update entities state and attributes`);
     try{
-        data.items.forEach(({ code, value }) => {      
+        data.items.forEach(({ code, value }) => {
+          var sensorValue = value;
           if (sensorTopics.hasOwnProperty(code)) {
-            if (sensorTopics[code].device_class === "pressure" && PRESSURE_UNIT === "psi") {
-              value = Math.round(value * 0.1450377);
-            }
-            sendMessage(code, value);
+            sendMessage(code, sensorValue);
           }
           
           if (attributeTopics.hasOwnProperty(code)) {
@@ -207,7 +214,7 @@ const updateState = () => getCarInfo()
           attributes['icon'] = "mdi:car-electric-outline";
 
           sendDeviceTrackerUpdate(String(data.latitude), String(data.longitude), attributes);
-          console.info('Update device tracker')
+          console.info(`[${getCurrentDateTime()}] - Update device tracker`)
         }
     } catch (e) {
       console.error(e);

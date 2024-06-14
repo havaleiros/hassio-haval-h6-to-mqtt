@@ -38,29 +38,34 @@ const mqttModule = {
       });
     });
   },
-  register(entityType, code, name, unit = null, device_class = "None", min = 0, max = 255) {
+  register(entityType, code, name, unit = null, device_class = "None", icon = null) {
     const slugName = slugify(name.toLowerCase(), "_");
-    const topic = `homeassistant/${entityType}/haval_${VIN.toLowerCase()}_${code}/config`;
+    var topic = `homeassistant/${entityType.toLowerCase()}/haval_${VIN.toLowerCase()}_${code}/config`;
 
     let payload = {
       unique_id: `haval_${VIN.toLowerCase()}_${slugName}`,
       object_id: `haval_${VIN.toLowerCase()}_${slugName}`,
-      name,
-      state_topic: `haval_${VIN.toLowerCase()}/${code}/state`
+      name      
     };
 
-    if ((entityType === EntityType.SENSOR || entityType === EntityType.BINARY_SENSOR) && device_class !== "None") {
-      payload.device_class = device_class;
+    if(entityType === EntityType.IMAGE){
+      payload.url_topic = `haval_${VIN.toLowerCase()}/${code}/state`;
+    }
+    if ((entityType === EntityType.SENSOR || entityType === EntityType.BINARY_SENSOR)) {
+      if(device_class !== "None") payload.device_class = device_class;
+      payload.state_topic = `haval_${VIN.toLowerCase()}/${code}/state`;
+
+      if(entityType === EntityType.BINARY_SENSOR){
+        payload.payload_on = "1";
+        payload.payload_off = "0";
+      }
+
+      if(icon !== null)
+        payload.icon = icon;
     }
 
     if (entityType === EntityType.SENSOR && unit !== null && !["-", " ", "_"].includes(unit)) {
       payload.unit_of_measurement = unit;
-    }
-
-    if (entityType === EntityType.INPUT_TEXT) {
-      payload.command_topic = `haval_${VIN.toLowerCase()}/${code}/set`;
-      payload.min = min;
-      payload.max = max;
     }
 
     if (entityType === EntityType.DEVICE_TRACKER) {
