@@ -162,25 +162,25 @@ const sensorTopics = {
     icon: "mdi:car-back",
   },
   2206002: {
-    description: "Porta Dianteira Direita", //(1: Aberta 0: Fechada)
-    device_class: "door",
-    entity_type: "binary_sensor",
-    icon: "mdi:car-door",
-  },
-  2206004: {
     description: "Porta Dianteira Esquerda", //(1: Aberta 0: Fechada)
     device_class: "door",
     entity_type: "binary_sensor",
     icon: "mdi:car-door",
   },
   2206003: {
-    description: "Porta Traseira Direita", //(1: Aberta 0: Fechada)
+    description: "Porta Traseira Esquerda", //(1: Aberta 0: Fechada)
+    device_class: "door",
+    entity_type: "binary_sensor",
+    icon: "mdi:car-door",
+  },
+  2206004: {
+    description: "Porta Dianteira Direita", //(1: Aberta 0: Fechada)
     device_class: "door",
     entity_type: "binary_sensor",
     icon: "mdi:car-door",
   },
   2206005: {
-    description: "Porta Traseira Esquerda", //(1: Aberta 0: Fechada)
+    description: "Porta Traseira Direita", //(1: Aberta 0: Fechada)
     device_class: "door",
     entity_type: "binary_sensor",
     icon: "mdi:car-door",

@@ -38,7 +38,18 @@ const mqttModule = {
       });
     });
   },
+  remove(entityType, code) {
+    var payload = "";
+    var topic = `homeassistant/${entityType.toLowerCase()}/haval_${VIN.toLowerCase()}_${code}/config`;
+    mqttModule.sendMqtt(topic, JSON.stringify(payload), { retain: true });
+
+    var legacyTopic = `homeassistant/sensor/haval_${VIN.toLowerCase()}_${code}/config`;
+    mqttModule.sendMqtt(legacyTopic, JSON.stringify(payload), { retain: true });
+  },
   register(entityType, code, name, unit = null, device_class = "None", icon = null) {
+    
+    mqttModule.remove(entityType, code);
+    
     const slugName = slugify(name.toLowerCase(), "_");
     var topic = `homeassistant/${entityType.toLowerCase()}/haval_${VIN.toLowerCase()}_${code}/config`;
 
