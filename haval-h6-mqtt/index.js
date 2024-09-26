@@ -4,7 +4,7 @@ const fs = require("fs");
 
 const storage = require("./storage");
 const { sensorTopics, attributeTopics } = require("./map");
-const { mqttModule, EntityType } = require('./mqtt');
+const { mqttModule, EntityType, ActionableAndLink } = require('./mqtt');
 const { checkConnection, register, sendDeviceTrackerUpdate, sendMessage } = mqttModule;
 
 const validationSchema = require('./schema')
@@ -12,7 +12,12 @@ const { isTokenExpired } = require('./utils')
 
 require("dotenv").config();
 
-const { USERNAME, PASSWORD, TIME_REFRESH, DEVICE_TRACKER_ENABLED } = process.env;
+const { USERNAME, PASSWORD, REFRESH_TIME, DEVICE_TRACKER_ENABLED } = process.env;
+
+if (REFRESH_TIME < 5) {
+  console.error("The param refresh_time cannot be lower than 5.")
+  return;
+}
 
 const deviceid = storage.getItem("deviceid")
   ? storage.getItem("deviceid")
@@ -90,15 +95,17 @@ const getCarData = async () => {
   }
 }
 
+storage.setItem('Startup', "true");
+
 console.info("Flight check:");
 if (!fs.existsSync("./certs/gwm_general.cer"))
-  console.info("GWM general cert not found");
+  console.info("¡¡¡GWM general certicate not found!!!");
 
 if (!fs.existsSync("./certs/gwm_general.key"))
-  console.info("GWM general key not found");
+  console.info("¡¡¡GWM general certificate key not found!!!");
 
 if (!fs.existsSync("./certs/gwm_root.cer"))
-  console.info("GWM root cert not found");
+  console.info("¡¡¡GWM root certificate not found!!!");
 
 validationSchema.validate(process.env)
   .then(() => {
@@ -113,11 +120,14 @@ validationSchema.validate(process.env)
     console.info("Registering entities");
     data.items.forEach(({ code, value }) => {
       if (sensorTopics.hasOwnProperty(code)) {
-        var { description, unit, device_class, entity_type, icon } = sensorTopics[code];
-        register(EntityType[entity_type.toUpperCase()], code, description, unit, device_class, icon);
+        var { description, unit, device_class, entity_type, icon, actionable } = sensorTopics[code];
+
+        register(entityType = EntityType[entity_type.toUpperCase()], code = code, name = description, unit = unit, device_class = device_class, icon = icon, actionable = actionable);
         sendMessage(code, value);
       }
-    });  
+    });
+    console.info("Activating actionables and linked entities");
+    ActionableAndLink.execute();
   })
   .then(() => {
     console.info("Retrieving car data");
@@ -154,10 +164,11 @@ validationSchema.validate(process.env)
 
     Object.keys(staticEntities).forEach((code) => {
       var { description, entity_type, value, icon } = staticEntities[code];
-      register(entityType = entity_type, code = code, description = description, unit = null, device_class = "None", icon);
+
+      register(entityType = entity_type, code = code, name = description, unit = null, device_class = null, icon = icon, actionable = null);
+        
       sendMessage(code, value);
     });
-
 
     const isDeviceTrackerEnabled = Boolean(DEVICE_TRACKER_ENABLED === 'true');
     if(isDeviceTrackerEnabled){
@@ -165,12 +176,13 @@ validationSchema.validate(process.env)
       storage.setItem('imsi', data.imsi);
 
       var desc = `${data.appShowSeriesName} ${data.powerType} - ${data.color}`;
-      register(EntityType.DEVICE_TRACKER, code = "None", description = desc, unit = null, device_class = "None");
+      register(EntityType.DEVICE_TRACKER, code = "DeviceTracker", name = desc);
       console.info('Device tracker registered')
     }
   })
   .then(() => {
     console.info('***STARTUP PROCESS FINISHED***')
+    storage.setItem('Startup', "false");
   })
   .catch((e) => {
     console.error(e);
@@ -193,8 +205,7 @@ const updateState = () => getCarInfo()
 
         return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
     }
-
-    console.info(`[${getCurrentDateTime()}] - Update entities state and attributes`);
+    
     try{
         data.items.forEach(({ code, value }) => {
           var sensorValue = value;
@@ -214,7 +225,6 @@ const updateState = () => getCarInfo()
           attributes['icon'] = "mdi:car-electric-outline";
 
           sendDeviceTrackerUpdate(String(data.latitude), String(data.longitude), attributes);
-          console.info(`[${getCurrentDateTime()}] - Update device tracker`)
         }
     } catch (e) {
       console.error(e);
@@ -222,4 +232,4 @@ const updateState = () => getCarInfo()
     }
   });
 
-setInterval(async () => updateState(), (TIME_REFRESH || 1) * 60000);
+setInterval(async () => updateState(), (REFRESH_TIME || 1) * 1000);

@@ -9,7 +9,7 @@ const sensorTopics = {
     description: "Estado de Carga (SoC)",
     unit: "%",
     device_class: "battery",
-    entity_type: "sensor",
+    entity_type: "sensor",    
   },
   2011007: {
     description: "Autonomia Combustão",
@@ -88,6 +88,7 @@ const sensorTopics = {
     unit: '%',
     device_class: "battery",
     entity_type: "sensor",
+    icon: "mdi:car-battery",
   },
   2041142: {
     description: "Estado da Carga", //(0:Desconectado 1:Carregando 3:Finalizado 5:Aguardando liberação)
@@ -142,6 +143,13 @@ const sensorTopics = {
     device_class: "cold",
     entity_type: "binary_sensor",
     icon: "mdi:air-conditioner",
+    actionable: {
+                  action: "airConditioner",
+                  description: "Ativação do ar condicionado",
+                  entity_type: "button",
+                  icon: "mdi:gesture-tap-button",
+                  link_type: "press", //(sync: sincroniza os status, toggle: invertido, press: acionamento sem sincronização)
+                }
   },
   2202099: {
     description: "Estado do Purificador de Ar",
@@ -305,11 +313,6 @@ const attributeTopics = {
   // 	description: "Desconhecido_Nao_Funcionando_2011002",
   // 	unit: "Km",
   // 	device_class: "distance",
-  // },
-  // 2202099: {
-  // 	description: "Desconhecido_2202099",
-  // 	unit: "-",
-  // 	device_class: "None",
   // },
   // 4105008: {
   // 	description: "Desconhecido_4105008",
