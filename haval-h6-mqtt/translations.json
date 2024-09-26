@@ -1,6 +1,10 @@
 {
     "en": {
       "schema": {
+        "refresh_time": { 
+            "label": "Refresh Interval (seconds)",
+            "help": "Time interval for querying the API and updating data for entities created by this integration."
+        },
         "haval_username": { 
             "label": "myGWM App Username",
             "help": "The email address used during registration."
@@ -11,6 +15,10 @@
         "haval_vin": { 
             "label": "Vehicle Chassis",
             "help": "Check in the app or on the invoice."
+        },
+        "haval_pin": {
+            "label": "myGWM app PIN for commands",
+            "help": "PIN code used in the myGWM app to activate the command request like turning the air conditioner on."
         },
         "mqtt_server": { 
             "label": "MQTT Server Address",
@@ -24,10 +32,6 @@
             "label": "MQTT Broker Password",
             "help": "Password configured on your Home Assistant's MQTT server or external broker."
         },
-        "refresh_minutes": { 
-            "label": "Refresh Interval (minutes)",
-            "help": "Time interval for querying the API and updating data for entities created by this integration."
-        },
         "device_tracker_enabled": { 
             "label": "Enable Device Tracker",
             "help": "Registers vehicle positioning with tracking based on the configured interval."
@@ -36,6 +40,10 @@
     },
     "pt": {
       "schema": {
+        "refresh_time": { 
+            "label": "Intervalo de Atualização (segundos)",
+            "help": "Tempo para consulta da API e atualização dos dados das entidades criadas por esta integração"
+        },
         "haval_username": { 
             "label": "Nome de usuário do aplicativo myGWM",
             "help": "O endereço de e-mail utilizado no cadastro."
@@ -46,6 +54,10 @@
         "haval_vin": { 
             "label": "Chassis do veículo",
             "help": "Verifique no aplicativo ou na nota fiscal."
+        },
+        "haval_pin": {
+            "label": "PIN do aplicativo myGWM para comandos",
+            "help": "Código PIN usado no aplicativo myGWM para ativar a solicitação de comando, como ligar o ar condicionado."
         },
         "mqtt_server": { 
             "label": "Endereço do servidor MQTT",
@@ -58,10 +70,6 @@
         "mqtt_pass": { 
             "label": "Senha do broker MQTT",
             "help": "Senha configurada no servidor MQTT de sua instância do Home Assistant ou broker externo."
-        },
-        "refresh_minutes": { 
-            "label": "Intervalo de Atualização (minutos)",
-            "help": "Tempo para consulta da API e atualização dos dados das entidades criadas por esta integração"
         },
         "device_tracker_enabled": { 
             "label": "Ativar o device tracker",

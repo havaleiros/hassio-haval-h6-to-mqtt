@@ -10,8 +10,7 @@ views:
                 name: ' '
                 entity_picture: >
                   [[[ return
-                  states["sensor.haval_{chassis}_imagem_do_veiculo"].state
-                  ]]]
+                  states["sensor.haval_{chassis}_imagem_do_veiculo"].state ]]]
                 size: 400px
                 show_entity_picture: true
                 tap_action:
@@ -132,13 +131,11 @@ views:
                           }
                   - type: conditional
                     conditions:
-                      - entity: >-
-                          binary_sensor.haval_{chassis}_porta_dianteira_direita
+                      - entity: binary_sensor.haval_{chassis}_porta_dianteira_direita
                         state: 'on'
                     card:
                       type: picture
-                      image: >-
-                        /local/images/haval_h6/porta_dianteira_direita_aberta.png
+                      image: /local/images/haval_h6/porta_dianteira_direita_aberta.png
                       tap_action:
                         action: none
                       hold_action:
@@ -162,13 +159,11 @@ views:
                           }
                   - type: conditional
                     conditions:
-                      - entity: >-
-                          binary_sensor.haval_{chassis}_porta_dianteira_direita
+                      - entity: binary_sensor.haval_{chassis}_porta_dianteira_direita
                         state: 'off'
                     card:
                       type: picture
-                      image: >-
-                        /local/images/haval_h6/porta_dianteira_direita_fechada.png
+                      image: /local/images/haval_h6/porta_dianteira_direita_fechada.png
                       tap_action:
                         action: none
                       hold_action:
@@ -192,13 +187,11 @@ views:
                           }
                   - type: conditional
                     conditions:
-                      - entity: >-
-                          binary_sensor.haval_{chassis}_porta_dianteira_esquerda
+                      - entity: binary_sensor.haval_{chassis}_porta_dianteira_esquerda
                         state: 'on'
                     card:
                       type: picture
-                      image: >-
-                        /local/images/haval_h6/porta_dianteira_esquerda_aberta.png
+                      image: /local/images/haval_h6/porta_dianteira_esquerda_aberta.png
                       tap_action:
                         action: none
                       hold_action:
@@ -222,13 +215,11 @@ views:
                           }
                   - type: conditional
                     conditions:
-                      - entity: >-
-                          binary_sensor.haval_{chassis}_porta_dianteira_esquerda
+                      - entity: binary_sensor.haval_{chassis}_porta_dianteira_esquerda
                         state: 'off'
                     card:
                       type: picture
-                      image: >-
-                        /local/images/haval_h6/porta_dianteira_esquerda_fechada.png
+                      image: /local/images/haval_h6/porta_dianteira_esquerda_fechada.png
                       tap_action:
                         action: none
                       hold_action:
@@ -280,8 +271,7 @@ views:
                           }
                   - type: conditional
                     conditions:
-                      - entity: >-
-                          binary_sensor.haval_{chassis}_porta_traseira_direita
+                      - entity: binary_sensor.haval_{chassis}_porta_traseira_direita
                         state: 'on'
                     card:
                       type: picture
@@ -309,13 +299,11 @@ views:
                           }
                   - type: conditional
                     conditions:
-                      - entity: >-
-                          binary_sensor.haval_{chassis}_porta_traseira_direita
+                      - entity: binary_sensor.haval_{chassis}_porta_traseira_direita
                         state: 'off'
                     card:
                       type: picture
-                      image: >-
-                        /local/images/haval_h6/porta_traseira_direita_fechada.png
+                      image: /local/images/haval_h6/porta_traseira_direita_fechada.png
                       tap_action:
                         action: none
                       hold_action:
@@ -339,13 +327,11 @@ views:
                           }
                   - type: conditional
                     conditions:
-                      - entity: >-
-                          binary_sensor.haval_{chassis}_porta_traseira_esquerda
+                      - entity: binary_sensor.haval_{chassis}_porta_traseira_esquerda
                         state: 'on'
                     card:
                       type: picture
-                      image: >-
-                        /local/images/haval_h6/porta_traseira_esquerda_aberta.png
+                      image: /local/images/haval_h6/porta_traseira_esquerda_aberta.png
                       tap_action:
                         action: none
                       hold_action:
@@ -369,13 +355,11 @@ views:
                           }
                   - type: conditional
                     conditions:
-                      - entity: >-
-                          binary_sensor.haval_{chassis}_porta_traseira_esquerda
+                      - entity: binary_sensor.haval_{chassis}_porta_traseira_esquerda
                         state: 'off'
                     card:
                       type: picture
-                      image: >-
-                        /local/images/haval_h6/porta_traseira_esquerda_fechada.png
+                      image: /local/images/haval_h6/porta_traseira_esquerda_fechada.png
                       tap_action:
                         action: none
                       hold_action:
@@ -488,8 +472,7 @@ views:
                         state: '2'
                     card:
                       type: picture
-                      image: >-
-                        /local/images/haval_h6/vidro_dianteiro_direito_aberto.png
+                      image: /local/images/haval_h6/vidro_dianteiro_direito_aberto.png
                       tap_action:
                         action: none
                       hold_action:
@@ -517,8 +500,7 @@ views:
                         state: '3'
                     card:
                       type: picture
-                      image: >-
-                        /local/images/haval_h6/vidro_dianteiro_direito_entreaberto.png
+                      image: /local/images/haval_h6/vidro_dianteiro_direito_entreaberto.png
                       tap_action:
                         action: none
                       hold_action:
@@ -542,13 +524,11 @@ views:
                           }
                   - type: conditional
                     conditions:
-                      - entity: >-
-                          sensor.haval_{chassis}_vidro_dianteiro_esquerdo
+                      - entity: sensor.haval_{chassis}_vidro_dianteiro_esquerdo
                         state: '2'
                     card:
                       type: picture
-                      image: >-
-                        /local/images/haval_h6/vidro_dianteiro_esquerdo_aberto.png
+                      image: /local/images/haval_h6/vidro_dianteiro_esquerdo_aberto.png
                       tap_action:
                         action: none
                       hold_action:
@@ -572,13 +552,11 @@ views:
                           }
                   - type: conditional
                     conditions:
-                      - entity: >-
-                          sensor.haval_{chassis}_vidro_dianteiro_esquerdo
+                      - entity: sensor.haval_{chassis}_vidro_dianteiro_esquerdo
                         state: '3'
                     card:
                       type: picture
-                      image: >-
-                        /local/images/haval_h6/vidro_dianteiro_esquerdo_entreaberto.png
+                      image: /local/images/haval_h6/vidro_dianteiro_esquerdo_entreaberto.png
                       tap_action:
                         action: none
                       hold_action:
@@ -634,8 +612,7 @@ views:
                         state: '3'
                     card:
                       type: picture
-                      image: >-
-                        /local/images/haval_h6/vidro_traseiro_direito_entreaberto.png
+                      image: /local/images/haval_h6/vidro_traseiro_direito_entreaberto.png
                       tap_action:
                         action: none
                       hold_action:
@@ -663,8 +640,7 @@ views:
                         state: '2'
                     card:
                       type: picture
-                      image: >-
-                        /local/images/haval_h6/vidro_traseiro_esquerdo_aberto.png
+                      image: /local/images/haval_h6/vidro_traseiro_esquerdo_aberto.png
                       tap_action:
                         action: none
                       hold_action:
@@ -692,8 +668,7 @@ views:
                         state: '3'
                     card:
                       type: picture
-                      image: >-
-                        /local/images/haval_h6/vidro_traseiro_esquerdo_entreaberto.png
+                      image: /local/images/haval_h6/vidro_traseiro_esquerdo_entreaberto.png
                       tap_action:
                         action: none
                       hold_action:
@@ -856,7 +831,7 @@ views:
                     color: '#540000'
                   - value: 30
                     color: '#ffa200'
-                  - value: 60
+                  - value: 55
                     color: '#009c72'
                 entities:
                   - entity: sensor.haval_{chassis}_nivel_de_combustivel
@@ -864,307 +839,320 @@ views:
             cards:
               - type: entities
                 entities:
-                  - entity: sensor.haval_{chassis}_autonomia_combustao
-                  - entity: sensor.haval_{chassis}_nivel_de_combustivel
-                  - entity: sensor.haval_{chassis}_autonomia_hev
-                  - entity: sensor.haval_{chassis}_estado_de_carga_soc
-                  - entity: sensor.haval_{chassis}_quilometragem_total
-                  - type: custom:template-entity-row
-                    entity: >-
-                      binary_sensor.haval_{chassis}_estado_do_ar_condicionado
-                    name: Ar Condicionado
-                    state: >
-                      {% if
-                      states('binary_sensor.haval_{chassis}_estado_do_ar_condicionado')
-                      == 'off' %}
-                        Desligado
-                      {% elif
-                      states('binary_sensor.haval_{chassis}_estado_do_ar_condicionado')
-                      == 'on' %}
-                        Ligado
-                      {% else %}
-                        Desconhecido
-                      {% endif %}   
-                  - entity: sensor.haval_{chassis}_estado_de_carga_12v
-                    secondary_info: last-updated
-                  - type: custom:template-entity-row
-                    entity: sensor.haval_{chassis}_estado_da_carga
-                    name: Estado de carregamento
-                    state: >
-                      {% if
-                      states('sensor.haval_{chassis}_estado_da_carga')
-                      == '0' %}
-                        Desconectado
-                      {% elif
-                      states('sensor.haval_{chassis}_estado_da_carga')
-                      == '1' %}
-                        Carregando
-                      {% elif
-                      states('sensor.haval_{chassis}_estado_da_carga')
-                      == '3' %}
-                        Finalizado
-                      {% elif
-                      states('sensor.haval_{chassis}_estado_da_carga')
-                      == '5' %}
-                        Aguardando liberação
-                      {% else %}
-                        Desconhecido
-                      {% endif %} 
-                  - entity: sensor.haval_{chassis}_tempo_de_carga
-                    card_mod:
-                      style: |
-                        :host {
-                          display: {% if is_state('sensor.haval_{chassis}_estado_da_carga','1') %} block {% else %} none {% endif %};
-                        }
+                  - type: custom:fold-entity-row
+                    head:
+                      type: section
+                      label: Autonomia e abastecimento
+                    entities:
+                      - entity: sensor.haval_{chassis}_autonomia_combustao
+                      - entity: sensor.haval_{chassis}_nivel_de_combustivel
+                      - entity: sensor.haval_{chassis}_autonomia_hev
+                      - entity: sensor.haval_{chassis}_estado_de_carga_soc
+                      - entity: sensor.haval_{chassis}_quilometragem_total
+                      - type: custom:template-entity-row
+                        entity: >-
+                          binary_sensor.haval_{chassis}_estado_do_ar_condicionado
+                        name: Ar Condicionado
+                        state: >
+                          {% if
+                          states('binary_sensor.haval_{chassis}_estado_do_ar_condicionado')
+                          == 'off' %}
+                            Desligado
+                          {% elif
+                          states('binary_sensor.haval_{chassis}_estado_do_ar_condicionado')
+                          == 'on' %}
+                            Ligado
+                          {% else %}
+                            Desconhecido
+                          {% endif %}   
+                      - entity: sensor.haval_{chassis}_estado_de_carga_12v
+                        secondary_info: last-updated
+                      - type: custom:template-entity-row
+                        entity: sensor.haval_{chassis}_estado_da_carga
+                        name: Estado de carregamento
+                        state: >
+                          {% if states('sensor.haval_{chassis}_estado_da_carga')
+                          == '0' %}
+                            Desconectado
+                          {% elif
+                          states('sensor.haval_{chassis}_estado_da_carga') ==
+                          '1' %}
+                            Carregando
+                          {% elif
+                          states('sensor.haval_{chassis}_estado_da_carga') ==
+                          '3' %}
+                            Finalizado
+                          {% elif
+                          states('sensor.haval_{chassis}_estado_da_carga') ==
+                          '5' %}
+                            Aguardando liberação
+                          {% else %}
+                            Desconhecido
+                          {% endif %} 
+                      - entity: sensor.haval_{chassis}_tempo_de_carga
+                        card_mod:
+                          style: |
+                            :host {
+                              display: {% if is_state('sensor.haval_{chassis}_estado_da_carga','1') %} block {% else %} none {% endif %};
+                            }
               - type: entities
                 entities:
-                  - entity: >-
-                      sensor.haval_{chassis}_pressao_do_pneu_dianteiro_direito
-                  - entity: >-
-                      sensor.haval_{chassis}_pressao_do_pneu_dianteiro_esquerdo
-                  - entity: >-
-                      sensor.haval_{chassis}_pressao_do_pneu_traseiro_direito
-                  - entity: >-
-                      sensor.haval_{chassis}_pressao_do_pneu_traseiro_esquerdo
-                  - entity: >-
-                      sensor.haval_{chassis}_temperatura_do_pneu_dianteiro_direito
-                  - entity: >-
-                      sensor.haval_{chassis}_temperatura_do_pneu_dianteiro_esquerdo
-                  - entity: >-
-                      sensor.haval_{chassis}_temperatura_do_pneu_traseiro_direito
-                  - entity: >-
-                      sensor.haval_{chassis}_temperatura_do_pneu_traseiro_esquerdo
+                  - type: custom:fold-entity-row
+                    head:
+                      type: section
+                      label: Pneus
+                    entities:
+                      - entity: >-
+                          sensor.haval_{chassis}_pressao_do_pneu_dianteiro_direito
+                      - entity: >-
+                          sensor.haval_{chassis}_pressao_do_pneu_dianteiro_esquerdo
+                      - entity: >-
+                          sensor.haval_{chassis}_pressao_do_pneu_traseiro_direito
+                      - entity: >-
+                          sensor.haval_{chassis}_pressao_do_pneu_traseiro_esquerdo
+                      - entity: >-
+                          sensor.haval_{chassis}_temperatura_do_pneu_dianteiro_direito
+                      - entity: >-
+                          sensor.haval_{chassis}_temperatura_do_pneu_dianteiro_esquerdo
+                      - entity: >-
+                          sensor.haval_{chassis}_temperatura_do_pneu_traseiro_direito
+                      - entity: >-
+                          sensor.haval_{chassis}_temperatura_do_pneu_traseiro_esquerdo
           - type: horizontal-stack
             cards:
               - type: entities
-                title: Portas
                 entities:
-                  - type: custom:template-entity-row
-                    entity: binary_sensor.haval_{chassis}_estado_da_trava
-                    name: Trava
-                    icon: >
-                      {% if
-                      states('binary_sensor.haval_{chassis}_estado_da_trava')
-                      == 'off' %}
-                        mdi:car-door-lock
-                      {% elif
-                      states('binary_sensor.haval_{chassis}_estado_da_trava')
-                      == 'on' %}
-                        mdi:car-door-lock-open
-                      {% else %}
-                        mdi:cloud-question
-                      {% endif %}
-                    state: >
-                      {% if
-                      states('binary_sensor.haval_{chassis}_estado_da_trava')
-                      == 'off' %}
-                        Fechado
-                      {% elif
-                      states('binary_sensor.haval_{chassis}_estado_da_trava')
-                      == 'on' %}
-                        Aberto
-                      {% else %}
-                        Desconhecido
-                      {% endif %}
-                  - type: custom:template-entity-row
-                    entity: binary_sensor.haval_{chassis}_porta_malas
-                    name: Porta malas
-                    state: >
-                      {% if
-                      states('binary_sensor.haval_{chassis}_porta_malas')
-                      == 'off' %}
-                        Fechado
-                      {% elif
-                      states('binary_sensor.haval_{chassis}_porta_malas')
-                      == 'on' %}
-                        Aberto
-                      {% else %}
-                        Desconhecido
-                      {% endif %}    
-                  - type: custom:template-entity-row
-                    entity: >-
-                      binary_sensor.haval_{chassis}_porta_dianteira_direita
-                    name: Dianteira direita
-                    state: >
-                      {% if
-                      states('binary_sensor.haval_{chassis}_porta_dianteira_direita')
-                      == 'off' %}
-                        Fechada
-                      {% elif
-                      states('binary_sensor.haval_{chassis}_porta_dianteira_direita')
-                      == 'on' %}
-                        Aberta
-                      {% else %}
-                        Desconhecido
-                      {% endif %}
-                  - type: custom:template-entity-row
-                    entity: >-
-                      binary_sensor.haval_{chassis}_porta_dianteira_esquerda
-                    name: Dianteira esquerda
-                    state: >
-                      {% if
-                      states('binary_sensor.haval_{chassis}_porta_dianteira_esquerda')
-                      == 'off' %}
-                        Fechada
-                      {% elif
-                      states('binary_sensor.haval_{chassis}_porta_dianteira_esquerda')
-                      == 'on' %}
-                        Aberta
-                      {% else %}
-                        Desconhecido
-                      {% endif %}
-                  - type: custom:template-entity-row
-                    entity: >-
-                      binary_sensor.haval_{chassis}_porta_traseira_direita
-                    name: Traseira Direita
-                    state: >
-                      {% if
-                      states('binary_sensor.haval_{chassis}_porta_traseira_direita')
-                      == 'off' %}
-                        Fechada
-                      {% elif
-                      states('binary_sensor.haval_{chassis}_porta_traseira_direita')
-                      == 'on' %}
-                        Aberta
-                      {% else %}
-                        Desconhecido
-                      {% endif %}
-                  - type: custom:template-entity-row
-                    entity: >-
-                      binary_sensor.haval_{chassis}_porta_traseira_esquerda
-                    name: Traseira Esquerda
-                    state: >
-                      {% if
-                      states('binary_sensor.haval_{chassis}_porta_traseira_esquerda')
-                      == 'off' %}
-                        Fechada
-                      {% elif
-                      states('binary_sensor.haval_{chassis}_porta_traseira_esquerda')
-                      == 'on' %}
-                        Aberta
-                      {% else %}
-                        Desconhecido
-                      {% endif %}
-                state_color: false
+                  - type: custom:fold-entity-row
+                    head:
+                      type: section
+                      label: Portas
+                    entities:
+                      - type: custom:template-entity-row
+                        entity: binary_sensor.haval_{chassis}_estado_da_trava
+                        name: Trava
+                        icon: >
+                          {% if
+                          states('binary_sensor.haval_{chassis}_estado_da_trava')
+                          == 'off' %}
+                            mdi:car-door-lock
+                          {% elif
+                          states('binary_sensor.haval_{chassis}_estado_da_trava')
+                          == 'on' %}
+                            mdi:car-door-lock-open
+                          {% else %}
+                            mdi:cloud-question
+                          {% endif %}
+                        state: >
+                          {% if
+                          states('binary_sensor.haval_{chassis}_estado_da_trava')
+                          == 'off' %}
+                            Fechado
+                          {% elif
+                          states('binary_sensor.haval_{chassis}_estado_da_trava')
+                          == 'on' %}
+                            Aberto
+                          {% else %}
+                            Desconhecido
+                          {% endif %}
+                      - type: custom:template-entity-row
+                        entity: binary_sensor.haval_{chassis}_porta_malas
+                        name: Porta malas
+                        state: >
+                          {% if
+                          states('binary_sensor.haval_{chassis}_porta_malas') ==
+                          'off' %}
+                            Fechado
+                          {% elif
+                          states('binary_sensor.haval_{chassis}_porta_malas') ==
+                          'on' %}
+                            Aberto
+                          {% else %}
+                            Desconhecido
+                          {% endif %}    
+                      - type: custom:template-entity-row
+                        entity: binary_sensor.haval_{chassis}_porta_dianteira_direita
+                        name: Dianteira direita
+                        state: >
+                          {% if
+                          states('binary_sensor.haval_{chassis}_porta_dianteira_direita')
+                          == 'off' %}
+                            Fechada
+                          {% elif
+                          states('binary_sensor.haval_{chassis}_porta_dianteira_direita')
+                          == 'on' %}
+                            Aberta
+                          {% else %}
+                            Desconhecido
+                          {% endif %}
+                      - type: custom:template-entity-row
+                        entity: binary_sensor.haval_{chassis}_porta_dianteira_esquerda
+                        name: Dianteira esquerda
+                        state: >
+                          {% if
+                          states('binary_sensor.haval_{chassis}_porta_dianteira_esquerda')
+                          == 'off' %}
+                            Fechada
+                          {% elif
+                          states('binary_sensor.haval_{chassis}_porta_dianteira_esquerda')
+                          == 'on' %}
+                            Aberta
+                          {% else %}
+                            Desconhecido
+                          {% endif %}
+                      - type: custom:template-entity-row
+                        entity: binary_sensor.haval_{chassis}_porta_traseira_direita
+                        name: Traseira Direita
+                        state: >
+                          {% if
+                          states('binary_sensor.haval_{chassis}_porta_traseira_direita')
+                          == 'off' %}
+                            Fechada
+                          {% elif
+                          states('binary_sensor.haval_{chassis}_porta_traseira_direita')
+                          == 'on' %}
+                            Aberta
+                          {% else %}
+                            Desconhecido
+                          {% endif %}
+                      - type: custom:template-entity-row
+                        entity: binary_sensor.haval_{chassis}_porta_traseira_esquerda
+                        name: Traseira Esquerda
+                        state: >
+                          {% if
+                          states('binary_sensor.haval_{chassis}_porta_traseira_esquerda')
+                          == 'off' %}
+                            Fechada
+                          {% elif
+                          states('binary_sensor.haval_{chassis}_porta_traseira_esquerda')
+                          == 'on' %}
+                            Aberta
+                          {% else %}
+                            Desconhecido
+                          {% endif %}
+                    state_color: false
               - type: entities
-                title: Vidros
                 entities:
-                  - type: custom:template-entity-row
-                    entity: sensor.haval_{chassis}_vidro_dianteiro_direito
-                    name: Dianteiro direito
-                    state: >
-                      {% if
-                      states('sensor.haval_{chassis}_vidro_dianteiro_direito')
-                      == '1' %}
-                        Fechado
-                      {% elif
-                      states('sensor.haval_{chassis}_vidro_dianteiro_direito')
-                      == '2' %}
-                        Aberto
-                      {% elif
-                      states('sensor.haval_{chassis}_vidro_dianteiro_direito')
-                      == '3' %}
-                        Entreaberto
-                      {% else %}
-                        Desconhecido
-                      {% endif %}
-                  - type: custom:template-entity-row
-                    entity: sensor.haval_{chassis}_vidro_dianteiro_esquerdo
-                    name: Dianteiro esquerdo
-                    state: >
-                      {% if
-                      states('sensor.haval_{chassis}_vidro_dianteiro_esquerdo')
-                      == '1' %}
-                        Fechado
-                      {% elif
-                      states('sensor.haval_{chassis}_vidro_dianteiro_esquerdo')
-                      == '2' %}
-                        Aberto
-                      {% elif
-                      states('sensor.haval_{chassis}_vidro_dianteiro_esquerdo')
-                      == '3' %}
-                        Entreaberto
-                      {% else %}
-                        Desconhecido
-                      {% endif %}
-                  - type: custom:template-entity-row
-                    entity: sensor.haval_{chassis}_vidro_traseiro_direito
-                    name: Traseiro Direito
-                    state: >
-                      {% if
-                      states('sensor.haval_{chassis}_vidro_traseiro_direito')
-                      == '1' %}
-                        Fechado
-                      {% elif
-                      states('sensor.haval_{chassis}_vidro_traseiro_direito')
-                      == '2' %}
-                        Aberto
-                      {% elif
-                      states('sensor.haval_{chassis}_vidro_traseiro_direito')
-                      == '3' %}
-                        Entreaberto
-                      {% else %}
-                        Desconhecido
-                      {% endif %}
-                  - type: custom:template-entity-row
-                    entity: sensor.haval_{chassis}_vidro_traseiro_esquerdo
-                    name: Traseiro Esquerdo
-                    state: >
-                      {% if
-                      states('sensor.haval_{chassis}_vidro_traseiro_esquerdo')
-                      == '1' %}
-                        Fechado
-                      {% elif
-                      states('sensor.haval_{chassis}_vidro_traseiro_esquerdo')
-                      == '2' %}
-                        Aberto
-                      {% elif
-                      states('sensor.haval_{chassis}_vidro_traseiro_esquerdo')
-                      == '3' %}
-                        Entreaberto
-                      {% else %}
-                        Desconhecido
-                      {% endif %}
-                  - type: custom:template-entity-row
-                    entity: sensor.haval_{chassis}_posicao_do_teto_solar
-                    name: Teto Solar
-                    state: >
-                      {% if
-                      states('sensor.haval_{chassis}_posicao_do_teto_solar')
-                      == '3' %}
-                        Fechado
-                      {% else %}
-                        Aberto
-                      {% endif %}  
-                  - type: custom:bar-card
-                    entity: sensor.haval_{chassis}_posicao_do_teto_solar
-                    name: Teto Solar
-                    tap_action:
-                      action: none
-                    hold_action:
-                      action: none
-                    min: 0
-                    max: 100
-                    unit_of_measurement: '%'
-                    severity:
-                      - value: 0
-                        color: '#009c72'
-                      - value: 50
-                        color: '#ffa200'
-                      - value: 100
-                        color: '#540000'
-                    card_mod:
-                      style: |
-                        :host {
-                          display: {% if states('sensor.haval_{chassis}_posicao_do_teto_solar') == '3' %} none {% elif states('sensor.haval_{chassis}_posicao_do_teto_solar') is none %} none {% else %} block {% endif %};
-                        }
-                state_color: false
+                  - type: custom:fold-entity-row
+                    head:
+                      type: section
+                      label: Vidros
+                    entities:
+                      - type: custom:template-entity-row
+                        entity: sensor.haval_{chassis}_vidro_dianteiro_direito
+                        name: Dianteiro direito
+                        state: >
+                          {% if
+                          states('sensor.haval_{chassis}_vidro_dianteiro_direito')
+                          == '1' %}
+                            Fechado
+                          {% elif
+                          states('sensor.haval_{chassis}_vidro_dianteiro_direito')
+                          == '2' %}
+                            Aberto
+                          {% elif
+                          states('sensor.haval_{chassis}_vidro_dianteiro_direito')
+                          == '3' %}
+                            Entreaberto
+                          {% else %}
+                            Desconhecido
+                          {% endif %}
+                      - type: custom:template-entity-row
+                        entity: sensor.haval_{chassis}_vidro_dianteiro_esquerdo
+                        name: Dianteiro esquerdo
+                        state: >
+                          {% if
+                          states('sensor.haval_{chassis}_vidro_dianteiro_esquerdo')
+                          == '1' %}
+                            Fechado
+                          {% elif
+                          states('sensor.haval_{chassis}_vidro_dianteiro_esquerdo')
+                          == '2' %}
+                            Aberto
+                          {% elif
+                          states('sensor.haval_{chassis}_vidro_dianteiro_esquerdo')
+                          == '3' %}
+                            Entreaberto
+                          {% else %}
+                            Desconhecido
+                          {% endif %}
+                      - type: custom:template-entity-row
+                        entity: sensor.haval_{chassis}_vidro_traseiro_direito
+                        name: Traseiro Direito
+                        state: >
+                          {% if
+                          states('sensor.haval_{chassis}_vidro_traseiro_direito')
+                          == '1' %}
+                            Fechado
+                          {% elif
+                          states('sensor.haval_{chassis}_vidro_traseiro_direito')
+                          == '2' %}
+                            Aberto
+                          {% elif
+                          states('sensor.haval_{chassis}_vidro_traseiro_direito')
+                          == '3' %}
+                            Entreaberto
+                          {% else %}
+                            Desconhecido
+                          {% endif %}
+                      - type: custom:template-entity-row
+                        entity: sensor.haval_{chassis}_vidro_traseiro_esquerdo
+                        name: Traseiro Esquerdo
+                        state: >
+                          {% if
+                          states('sensor.haval_{chassis}_vidro_traseiro_esquerdo')
+                          == '1' %}
+                            Fechado
+                          {% elif
+                          states('sensor.haval_{chassis}_vidro_traseiro_esquerdo')
+                          == '2' %}
+                            Aberto
+                          {% elif
+                          states('sensor.haval_{chassis}_vidro_traseiro_esquerdo')
+                          == '3' %}
+                            Entreaberto
+                          {% else %}
+                            Desconhecido
+                          {% endif %}
+                      - type: custom:template-entity-row
+                        entity: sensor.haval_{chassis}_posicao_do_teto_solar
+                        name: Teto Solar
+                        state: >
+                          {% if
+                          states('sensor.haval_{chassis}_posicao_do_teto_solar')
+                          == '3' %}
+                            Fechado
+                          {% else %}
+                            Aberto
+                          {% endif %}  
+                      - type: custom:bar-card
+                        entity: sensor.haval_{chassis}_posicao_do_teto_solar
+                        name: Teto Solar
+                        tap_action:
+                          action: none
+                        hold_action:
+                          action: none
+                        min: 0
+                        max: 100
+                        unit_of_measurement: '%'
+                        severity:
+                          - value: 0
+                            color: '#009c72'
+                          - value: 50
+                            color: '#ffa200'
+                          - value: 100
+                            color: '#540000'
+                        card_mod:
+                          style: |
+                            :host {
+                              display: {% if states('sensor.haval_{chassis}_posicao_do_teto_solar') == '3' %} none {% elif states('sensor.haval_{chassis}_posicao_do_teto_solar') is none %} none {% else %} block {% endif %};
+                            }
+                    state_color: false
           - type: map
             entities:
               - entity: device_tracker.haval_{chassis}
             theme_mode: dark
             default_zoom: 16
-            hours_to_show: 24
+            hours_to_show: 30
             auto_fit: true
             aspect_ratio: '16:9'
     icon: mdi:view-dashboard-outline

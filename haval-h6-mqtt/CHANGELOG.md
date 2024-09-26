@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.0.12
+- Atualizado o arquivo README para adicionar custom cards.
+- Adicionada opção de acionar o ar condicionado por 15 minutos, em 18 graus.
+- Modificado o painel lovelace para acionar opção de reduzir a visualização das entidades nos cards.
+- Remoção do log por clico para evitar overflow.
+- Parâmetro de configuração alterado de [refresh_minutes] para [refresh_time], agora com configuração em segundos ao invés de minutos. Mínimo de 5 segundos.
+- Adicionado botão para acionamento temporário do ar condicionado para ser utilizado em relógios inteligentes. *Veja o README para mais informações*.
+
 ## 0.0.11
 - Ajuste nos códigos das portas que estavam invertidos.
 - Remove as entidades antes de registrá-las para garantir que o tópico de estado estará correto.
@@ -8,8 +16,7 @@
 ## 0.0.10
 - Substituição dos sensores por binary_sensors para portas e renomeação deles.
 - *Alerta*: Renomear sensores fará com que alguns sensores anteriores fiquem indisponíveis, e quaisquer dashboards personalizados devem ser atualizados.
-- Novo Dashboard para Home Assistant.
-- *Veja o README para mais informações*.
+- Novo Dashboard para Home Assistant. *Veja o README para mais informações*.
 - Adição de ícones para sensores sem device_class e binary_sensors.
 - Entidades são criadas apenas se o valor relacionado existir na resposta da API.
 - Adição de uma opção de configuração para desativar o device_tracker.
