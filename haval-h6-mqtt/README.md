@@ -143,8 +143,11 @@ automation:
           actionName: "AC Haval"
     action:
       - action: button.press
-        entity_id: button.switch.haval_{chassis}_ativacao_do_ar_condicionado
+        entity_id: button.haval_{chassis}_ativacao_do_ar_condicionado
 ```
+
+![Botão no Apple Watch](https://raw.githubusercontent.com/havaleiros/hassio-haval-h6-to-mqtt/main/haval-h6-mqtt/images/HA_Companion_watchOS.png)
+
 ## Suporte
 Para dúvidas, problemas ou sugestões, abra uma issue.
 
