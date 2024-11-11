@@ -158,7 +158,7 @@ const sensorTopics = {
     icon: "mdi:air-filter",
   },
   2208001: {
-    description: "Estado da Trava", //(1: Destravar 0: Travar)
+    description: "Estado da Trava", //(1: Destravado 0: Travado)
     device_class: "lock",
     entity_type: "binary_sensor",    
     icon: "mdi:car-door-lock",
@@ -300,22 +300,22 @@ const attributeTopics = {
   // 	value: 0,
   // },
   // 2201001: {
-  // 	description: "Temperatura do Ambiente (Não Funcionando)",
+  // 	description: "Temperatura da cabine",
   // 	unit: "null",
   // 	value: 0,
   // },
   // 2016001: {
-  // 	description: "Desconhecido (Não Funcionando)",
+  // 	description: "EngState",
   // 	unit: "-",
   // 	value: 0,
   // },
   // 2011002: {
-  // 	description: "Desconhecido_Nao_Funcionando_2011002",
+  // 	description: "VehSpd",
   // 	unit: "Km",
   // 	device_class: "distance",
   // },
   // 4105008: {
-  // 	description: "Desconhecido_4105008",
+  // 	description: "networkSignalStrength",
   // 	unit: "-",
   // 	device_class: "None",
   // },
