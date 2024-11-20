@@ -3,6 +3,7 @@
 ## Sobre
 
 Este add-on permite a integração do Home Assistant com o veículo GWM **Brasil** Haval H6 utilizando MQTT. Com essa integração, é possível monitorar e controlar várias funcionalidades do veículo diretamente pelo Home Assistant.
+Você precisa ter uma instância do Home Assistant com o add-on `Mosquitto Broker` instalado e configurado. Caso esteja instalando o `Mosquitto Broker` somente para esta integração, lembre-se de reiniciar sua instância do Home Assistant após a instalação.
 
 [![Add Add-on to Home Assistant](https://my.home-assistant.io/badges/supervisor_add_addon_repository.svg)](https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2Fhavaleiros%2Fhassio-haval-h6-to-mqtt)
 
@@ -66,20 +67,22 @@ Agora, você deve ser capaz de monitorar o seu veículo diretamente pelo painel 
 6. Na nova linha criada com o novo dashboard, clique em _ABRIR_.
 7. No canto superior esquerdo da tela, clique em _Editar dashboard_.
 8. Clique novamente no símbolo com 3 pontos verticais e depois em _Editor de configuração RAW_.
-9. Apague o conteúdo existente que será exibido, copie o conteúdo do arquivo `HomeAssistant_Dashboard_Haval.yaml` fornecido como template e cole nesta tela. [Baixe aqui o arquivo YAML](https://github.com/havaleiros/hassio-haval-h6-to-mqtt/blob/main/haval-h6-mqtt/files/HomeAssistant_Dashboard_Haval.yaml).
-10. Substitua todas as ocorrências de {chassis} pelo código de chassis de seu veículo.
+9. Apague o conteúdo existente que será exibido, copie o conteúdo do arquivo `HomeAssistant_Dashboard_Haval.yaml` fornecido como template e cole nesta tela. [Baixe aqui o arquivo YAML](https://github.com/havaleiros/hassio-haval-h6-to-mqtt/blob/main/haval-h6-mqtt/files/HomeAssistant_Dashboard_Haval.yaml). Consulte sempre a data de atualização do arquivo para identificar se há uma versão mais recente.
+10. Substitua todas as ocorrências de `{chassis}` pelo código de chassis de seu veículo, sempre com letras minúsculas. Remova também as chaves ({}) na substituição. 
 
 #### Adicionando Imagens do Veículo
 
 1. Baixe o arquivo [Baixe aqui o arquivo haval_h6.zip](https://github.com/havaleiros/hassio-haval-h6-to-mqtt/raw/main/haval-h6-mqtt/files/haval_h6.zip).
 2. Descompacte o arquivo e salve as imagens na pasta `www/images/haval_h6` do Home Assistant.
 
-O resultado esperado é que as imagens devem ficar no caminho `www/images/haval_h6/[imagem].png`
+O resultado esperado é que as imagens devem ficar no caminho `www/images/haval_h6/[imagem].png`. Dependendo da ferramenta utilizada o caminho pode ser exibido como `homeassistant/www/images/haval_h6/[imagem].png`.
 Não salve o arquivo `haval_h6.zip` diretamente no diretório do Home Assistant, pois isto não terá efeito no uso das imagens. 
 
 #### Dica
 Recomenda-se o uso do Add-on [Samba share](https://github.com/home-assistant/addons/tree/master/samba) para acesso na pasta `www` de sua instância do Home Assistant.
 Desta forma não haverá necessidde de copiar imagem por imagem para a pasta.
+
+Caso a pasta `www` não exista em sua estrutura de pastas, você pode criá-la. Utilize o add-on `File Editor` ou o `Studio Code Server` para editar diretamente pelo browser.
 
 #### Instalando Custom Cards
 
