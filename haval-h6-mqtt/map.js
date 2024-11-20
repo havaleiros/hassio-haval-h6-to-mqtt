@@ -147,7 +147,7 @@ const sensorTopics = {
                   action: "airConditioner",
                   description: "Ativação do ar condicionado",
                   entity_type: "button",
-                  icon: "mdi:gesture-tap-button",
+                  icon: "mdi:fan-clock",
                   link_type: "press", //(sync: sincroniza os status, toggle: invertido, press: acionamento sem sincronização)
                 }
   },
