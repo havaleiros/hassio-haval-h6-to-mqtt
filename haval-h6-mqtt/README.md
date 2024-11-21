@@ -31,7 +31,7 @@ Você precisa ter uma instância do Home Assistant com o add-on `Mosquitto Broke
 ```yaml
 haval_username: conta_de_email_vinculada_ao_app_MyGWM
 haval_password: senha_do_app_MyGWM
-haval_vin: CHASSIS_DO_CARRO
+haval_vin: CHASSIS_DO_CARRO_COM_LETRAS_MAIÚSCULAS
 haval_pin: senha_de_ativação_de_comandos_no_app_MyGWM
 mqtt_server: mqtt://homeassistant.local:1883
 mqtt_user: nome_de_usuario_do_mqtt
