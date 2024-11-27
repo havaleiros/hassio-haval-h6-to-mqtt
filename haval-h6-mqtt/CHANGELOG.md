@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.0.13
+- Adicionado sensor para indicar se o carro está ligado ou desligado: sensor.haval_*_estado_do_motor
+- Atualizado o arquivo README com instruções de configuração revisadas.
+- Alteração na execução de comandos.
+- Tratamento de exceções que poderiam causar a finalização abrupta do add-on em caso de erro de leitura aos dados do veículo.
+Dashboard
+- Modificado o painel lovelace para adicionar a opção de acionamento temporário do ar-condicionado. Disponível somente quando o veículo está desligado, trancado e o ar-condicionado desligado.
+- Ajuste na exibição das imagens de status do veículo para remover bordas e fundo.
+
 ## 0.0.12
 - Atualizado o arquivo README para adicionar custom cards.
 - Adicionada opção de acionar o ar condicionado por 15 minutos, em 18 graus.

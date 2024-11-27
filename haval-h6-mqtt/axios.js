@@ -2,6 +2,7 @@ const axios = require("axios");
 const https = require("https");
 const fs = require("fs");
 const storage = require("./storage");
+const md5 = require("md5");
 
 require("dotenv").config();
 
@@ -60,16 +61,44 @@ axios.sendCmd = async (instructions, remoteType, securityPassword, seqNo, type, 
     );
 
     return res.data;
-  } catch (err) {
-    console.log("Error send vehicles command: ", err, res);
+  } catch (e) {
+    console.log("Error send vehicles command: ", e.message, res);
     return false;
   }
 };
 
 axios.getCarInfo = (path) => {
-  return axios.get(`${apiVehicleEndpoint}/${path}?vin=${VIN}&flag=true`, {
+  return axios.get(`${apiVehicleEndpoint}/${path}?vin=${VIN.toUpperCase()}&flag=true`, {
     headers,
   });
 };
 
-module.exports = axios;
+const commands = {
+  async airConditioner(PIN, VIN, ON) {
+    let seqNo = require('crypto').randomUUID().replaceAll('-', '') + '1234';
+    
+    try {
+      return await axios.sendCmd({
+                            "0x04": {
+                              "airConditioner": {
+                                "operationTime": "15",
+                                "switchOrder": ON ? "1" : "2",
+                                "temperature": "18"
+                              }
+                            }
+                          },
+                          0,
+                          md5(PIN),
+                          seqNo,
+                          2,
+                          VIN.toUpperCase()
+                        );
+      
+      } catch(e){
+        console.error(`***Error executing action airConditioner***`);
+        console.error(e.message);
+      }
+  }
+}
+
+module.exports = { axios, commands };
