@@ -1,8 +1,7 @@
-const axios = require("./axios");
 const mqtt = require("mqtt");
-const md5 = require("md5");
-const storage = require("./storage");
 var slugify = require("slugify");
+const { commands } = require("./axios");
+const storage = require("./storage");
 
 require("dotenv").config();
 
@@ -37,6 +36,9 @@ const mqttModule = {
     });
   },
   sendMqtt(topic, payload, options){
+    if(topic === 'homeassistant/button/haval_lgwffua54rh918852_2202001_airconditioner/press')
+      console.log("NÃO DEVERIA 1");
+
     const client = mqttModule.connect();
 
     client.on("connect", () => {
@@ -172,12 +174,12 @@ const ActionableAndLink = {
 
           client.subscribe(String(topicsToSubscribe[key].topic), (err) => {
             if (err) {
-              console.error(`Error subscribing to topic [${String(topicsToSubscribe[key].topic)}]: `, err);
+              console.error(`***Error subscribing to topic [${String(topicsToSubscribe[key].topic)}]: `, err);
             }
           });
         });
 
-        client.on('message', async (topic, message) => {  
+        client.on('message', async (topic, message) => {
           let messageValue = message.toString().toUpperCase();
 
           Object.keys(topicsAndActions).forEach(async function(key) {
@@ -185,56 +187,41 @@ const ActionableAndLink = {
               if(storage.getItem('Startup') == "true") return;
 
               if(String(topicsAndActions[key].action) === "airConditioner" && ["ON", "PRESS", "TRUE"].includes(messageValue)){
-                let seqNo = require('crypto').randomUUID().replaceAll('-', '') + '1234';
                 try {
-                  let acData = await axios.sendCmd({
-                                        "0x04": {
-                                          "airConditioner": {
-                                            "operationTime": "15",
-                                            "switchOrder": "1",
-                                            "temperature": "18"
-                                          }
-                                        }
-                                      },
-                                      0,
-                                      md5(PIN),
-                                      seqNo,
-                                      2,
-                                      VIN
-                                    );
+                  let acData = await commands.airConditioner(PIN, VIN, true);
                   console.info("Command airConditioner executed: ", acData);
                 } catch(e){
                   console.error(`***Error executing action [${String(topicsAndActions[key].action)}]***`);
-                  console.error(e);
+                  console.error(e.message);
                 }
               }
             }
             else if (topic === String(topicsAndActions[key].topic_to_monitor_parent) && topicsAndActions[key].link_type && ["sync", "toggle"].includes(String(topicsAndActions[key].link_type))){
               try {
-                if(messageValue === "0" || messageValue === "OFF" || messageValue === "FALSE"){                  
+                if(messageValue === "0" || messageValue === "OFF" || messageValue === "FALSE"){
                   mqttModule.sendMqtt(String(topicsAndActions[key].topic_to_update), 
                                       String(topicsAndActions[key].link_type) === "sync" ? 'OFF' : String(topicsAndActions[key].link_type) === "toggle" ? 'ON' : 'OFF',
-                                      { retain: true });
+                                      { retain: false });
                 }
                 else{
                   mqttModule.sendMqtt(String(topicsAndActions[key].topic_to_update), 
                                       String(topicsAndActions[key].link_type) === "sync" ? 'ON' : String(topicsAndActions[key].link_type) === "toggle" ? 'OFF' : 'ON', 
-                                      { retain: true });              
+                                      { retain: false });              
                 }
               }
               catch(e){
                 console.error(`***Error executing the parent and child status sync/toggle.***`)
                 console.error(`Parent topic: `, String(topicsAndActions[key].topic_to_monitor_parent));
                 console.error(`Child topic: `, String(topicsAndActions[key].topic_to_update));
-                console.error(e);
+                console.error(e.message);
               }
             }
           });
         });
     });
 
-    client.on('error', (err) => {
-      console.error('MQTT [ActionableAndLink] connection error:', err);
+    client.on('error', (e) => {
+      console.error('***Error on MQTT [ActionableAndLink] connection:', e.message);
     });
   }
 }
