@@ -71,11 +71,31 @@ sudo apt-get install npm
 
 #### 1. Criando a estutura do Add-on dentro do Server
 
-- Clonar repositório GitHub
+1. Clonar repositório GitHub:
 ```yaml
 cd /opt
 git clone https://github.com/havaleiros/hassio-haval-h6-to-mqtt.git
 ```
+2. Criar o Dockerfile:
+```yaml
+sudo nano /opt/hassio-haval-h6-to-mqtt/Dockerfile
+```
+3. Incluir o Conteúdo abaixo:
+```yaml
+FROM node:20-alpine
+
+WORKDIR /app
+
+COPY haval-h6-mqtt/ .
+
+RUN npm ci --only=production
+
+EXPOSE 3000
+
+CMD ["node", "index.js"]
+```
+4. CTRL+O + ENTER para salvar
+5. CTRL+X para sair
 
 #### 2. Configurando as credenciais de acesso dentro das variáveis de ambiente
 
