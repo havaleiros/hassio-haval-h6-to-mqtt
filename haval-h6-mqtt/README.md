@@ -55,6 +55,108 @@ Selecione Ferramentas de desenvolvedor.
 Verifique se as entidades iniciadas com *sensor.haval_* estão listados na aba Estado.
 Agora, você deve ser capaz de monitorar o seu veículo diretamente pelo painel do Home Assistant.
 
+### OPCIONAL - INÍCIO ###
+
+### Adicionando o Add-on diretamente via Docker para instalações do Home Assistant não Supervisionadas (Core ou Container)
+
+#### Premissas
+
+1. Possuir um ambiente Linux (preferencialmente Debian) com o Home Assistant Core ou Container previamente instalado e totalmente funcional via `docker-compose.yaml`
+2. Possuir o serviço `Mosquitto Broker` previamente instalado (nome do container deve ser: `mosquitto`), totalmente funcional e configurado via Integração dentro da Instalação do Home Assistant
+3. Estar logado com o usuário `root` no Linux
+4. Instalar os pacotes necessários para a instalação
+```yaml
+sudo apt-get install npm
+```
+
+#### 1. Criando a estutura do Add-on dentro do Server
+
+1. Clonar repositório GitHub:
+```yaml
+cd /opt
+git clone https://github.com/havaleiros/hassio-haval-h6-to-mqtt.git
+```
+2. Criar o Dockerfile:
+```yaml
+sudo nano /opt/hassio-haval-h6-to-mqtt/Dockerfile
+```
+3. Incluir o Conteúdo abaixo:
+```yaml
+FROM node:20-alpine
+
+WORKDIR /app
+
+COPY haval-h6-mqtt/ .
+
+RUN npm ci --only=production
+
+EXPOSE 3000
+
+CMD ["node", "index.js"]
+```
+4. CTRL+O + ENTER para salvar
+5. CTRL+X para sair
+
+#### 2. Configurando as credenciais de acesso dentro das variáveis de ambiente
+
+1. Editar o ENV File:
+```yaml
+sudo nano /opt/hassio-haval-h6-to-mqtt/haval-h6.env
+```
+2. Incluir o Conteúdo abaixo, editando os dados pessoais:
+```yaml
+USERNAME=XXXX
+PASSWORD=XXXX
+VIN=XXXX
+PIN=XXXX
+REFRESH_TIME=5
+DEVICE_TRACKER_ENABLED=true
+MQTT_USER=XXXX
+MQTT_PASS=XXXX
+MQTT_HOST=mqtt://IP_DO_SERVER_MQTT:1883
+```
+3. CTRL+O + ENTER para salvar
+4. CTRL+X para sair
+
+#### 3. Configurando o Serviço dentro do Docker
+
+1. Acessar o diretório que contém o `docker-compose.yaml`
+2. Editar o arquivo:
+```yaml
+sudo nano docker-compose.yaml
+```
+3. Adicionar ao conteúdo do arquivo:
+```yaml
+  hassio-haval-h6-to-mqtt:
+    container_name: hassio-haval-h6-to-mqtt
+    build:
+      context: /opt/hassio-haval-h6-to-mqtt
+      dockerfile: Dockerfile
+    depends_on:
+      mosquitto:
+        condition: service_started
+    restart: always
+    volumes:
+      - /opt/hassio-haval-h6-to-mqtt/data:/hassio-haval-h6-to-mqtt/data
+    ports:
+      - 10001:10001
+    env_file:
+      - /opt/hassio-haval-h6-to-mqtt/haval-h6.env
+```
+4. CTRL+O + ENTER para salvar
+5. CTRL+X para sair
+6. Subir Container:
+```yaml
+docker compose up -d
+```
+
+#### 4. Acessar as entidades via MQTT
+
+- Acessar sua instalação do Home Assistant e recarregar a integração MQTT para que as entidades sejam corretamente lidas pelo sistema
+- Caso alguma entidade apresente status indisponível, dê um restart no container `hassio-haval-h6-to-mqtt`
+
+### OPCIONAL - FIM ###
+
 ### Adicionando um Novo Dashboard no Home Assistant
 
 #### Passo a Passo
@@ -172,6 +274,7 @@ Contribuições de:
 - @paulovitin
 - @bobaoapae
 - @carvalr
+- @rodrigogbs
 
 ## Licença
 Licença MIT
