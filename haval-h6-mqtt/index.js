@@ -146,7 +146,7 @@ validationSchema.validate(process.env)
         //Engine status
         const engineStatus = {
           code: "hyEngSts",
-          description: "Estado do motor",
+          description: "Estado do Motor",
           entity_type: EntityType.SENSOR,
           value: `${data.staticImageUrl}`,
           icon: "mdi:engine",
