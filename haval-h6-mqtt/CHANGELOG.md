@@ -5,7 +5,6 @@
 - Atualizado o arquivo README com instruções de configuração revisadas.
 - Alteração na execução de comandos.
 - Tratamento de exceções que poderiam causar a finalização abrupta do add-on em caso de erro de leitura aos dados do veículo.
-Dashboard
 - Modificado o painel lovelace para adicionar a opção de acionamento temporário do ar-condicionado. Disponível somente quando o veículo está desligado, trancado e o ar-condicionado desligado.
 - Ajuste na exibição das imagens de status do veículo para remover bordas e fundo.
 
