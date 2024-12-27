@@ -254,6 +254,7 @@ Contribuições de:
 - @paulovitin
 - @bobaoapae
 - @carvalr
+- @rodrigogbs
 
 ## Licença
 Licença MIT
