@@ -32,6 +32,11 @@ jobs:
       id-token: write
 
     steps:
+      # Set the current date and time as an environment variable
+      - name: Set current date and time
+        id: date
+        run: echo "CURRENT_DATE=$(date -u +'%Y%m%d%H%M%S')" >> $GITHUB_ENV
+
       - name: Checkout repository
         uses: actions/checkout@v4
 
@@ -75,7 +80,7 @@ jobs:
         with:
           context: .
           push: ${{ github.event_name != 'pull_request' }}
-          tags: ${{ steps.meta.outputs.tags }}, ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest, ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:$(date -u +'%Y%m%d%H%M%S')
+          tags: ${{ steps.meta.outputs.tags }}, ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest, ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.CURRENT_DATE }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
