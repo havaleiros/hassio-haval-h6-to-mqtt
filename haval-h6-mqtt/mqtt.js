@@ -2,6 +2,7 @@ const mqtt = require("mqtt");
 var slugify = require("slugify");
 const { commands } = require("./axios");
 const storage = require("./storage");
+const prefix = "haval";
 
 require("dotenv").config();
 
@@ -36,9 +37,6 @@ const mqttModule = {
     });
   },
   sendMqtt(topic, payload, options){
-    if(topic === 'homeassistant/button/haval_lgwffua54rh918852_2202001_airconditioner/press')
-      console.log("NÃO DEVERIA 1");
-
     const client = mqttModule.connect();
 
     client.on("connect", () => {
@@ -50,10 +48,10 @@ const mqttModule = {
   },
   remove(entityType, code) {
     var payload = "";
-    var topic = `homeassistant/${entityType.toLowerCase()}/haval_${VIN.toLowerCase()}_${code}/config`;
+    var topic = `homeassistant/${entityType.toLowerCase()}/${prefix}_${VIN.toLowerCase()}_${code}/config`;
     mqttModule.sendMqtt(topic, JSON.stringify(payload), { retain: true });
 
-    var legacyTopic = `homeassistant/sensor/haval_${VIN.toLowerCase()}_${code}/config`;
+    var legacyTopic = `homeassistant/sensor/${prefix}_${VIN.toLowerCase()}_${code}/config`;
     mqttModule.sendMqtt(legacyTopic, JSON.stringify(payload), { retain: true });
   },  
   register(entityType, code, name, unit = null, device_class = "None", icon = null, actionable) {
@@ -62,20 +60,20 @@ const mqttModule = {
     mqttModule.remove(entityType, "None");
     
     const slugName = slugify(name.toLowerCase(), "_");
-    var topic = `homeassistant/${entityType.toLowerCase()}/haval_${VIN.toLowerCase()}_${code}/config`;
+    var topic = `homeassistant/${entityType.toLowerCase()}/${prefix}_${VIN.toLowerCase()}_${code}/config`;
 
     let payload = {
-      unique_id: `haval_${VIN.toLowerCase()}_${slugName}`,
-      object_id: `haval_${VIN.toLowerCase()}_${slugName}`,
+      unique_id: `${prefix}_${VIN.toLowerCase()}_${slugName}`,
+      object_id: `${prefix}_${VIN.toLowerCase()}_${slugName}`,
       name      
     };
 
     if(entityType === EntityType.IMAGE){
-      payload.url_topic = `haval_${VIN.toLowerCase()}/${code}/state`;
+      payload.url_topic = `${prefix}_${VIN.toLowerCase()}/${code}/state`;
     }
     if ([EntityType.SENSOR, EntityType.BINARY_SENSOR].includes(entityType)) {
       if(device_class !== "None") payload.device_class = device_class;
-      payload.state_topic = `haval_${VIN.toLowerCase()}/${code}/state`;
+      payload.state_topic = `${prefix}_${VIN.toLowerCase()}/${code}/state`;
 
       if(entityType === EntityType.BINARY_SENSOR){
         payload.payload_on = "1";
@@ -92,24 +90,24 @@ const mqttModule = {
     }
 
     if (entityType === EntityType.DEVICE_TRACKER) {
-      topic = `homeassistant/device_tracker/haval_${VIN.toLowerCase()}/config`;
-      payload.name = `haval_${VIN.toLowerCase()}`;
-      payload.unique_id = `haval_${VIN.toLowerCase()}`;
-      payload.object_id = `haval_${VIN.toLowerCase()}`;
-      payload.json_attributes_topic = `homeassistant/device_tracker/haval_${VIN.toLowerCase()}/attributes`;
+      topic = `homeassistant/device_tracker/${prefix}_${VIN.toLowerCase()}/config`;
+      payload.name = `${prefix}_${VIN.toLowerCase()}`;
+      payload.unique_id = `${prefix}_${VIN.toLowerCase()}`;
+      payload.object_id = `${prefix}_${VIN.toLowerCase()}`;
+      payload.json_attributes_topic = `homeassistant/device_tracker/${prefix}_${VIN.toLowerCase()}/attributes`;
     }
 
     if (entityType === EntityType.SWITCH) {      
-      topic = `homeassistant/switch/haval_${VIN.toLowerCase()}_${code.toLowerCase()}/config`;
-      payload.command_topic = `homeassistant/switch/haval_${VIN.toLowerCase()}_${code.toLowerCase()}/set`;
+      topic = `homeassistant/switch/${prefix}_${VIN.toLowerCase()}_${code.toLowerCase()}/config`;
+      payload.command_topic = `homeassistant/switch/${prefix}_${VIN.toLowerCase()}_${code.toLowerCase()}/set`;
       payload.optimistic = 'true';
       payload.payload_on = 'ON';
       payload.payload_off = 'OFF';
     }
 
     if (entityType === EntityType.BUTTON) {      
-      topic = `homeassistant/button/haval_${VIN.toLowerCase()}_${code.toLowerCase()}/config`;
-      payload.command_topic = `homeassistant/button/haval_${VIN.toLowerCase()}_${code.toLowerCase()}/press`;
+      topic = `homeassistant/button/${prefix}_${VIN.toLowerCase()}_${code.toLowerCase()}/config`;
+      payload.command_topic = `homeassistant/button/${prefix}_${VIN.toLowerCase()}_${code.toLowerCase()}/press`;
       payload.payload_press = 'PRESS';
     }
 
@@ -147,7 +145,7 @@ const mqttModule = {
     storage.setItem('topicsToSubscribe', JSON.stringify(topicsToSubscribe));
   },
   sendDeviceTrackerUpdate(latitude, longitude, attributes) {
-    const json_attributes_topic = `homeassistant/device_tracker/haval_${VIN.toLowerCase()}/attributes`;
+    const json_attributes_topic = `homeassistant/device_tracker/${prefix}_${VIN.toLowerCase()}/attributes`;
     const gpsData = {
       longitude: Number(longitude),
       latitude: Number(latitude),
@@ -159,7 +157,7 @@ const mqttModule = {
     mqttModule.sendMqtt(json_attributes_topic, JSON.stringify(attributesPayload), { retain: true });
   },
   sendMessage(code, value) {
-    const topic = `haval_${VIN.toLowerCase()}/${code}/state`;
+    const topic = `${prefix}_${VIN.toLowerCase()}/${code}/state`;
 
     mqttModule.sendMqtt(topic, String(value), { retain: true });
   },
