@@ -27,12 +27,12 @@ Você precisa ter uma instância do Home Assistant com o add-on `Mosquitto Broke
 #### 3. Configurando o Add-on
 
 1. Após a instalação, vá até a aba **Ajustes** do add-on.
-2. Configure os parâmetros necessários como endereço do broker MQTT, credenciais, e outras opções específicas para o Haval H6.
+2. Configure os parâmetros necessários como endereço do broker MQTT, credenciais, e outras opções específicas para os veículos GWM.
 ```yaml
-haval_username: conta_de_email_vinculada_ao_app_MyGWM
-haval_password: senha_do_app_MyGWM
-haval_vin: CHASSIS_DO_CARRO_COM_LETRAS_MAIÚSCULAS
-haval_pin: senha_de_ativação_de_comandos_no_app_MyGWM
+gmw_username: conta_de_email_vinculada_ao_app_MyGWM
+gmw_password: senha_do_app_MyGWM
+gmw_vin: CHASSIS_DO_CARRO_PRINCIPAL_COM_LETRAS_MAIÚSCULAS
+gmw_pin: senha_de_ativação_de_comandos_no_app_MyGWM
 mqtt_server: mqtt://homeassistant.local:1883
 mqtt_user: nome_de_usuario_do_mqtt
 mqtt_pass: senha_do_mqtt
@@ -52,7 +52,7 @@ Habilite a opção Iniciar na Inicialização se desejar que o add-on inicie aut
 5. Verificando a Integração
 Vá para Configuração no menu lateral do Home Assistant.
 Selecione Ferramentas de desenvolvedor.
-Verifique se as entidades iniciadas com *sensor.haval_* estão listados na aba Estado.
+Verifique se as entidades iniciadas com *sensor.gwmbrasil_* estão listados na aba Estado.
 Agora, você deve ser capaz de monitorar o seu veículo diretamente pelo painel do Home Assistant.
 
 ### OPCIONAL - INÍCIO ###
@@ -155,22 +155,11 @@ docker compose up -d
 - Acessar sua instalação do Home Assistant e recarregar a integração MQTT para que as entidades sejam corretamente lidas pelo sistema
 - Caso alguma entidade apresente status indisponível, dê um restart no container `hassio-haval-h6-to-mqtt`
 
-### OPCIONAL - FIM ###
+### OPCIONAL - FIM
 
-### Adicionando um Novo Dashboard no Home Assistant
+### Configurar um novo Dashboard em seu Home Assistant
 
-#### Passo a Passo
-
-1. Acesse a interface web do Home Assistant.
-2. Navegue até **Configurações** no menu lateral.
-3. Selecione **Dashboards**.
-4. Clique em **Adicionar Dashboard**.
-5. Atribua o título como `haval` e o ícone como `mdi:car-electric`. Ative a opção `Mostrar na barra lateral` e clique em _CRIAR_.
-6. Na nova linha criada com o novo dashboard, clique em _ABRIR_.
-7. No canto superior esquerdo da tela, clique em _Editar dashboard_.
-8. Clique novamente no símbolo com 3 pontos verticais e depois em _Editor de configuração RAW_.
-9. Apague o conteúdo existente que será exibido, copie o conteúdo do arquivo `HomeAssistant_Dashboard_Haval.yaml` fornecido como template e cole nesta tela. [Baixe aqui o arquivo YAML](https://github.com/havaleiros/hassio-haval-h6-to-mqtt/blob/main/haval-h6-mqtt/files/HomeAssistant_Dashboard_Haval.yaml). Consulte sempre a data de atualização do arquivo para identificar se há uma versão mais recente.
-10. Substitua todas as ocorrências de `{chassis}` pelo código de chassis de seu veículo, sempre com letras minúsculas. Remova também as chaves ({}) na substituição. 
+Utilizar um novo dashboard evita a edição e impactos em dashboards existentes.
 
 #### Adicionando Imagens do Veículo
 
@@ -199,11 +188,27 @@ Os seguintes custom cards são necessários:
 - [card-mod](https://github.com/thomasloven/lovelace-card-mod)
 - [bar-card](https://github.com/custom-cards/bar-card)
 - [fold-entity-row](https://github.com/thomasloven/lovelace-fold-entity-row)
+- [config-template-card](https://github.com/iantrich/config-template-card)
+- [lovelace-collapsable-cards](https://github.com/RossMcMillan92/lovelace-collapsable-cards)
+- [mini-graph-card](https://github.com/kalkih/mini-graph-card)
 
 Depois de instalar o HACS, siga as instruções específicas de cada card para adicioná-los ao seu dashboard.
 
+#### Adicionando um Novo Dashboard
+
+1. Acesse a interface web do Home Assistant.
+2. Navegue até **Configurações** no menu lateral.
+3. Selecione **Dashboards**.
+4. Clique em **Adicionar Dashboard**.
+5. Atribua o título como `GWM Brasil` e o ícone como `mdi:car-electric`. Ative a opção `Mostrar na barra lateral` e clique em _CRIAR_.
+6. Na nova linha criada com o novo dashboard, clique em _ABRIR_.
+7. No canto superior esquerdo da tela, clique em _Editar dashboard_.
+8. Clique novamente no símbolo com 3 pontos verticais e depois em _Editor de configuração RAW_.
+9. Apague o conteúdo existente que será exibido, copie o conteúdo do arquivo `HomeAssistant_Dashboard_Haval.yaml` fornecido como template e cole nesta tela. [Baixe aqui o arquivo YAML](https://github.com/havaleiros/hassio-haval-h6-to-mqtt/blob/main/haval-h6-mqtt/files/HomeAssistant_Dashboard_Haval.yaml). Consulte sempre a data de atualização do arquivo para identificar se há uma versão mais recente.
 
 Agora, seu novo dashboard estará configurado para exibir informações detalhadas sobre o seu veículo GWM Haval H6.
+
+Caso a pressão dos pneus esteja exibida com a unidade de medida `kPa`, toque sobre cada entidade na lista Pneus - do lado direito do dashboard - e toque no ícone de engrenagem (Cconfigurações). Altere a unidade de media para `psi`.
 
 ![Exemplo de painel no Home Assistant](https://raw.githubusercontent.com/havaleiros/hassio-haval-h6-to-mqtt/main/haval-h6-mqtt/images/HomeAssistant_Example.png)
 
@@ -235,6 +240,7 @@ ios:
 
 2. **Configurando o "AC Haval":**
 Para integrar o controle do ar-condicionado do seu Haval H6, certifique-se de seguir as instruções de instalação deste repositório, e então adicione a automação ou entidade correspondente ao ar-condicionado no seu Home Assistant. Um exemplo de configuração do "AC Haval" pode ser feito com base nas informações que o MQTT está expondo no seu servidor.
+Substitua `{chassis}` pelo código de chassis de seu veículo, sempre com letras minúsculas. Remova também as chaves ({}) na substituição.
 
 Exemplo de automação para controle do AC usando um botão:
 ```yaml
@@ -248,7 +254,7 @@ automation:
           actionName: "AC Haval"
     action:
       - action: button.press
-        entity_id: button.haval_{chassis}_ativacao_do_ar_condicionado
+        entity_id: button.gwmbrasil_{chassis}_ativacao_do_ar_condicionado
 ```
 
 ![Botão no Apple Watch](https://raw.githubusercontent.com/havaleiros/hassio-haval-h6-to-mqtt/main/haval-h6-mqtt/images/HA_Companion_watchOS.png)
@@ -271,9 +277,9 @@ Obrigado por utilizar o add-on GWM Brasil Haval H6 com MQTT para Home Assistant.
 Este projeto foi possível devido ao trabalho executado em https://github.com/ipsBruno/haval-h6-gwm-alexa-chatgpt-mqtt-integration, que por sua vez utilizou o trabalho disponível em https://github.com/zivillian/ora2mqtt.
 
 Contribuições de: 
+- @carvalr
 - @paulovitin
 - @bobaoapae
-- @carvalr
 - @rodrigogbs
 
 ## Licença
