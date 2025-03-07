@@ -6,14 +6,8 @@ const md5 = require("md5");
 
 require("dotenv").config();
 
-const { VIN } = process.env;
-
-const certData = fs.readFileSync("./certs/gwm_general.cer", {
-  encoding: "utf8",
-});
-const certKey = fs.readFileSync("./certs/gwm_general.key", {
-  encoding: "utf8",
-});
+const certData = fs.readFileSync("./certs/gwm_general.cer", { encoding: "utf8" });
+const certKey = fs.readFileSync("./certs/gwm_general.key", { encoding: "utf8" });
 const ca = fs.readFileSync("./certs/gwm_root.cer", { encoding: "utf8" });
 
 const httpsAgent = new https.Agent({
@@ -67,8 +61,9 @@ axios.sendCmd = async (instructions, remoteType, securityPassword, seqNo, type, 
   }
 };
 
-axios.getCarInfo = (path) => {
-  return axios.get(`${apiVehicleEndpoint}/${path}?vin=${VIN.toUpperCase()}&flag=true`, {
+axios.getCarInfo = (path, vin) => {
+  const vinQuery = vin ? `?vin=${String(vin).toUpperCase()}&flag=true` : '';  
+  return axios.get(`${apiVehicleEndpoint}/${path}${vinQuery}`, {
     headers,
   });
 };

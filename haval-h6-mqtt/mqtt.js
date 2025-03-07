@@ -2,11 +2,11 @@ const mqtt = require("mqtt");
 var slugify = require("slugify");
 const { commands } = require("./axios");
 const storage = require("./storage");
-const prefix = "haval";
+const prefix = 'gwmbrasil';
 
 require("dotenv").config();
 
-const { MQTT_HOST, MQTT_PASS, MQTT_USER, VIN, PIN } = process.env;
+const { MQTT_HOST, MQTT_PASS, MQTT_USER, PIN } = process.env;
 
 const EntityType = {
   SENSOR: "sensor",
@@ -16,10 +16,13 @@ const EntityType = {
   DEVICE_TRACKER: "device_tracker",
   SWITCH: "switch",
   BUTTON: "button",
+  SELECT: "select",
 };
 
 let topicsAndActions = JSON.parse(storage.getItem('topicsAndActions')) || {};
 let topicsToSubscribe = JSON.parse(storage.getItem('topicsToSubscribe')) || {};
+
+const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
 const mqttModule = {
   connect() {
@@ -46,34 +49,44 @@ const mqttModule = {
       });
     });
   },
-  remove(entityType, code) {
-    var payload = "";
-    var topic = `homeassistant/${entityType.toLowerCase()}/${prefix}_${VIN.toLowerCase()}_${code}/config`;
-    mqttModule.sendMqtt(topic, JSON.stringify(payload), { retain: true });
+  async remove(entityType, prefix, vin, code) {
+    var topic = `homeassistant/${entityType.toLowerCase()}/${prefix}_${vin.toLowerCase()}${code ? "_" + code.toLowerCase() : ""}/config`;
+    mqttModule.sendMqtt(topic, null, { retain: false });
 
-    var legacyTopic = `homeassistant/sensor/${prefix}_${VIN.toLowerCase()}_${code}/config`;
-    mqttModule.sendMqtt(legacyTopic, JSON.stringify(payload), { retain: true });
+    topic = `homeassistant/${entityType.toLowerCase()}/${prefix}_${vin.toLowerCase()}${code ? "_" + code : ""}/config`;
+    mqttModule.sendMqtt(topic, null, { retain: false });
+
+    var legacyTopic = `homeassistant/sensor/${prefix}_${vin.toLowerCase()}${code ? "_" + code.toLowerCase() : ""}/config`;
+    mqttModule.sendMqtt(legacyTopic, null, { retain: false });
+
+    legacyTopic = `homeassistant/sensor/${prefix}_${vin.toLowerCase()}${code ? "_" + code : ""}/config`;
+    mqttModule.sendMqtt(legacyTopic, null, { retain: false });    
   },  
-  register(entityType, code, name, unit = null, device_class = "None", icon = null, actionable) {
+  async register(entityType, vin, code, entity_name, unit = null, device_class = "None", icon = null, actionable = false, initial_value = null, state_class = null) {
+
+    await mqttModule.remove(entityType, "haval", vin, code);
+    await mqttModule.remove(entityType, "haval", vin, null);
+    await mqttModule.remove(entityType, "haval", vin, "None");
+    if(actionable && actionable.action)
+      await mqttModule.remove(entityType, "haval", vin, `${code.toLowerCase()}_${actionable.action.toLowerCase()}`);
+
+    await sleep(1000);
     
-    mqttModule.remove(entityType, code);
-    mqttModule.remove(entityType, "None");
-    
-    const slugName = slugify(name.toLowerCase(), "_");
-    var topic = `homeassistant/${entityType.toLowerCase()}/${prefix}_${VIN.toLowerCase()}_${code}/config`;
+    const slugName = slugify(entity_name.toLowerCase(), "_");
+    var topic = `homeassistant/${entityType.toLowerCase()}/${prefix}_${vin.toLowerCase()}_${code.toLowerCase()}/config`;
 
     let payload = {
-      unique_id: `${prefix}_${VIN.toLowerCase()}_${slugName}`,
-      object_id: `${prefix}_${VIN.toLowerCase()}_${slugName}`,
-      name      
+      unique_id: `${prefix}_${vin.toLowerCase()}_${slugName}`,
+      object_id: `${prefix}_${vin.toLowerCase()}_${slugName}`,
+      name: entity_name      
     };
 
     if(entityType === EntityType.IMAGE){
-      payload.url_topic = `${prefix}_${VIN.toLowerCase()}/${code}/state`;
+      payload.url_topic = `${prefix}_${vin.toLowerCase()}/${code.toLowerCase()}/state`;
     }
     if ([EntityType.SENSOR, EntityType.BINARY_SENSOR].includes(entityType)) {
       if(device_class !== "None") payload.device_class = device_class;
-      payload.state_topic = `${prefix}_${VIN.toLowerCase()}/${code}/state`;
+      payload.state_topic = `${prefix}_${vin.toLowerCase()}/${code.toLowerCase()}/state`;
 
       if(entityType === EntityType.BINARY_SENSOR){
         payload.payload_on = "1";
@@ -81,7 +94,7 @@ const mqttModule = {
       }
     }
     
-    if ([EntityType.SENSOR, EntityType.BINARY_SENSOR, EntityType.SWITCH, EntityType.BUTTON].includes(entityType) && icon) {
+    if ([EntityType.SENSOR, EntityType.BINARY_SENSOR, EntityType.SWITCH, EntityType.BUTTON, EntityType.SELECT].includes(entityType) && icon) {
       payload.icon = icon;
     }
 
@@ -89,26 +102,38 @@ const mqttModule = {
       payload.unit_of_measurement = unit;
     }
 
+    if (entityType === EntityType.SENSOR && state_class !== null && !["-", " ", "_", "", "None", "null"].includes(unit)) {
+      payload.state_class = state_class;
+    }
+
     if (entityType === EntityType.DEVICE_TRACKER) {
-      topic = `homeassistant/device_tracker/${prefix}_${VIN.toLowerCase()}/config`;
-      payload.name = `${prefix}_${VIN.toLowerCase()}`;
-      payload.unique_id = `${prefix}_${VIN.toLowerCase()}`;
-      payload.object_id = `${prefix}_${VIN.toLowerCase()}`;
-      payload.json_attributes_topic = `homeassistant/device_tracker/${prefix}_${VIN.toLowerCase()}/attributes`;
+      topic = `homeassistant/device_tracker/${prefix}_${vin.toLowerCase()}/config`;      
+      payload.unique_id = `${prefix}_${vin.toLowerCase()}`;
+      payload.object_id = `${prefix}_${vin.toLowerCase()}`;
+      payload.json_attributes_topic = `homeassistant/device_tracker/${prefix}_${vin.toLowerCase()}/attributes`;
     }
 
     if (entityType === EntityType.SWITCH) {      
-      topic = `homeassistant/switch/${prefix}_${VIN.toLowerCase()}_${code.toLowerCase()}/config`;
-      payload.command_topic = `homeassistant/switch/${prefix}_${VIN.toLowerCase()}_${code.toLowerCase()}/set`;
+      topic = `homeassistant/switch/${prefix}_${vin.toLowerCase()}_${code.toLowerCase()}/config`;
+      payload.command_topic = `homeassistant/switch/${prefix}_${vin.toLowerCase()}_${code.toLowerCase()}/set`;
       payload.optimistic = 'true';
       payload.payload_on = 'ON';
       payload.payload_off = 'OFF';
     }
 
     if (entityType === EntityType.BUTTON) {      
-      topic = `homeassistant/button/${prefix}_${VIN.toLowerCase()}_${code.toLowerCase()}/config`;
-      payload.command_topic = `homeassistant/button/${prefix}_${VIN.toLowerCase()}_${code.toLowerCase()}/press`;
+      topic = `homeassistant/button/${prefix}_${vin.toLowerCase()}_${code.toLowerCase()}/config`;
+      payload.command_topic = `homeassistant/button/${prefix}_${vin.toLowerCase()}_${code.toLowerCase()}/press`;
       payload.payload_press = 'PRESS';
+    }
+
+    if (entityType === EntityType.SELECT) {
+      topic = `homeassistant/select/${code.toLowerCase()}/config`;
+      payload.command_topic = `homeassistant/select/${code.toLowerCase()}/set`;
+      payload.state_topic = `homeassistant/select/${code.toLowerCase()}/state`;
+      payload.options = initial_value;
+      payload.unique_id = `${code.toLowerCase()}`;
+      payload.object_id = `${code.toLowerCase()}`;
     }
 
     mqttModule.sendMqtt(topic, JSON.stringify(payload), { retain: true });
@@ -116,8 +141,8 @@ const mqttModule = {
     if(actionable && PIN){
       if(actionable.entity_type){
         let topicToMonitorParent = payload.state_topic ? payload.state_topic : payload.command_topic;
-        topicsToSubscribe[`${entityType}_${VIN.toLowerCase()}_${code}`] = { topic: topicToMonitorParent };
-        topicsAndActions[`${actionable.entity_type}_${VIN.toLowerCase()}_${code}_${actionable.action.toLowerCase()}`] = { 
+        topicsToSubscribe[`${entityType}_${vin.toLowerCase()}_${code.toLowerCase()}`] = { topic: topicToMonitorParent };
+        topicsAndActions[`${actionable.entity_type}_${vin.toLowerCase()}_${code.toLowerCase()}_${actionable.action.toLowerCase()}`] = { 
           action: actionable.action, 
           topic_to_monitor_parent: topicToMonitorParent, 
           topic_to_monitor_actionable: "", 
@@ -125,18 +150,21 @@ const mqttModule = {
           link_type: actionable.link_type };
 
         mqttModule.register(entityType = EntityType[actionable.entity_type.toUpperCase()], 
-                            code = `${code}_${actionable.action.toLowerCase()}`,
-                            name = actionable.description,
+                            vin = vin,
+                            code = `${code.toLowerCase()}_${actionable.action.toLowerCase()}`,
+                            entity_name = actionable.description,
                             unit = null,
                             device_class = "None",
                             icon = actionable.icon,
-                            actionable = "Y");
+                            actionable = "Y",
+                            initial_value = null,
+                            state_class = null);
       }
       else if (String(actionable) === "Y"){
-        if(topicsAndActions[`${entityType}_${VIN.toLowerCase()}_${code}`] && payload.command_topic){
-          topicsToSubscribe[`${entityType}_${VIN.toLowerCase()}_${code}`] = { topic: payload.command_topic };
-          topicsAndActions[`${entityType}_${VIN.toLowerCase()}_${code}`].topic_to_monitor_actionable = payload.command_topic;
-          topicsAndActions[`${entityType}_${VIN.toLowerCase()}_${code}`].topic_to_update = payload.command_topic;
+        if(topicsAndActions[`${entityType}_${vin.toLowerCase()}_${code.toLowerCase()}`] && payload.command_topic){
+           topicsToSubscribe[`${entityType}_${vin.toLowerCase()}_${code.toLowerCase()}`] = { topic: payload.command_topic };
+           topicsAndActions[`${entityType}_${vin.toLowerCase()}_${code.toLowerCase()}`].topic_to_monitor_actionable = payload.command_topic;
+           topicsAndActions[`${entityType}_${vin.toLowerCase()}_${code.toLowerCase()}`].topic_to_update = payload.command_topic;
         }
       }
     }
@@ -144,8 +172,8 @@ const mqttModule = {
     storage.setItem('topicsAndActions', JSON.stringify(topicsAndActions));
     storage.setItem('topicsToSubscribe', JSON.stringify(topicsToSubscribe));
   },
-  sendDeviceTrackerUpdate(latitude, longitude, attributes) {
-    const json_attributes_topic = `homeassistant/device_tracker/${prefix}_${VIN.toLowerCase()}/attributes`;
+  sendDeviceTrackerUpdate(vin, latitude, longitude, attributes) {
+    const json_attributes_topic = `homeassistant/device_tracker/${prefix}_${vin.toLowerCase()}/attributes`;
     const gpsData = {
       longitude: Number(longitude),
       latitude: Number(latitude),
@@ -156,8 +184,8 @@ const mqttModule = {
 
     mqttModule.sendMqtt(json_attributes_topic, JSON.stringify(attributesPayload), { retain: true });
   },
-  sendMessage(code, value) {
-    const topic = `${prefix}_${VIN.toLowerCase()}/${code}/state`;
+  sendMessage(vin, code, value) {
+    const topic = `${prefix}_${vin.toLowerCase()}/${code.toLowerCase()}/state`;
 
     mqttModule.sendMqtt(topic, String(value), { retain: true });
   },
@@ -184,10 +212,10 @@ const ActionableAndLink = {
             if (topic === String(topicsAndActions[key].topic_to_monitor_actionable)){
               if(storage.getItem('Startup') == "true") return;
 
-              if(String(topicsAndActions[key].action) === "airConditioner" && ["ON", "PRESS", "TRUE"].includes(messageValue)){
+              if(String(topicsAndActions[key].action) === "airConditioner" && String(messageValue) === (String(topicsAndActions[key].link_type) === "press" ? 'PRESS' : 'ON')){
                 try {
                   let acData = await commands.airConditioner(PIN, VIN, true);
-                  console.info("Command airConditioner executed: ", acData);
+                  //console.debug(`Command ${String(topicsAndActions[key].action)} executed with ${messageValue} for link type ${String(topicsAndActions[key].link_type)}: ${JSON.stringify(acData, null, 2)}`);
                 } catch(e){
                   console.error(`***Error executing action [${String(topicsAndActions[key].action)}]***`);
                   console.error(e.message);
