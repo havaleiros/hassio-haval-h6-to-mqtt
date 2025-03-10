@@ -1,8 +1,8 @@
-# Home Assistant Community Add-on: GWM Brasil Haval H6 com MQTT
+# Home Assistant Community Add-on: GWM Brasil com MQTT
 
 ## Sobre
 
-Este add-on permite a integração do Home Assistant com o veículo GWM **Brasil** Haval H6 utilizando MQTT. Com essa integração, é possível monitorar e controlar várias funcionalidades do veículo diretamente pelo Home Assistant.
+Este add-on permite a integração do Home Assistant com os veículos da **GWM Brasil** utilizando MQTT. Com essa integração, é possível monitorar e controlar várias funcionalidades do veículo diretamente pelo Home Assistant.
 Você precisa ter uma instância do Home Assistant com o add-on `Mosquitto Broker` instalado e configurado. Caso esteja instalando o `Mosquitto Broker` somente para esta integração, lembre-se de reiniciar sua instância do Home Assistant após a instalação.
 
 [![Add Add-on to Home Assistant](https://my.home-assistant.io/badges/supervisor_add_addon_repository.svg)](https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2Fhavaleiros%2Fhassio-haval-h6-to-mqtt)
@@ -21,7 +21,7 @@ Você precisa ter uma instância do Home Assistant com o add-on `Mosquitto Broke
 #### 2. Instalando o Add-on
 
 1. Na aba **Add-on Store**, role para baixo até encontrar o repositório que você acabou de adicionar.
-2. Selecione o add-on **GWM Brasil Haval H6 com MQTT**.
+2. Selecione o add-on **GWM Brasil com MQTT**.
 3. Clique em **Instalar** e aguarde a conclusão da instalação.
 
 #### 3. Configurando o Add-on
@@ -46,20 +46,23 @@ Nota: Caso o campo `mqtt_pass` não esteja disponível na tela, ative a opção 
 
 3. Salve as configurações.
 4. Iniciando o Add-on
-Volte para a aba Informação do add-on.
-Clique em Iniciar para inicializar o add-on.
-Habilite a opção Iniciar na Inicialização se desejar que o add-on inicie automaticamente junto com o Home Assistant.
+- Volte para a aba Informação do add-on.
+- Clique em _Iniciar_ para inicializar o add-on.
+- Habilite a opção _Iniciar_ na Inicialização se desejar que o add-on inicie automaticamente junto com o Home Assistant.
 5. Verificando a Integração
-Vá para Configuração no menu lateral do Home Assistant.
-Selecione Ferramentas de desenvolvedor.
-Verifique se as entidades iniciadas com *sensor.gwmbrasil_* estão listados na aba Estado.
-Agora, você deve ser capaz de monitorar o seu veículo diretamente pelo painel do Home Assistant.
+- Vá para _Configuração_ no menu lateral do Home Assistant.
+- Selecione _Ferramentas de desenvolvedor_.
+- Verifique se as entidades iniciadas com *sensor.gwmbrasil_* estão listados na aba _Estado_.
+- Agora, você deve ser capaz de monitorar o seu veículo diretamente pelo painel do Home Assistant.
 
-### OPCIONAL - INÍCIO ###
+### OPCIONAL - Instalações core ou não-supervisionadas ###
 
-### Adicionando o Add-on diretamente via Docker para instalações do Home Assistant não Supervisionadas (Core ou Container)
+Esta sessão é destinada somente para instalações que não possuam o **Home Assistant Supervisor** em suas instâncias locais, necessitando da configuração manual do add-on em um container para execução.
+Pule esta etapa se sua instância conta com o **Home Assistant Supervisor**.
 
-#### Premissas
+#### Adicionando o Add-on diretamente via Docker para instalações do Home Assistant não Supervisionadas (Core ou Container)
+
+**Premissas**:
 
 1. Possuir um ambiente Linux (preferencialmente Debian) com o Home Assistant Core ou Container previamente instalado e totalmente funcional via `docker-compose.yaml`
 2. Possuir o serviço `Mosquitto Broker` previamente instalado (nome do container deve ser: `mosquitto`), totalmente funcional e configurado via Integração dentro da Instalação do Home Assistant
@@ -69,7 +72,7 @@ Agora, você deve ser capaz de monitorar o seu veículo diretamente pelo painel 
 sudo apt-get install npm
 ```
 
-#### 1. Criando a estutura do Add-on dentro do Server
+#### 1. Criando a estutura do Add-on dentro do servidor Home Assistant
 
 1. Clonar repositório GitHub:
 ```yaml
@@ -94,8 +97,8 @@ EXPOSE 3000
 
 CMD ["node", "index.js"]
 ```
-4. CTRL+O + ENTER para salvar
-5. CTRL+X para sair
+4. `CTRL+O` + `ENTER` para salvar
+5. `CTRL+X` para sair
 
 #### 2. Configurando as credenciais de acesso dentro das variáveis de ambiente
 
@@ -115,8 +118,8 @@ MQTT_USER=XXXX
 MQTT_PASS=XXXX
 MQTT_HOST=mqtt://IP_DO_SERVER_MQTT:1883
 ```
-3. CTRL+O + ENTER para salvar
-4. CTRL+X para sair
+3. `CTRL+O` + `ENTER` para salvar
+4. `CTRL+X` para sair
 
 #### 3. Configurando o Serviço dentro do Docker
 
@@ -143,8 +146,8 @@ sudo nano docker-compose.yaml
     env_file:
       - /opt/hassio-haval-h6-to-mqtt/haval-h6.env
 ```
-4. CTRL+O + ENTER para salvar
-5. CTRL+X para sair
+4. `CTRL+O` + `ENTER` para salvar
+5. `CTRL+X` para sair
 6. Subir Container:
 ```yaml
 docker compose up -d
@@ -154,8 +157,6 @@ docker compose up -d
 
 - Acessar sua instalação do Home Assistant e recarregar a integração MQTT para que as entidades sejam corretamente lidas pelo sistema
 - Caso alguma entidade apresente status indisponível, dê um restart no container `hassio-haval-h6-to-mqtt`
-
-### OPCIONAL - FIM
 
 ### Configurar um novo Dashboard em seu Home Assistant
 
@@ -206,15 +207,15 @@ Depois de instalar o HACS, siga as instruções específicas de cada card para a
 8. Clique novamente no símbolo com 3 pontos verticais e depois em _Editor de configuração RAW_.
 9. Apague o conteúdo existente que será exibido, copie o conteúdo do arquivo `HomeAssistant_Dashboard_Haval.yaml` fornecido como template e cole nesta tela. [Baixe aqui o arquivo YAML](https://github.com/havaleiros/hassio-haval-h6-to-mqtt/blob/main/haval-h6-mqtt/files/HomeAssistant_Dashboard_Haval.yaml). Consulte sempre a data de atualização do arquivo para identificar se há uma versão mais recente.
 
-Agora, seu novo dashboard estará configurado para exibir informações detalhadas sobre o seu veículo GWM Haval H6.
+Agora, seu novo dashboard estará configurado para exibir informações detalhadas sobre o seu veículo GWM.
 
 Caso a pressão dos pneus esteja exibida com a unidade de medida `kPa`, toque sobre cada entidade na lista Pneus - do lado direito do dashboard - e toque no ícone de engrenagem (Cconfigurações). Altere a unidade de media para `psi`.
 
 ![Exemplo de painel no Home Assistant](https://raw.githubusercontent.com/havaleiros/hassio-haval-h6-to-mqtt/main/haval-h6-mqtt/images/HomeAssistant_Example.png)
 
-####
+### Configuração do controle do ar condicionado via Smart Watch no Home Assistant Companion
 
-### Configuração do Home Assistant
+A configuração para smart watch funciona tanto para Android, quanto para iOS. No entanto, este guia aborda somente a configuração para iOS. Verifique a documentação do Home Assistant para a configuração para dispositivos Android.
 
 #### Adicionando "ios" e "AC Haval" no `configuration.yaml`
 
@@ -270,7 +271,7 @@ A comunidade Havaleiros está no WhatsApp. Você pode solicitar acesso enviando 
 ## Contribuições
 Contribuições são bem-vindas! Sinta-se à vontade para abrir pull requests ou issues no repositório do GitHub.
 
-Obrigado por utilizar o add-on GWM Brasil Haval H6 com MQTT para Home Assistant. Aproveite a integração!
+Obrigado por utilizar o add-on `GWM Brasil com MQTT` para Home Assistant. Aproveite a integração!
 
 ## Créditos
 
@@ -285,7 +286,7 @@ Contribuições de:
 ## Licença
 Licença MIT
 
-Copyright (c) 2024 Havaleiros
+Copyright (c) 2025 Havaleiros
 
 É concedida permissão, gratuitamente, a qualquer pessoa que obtenha uma cópia deste software e arquivos de documentação associados (o "Software"), para lidar no Software sem restrições, incluindo, sem limitação, os direitos usar, copiar, modificar, mesclar, publicar, distribuir, sublicenciar e/ou vender cópias do Software e permitir que as pessoas a quem o Software é capacitado para fazê-lo, sujeito às seguintes condições:
 
