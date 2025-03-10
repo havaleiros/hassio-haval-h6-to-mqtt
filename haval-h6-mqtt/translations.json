@@ -13,7 +13,7 @@
             "label": "myGWM App Password"
         },
         "haval_vin": { 
-            "label": "Default Vehicle Chassis",
+            "label": "Vehicle Chassis",
             "help": "Check in the app or on the invoice."
         },
         "haval_pin": {
@@ -52,7 +52,7 @@
             "label": "Senha do aplicativo myGWM"
         },
         "haval_vin": { 
-            "label": "Chassis do veículo principal",
+            "label": "Chassis do veículo",
             "help": "Verifique no aplicativo ou na nota fiscal."
         },
         "haval_pin": {

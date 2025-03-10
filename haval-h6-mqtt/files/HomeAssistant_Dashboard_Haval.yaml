@@ -1104,7 +1104,7 @@ views:
                           card_mod:
                             style: |
                               :host {
-                                display: {% if states('binary_sensor.gwmbrasil_${VEICULO.toLowerCase()}_estado_do_ar_condicionado') === 'off' and states('binary_sensor.gwmbrasil_${VEICULO.toLowerCase()}_estado_da_trava') === 'off' and states('sensor.gwmbrasil_${VEICULO.toLowerCase()}_estado_do_motor') === '0' %} block {% else %} none {% endif %};
+                                display: {% if states('binary_sensor.gwmbrasil_${VEICULO.toLowerCase()}_estado_do_ar_condicionado') == 'off' and states('binary_sensor.gwmbrasil_${VEICULO.toLowerCase()}_estado_da_trava') == 'off' and states('sensor.gwmbrasil_${VEICULO.toLowerCase()}_estado_do_motor') == '0' %} block {% else %} none {% endif %};
                               }
                         - entity: >-
                             sensor.gwmbrasil_${VEICULO.toLowerCase()}_estado_de_carga_12v
