@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.0.15
+- Alteração de nome de exibição da integração para abarcar demais veículos da marca GWM.
+- Atualizado arquivo `HomeAssistant_Dashboard_Haval.yaml` para corrigir a exibição do botão de acionamento do ar condicionado quando o carro está desligado.
+
 ## 0.0.14
 - Adicionada caixa de seleção de veículo `select.gwmbrasil_veiculos_registrados` para usuários que possuam mais de um veículo cadastrado no aplicatiov My GWM.
 - Nova versão do `HomeAssistant_Dashboard_Haval.yaml` com melhorias e agora sem a necessidade de ajustes manuais, tendo comportamento dinâmico de acordo com o veículo selecionado. _ATENÇÃO: Para a controle de comandos via relógio inteligente, ainda é necessário configurar o chassis manualmente, conforme descrito no `README.md`_.
