@@ -1,0 +1,27 @@
+configuration:
+  refresh_time:
+    name: "Refresh Interval (seconds)"
+    description: "Time interval for querying the API and updating data for entities created by this integration. It cannot be lower than 5 seconds."
+  haval_username:
+    name: "'My GWM' App Username"
+    description: "The email address used during registration."
+  haval_password:
+    name: "'My GWM' App Password"
+  haval_vin:
+    name: "Default Vehicle Chassis"
+    description: "Check in the app or on the invoice."
+  haval_pin:
+    name: "'My GWM' app PIN for commands"
+    description: "PIN code used in the 'My GWM' app to activate the command request like turning the air conditioner on."
+  mqtt_server:
+    name: "MQTT Server Address"
+    description: "Address of your Home Assistant's MQTT server or external broker. Keep default if installed alongside Home Assistant as a service."
+  mqtt_user:
+    name: "MQTT Broker Username"
+    description: "Username configured on your Home Assistant's MQTT server or external broker."
+  mqtt_pass:
+    name: "MQTT Broker Password"
+    description: "Password configured on your Home Assistant's MQTT server or external broker."
+  device_tracker_enabled:
+    name: "Enable Device Tracker"
+    description: "Registers vehicle positioning with tracking based on the configured interval. Used for display on the map."

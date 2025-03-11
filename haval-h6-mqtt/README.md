@@ -209,7 +209,7 @@ Depois de instalar o HACS, siga as instruções específicas de cada card para a
 
 Agora, seu novo dashboard estará configurado para exibir informações detalhadas sobre o seu veículo GWM.
 
-Caso a pressão dos pneus esteja exibida com a unidade de medida `kPa`, toque sobre cada entidade na lista Pneus - do lado direito do dashboard - e toque no ícone de engrenagem (Cconfigurações). Altere a unidade de media para `psi`.
+Nota: Caso a pressão dos pneus seja exibida com a unidade de medida `kPa`, toque sobre cada entidade na lista Pneus - do lado direito do dashboard - e toque no ícone de engrenagem, _Configurações_. Altere a unidade de medida para `psi`.
 
 ![Exemplo de painel no Home Assistant](https://raw.githubusercontent.com/havaleiros/hassio-haval-h6-to-mqtt/main/haval-h6-mqtt/images/HomeAssistant_Example.png)
 
