@@ -1002,27 +1002,33 @@ views:
                     entities:
                       - entity: >-
                           sensor.gwmbrasil_${VEICULO.toLowerCase()}_estado_de_carga_soc
-                - type: custom:bar-card
-                  title: Combustível
-                  positions:
-                    icon: 'off'
-                    name: 'off'
-                  tap_action:
-                    action: more-info
-                  hold_action:
-                    action: none
-                  min: 0
-                  max: 60
-                  severity:
-                    - value: 0
-                      color: '#540000'
-                    - value: 30
-                      color: '#ffa200'
-                    - value: 55
-                      color: '#009c72'
-                  entities:
+                - type: conditional
+                  conditions:
                     - entity: >-
                         sensor.gwmbrasil_${VEICULO.toLowerCase()}_nivel_de_combustivel
+                      state_not: unavailable
+                  card:
+                    type: custom:bar-card
+                    title: Combustível
+                    positions:
+                      icon: 'off'
+                      name: 'off'
+                    tap_action:
+                      action: more-info
+                    hold_action:
+                      action: none
+                    min: 0
+                    max: 60
+                    severity:
+                      - value: 0
+                        color: '#540000'
+                      - value: 30
+                        color: '#ffa200'
+                      - value: 55
+                        color: '#009c72'
+                    entities:
+                      - entity: >-
+                          sensor.gwmbrasil_${VEICULO.toLowerCase()}_nivel_de_combustivel
             - type: custom:collapsable-cards
               title: Monitoramento dos pneus
               defaultOpen: true
@@ -1117,18 +1123,30 @@ views:
                         label: Autonomia e abastecimento
                       open: true
                       entities:
-                        - type: custom:template-entity-row
-                          entity: >-
-                            sensor.gwmbrasil_${VEICULO.toLowerCase()}_estado_do_motor
-                          name: Estado do motor
-                          state: >-
-                            ${
-                            states['sensor.gwmbrasil_'+VEICULO.toLowerCase()+'_estado_do_motor'].state
-                            === '0' ? 'Desligado' :
-                            states['sensor.gwmbrasil_'+VEICULO.toLowerCase()+'_estado_do_motor'].state
-                            === '1' ? 'Ligado' : 'Desconhecido'}
-                        - entity: >-
-                            sensor.gwmbrasil_${VEICULO.toLowerCase()}_autonomia_combustao
+                        - type: conditional
+                          conditions:
+                            - entity: >-
+                                sensor.gwmbrasil_${VEICULO.toLowerCase()}_estado_do_motor
+                              state_not: unavailable
+                          row:
+                            type: custom:template-entity-row
+                            entity: >-
+                              sensor.gwmbrasil_${VEICULO.toLowerCase()}_estado_do_motor
+                            name: Estado do motor
+                            state: >-
+                              ${
+                              states['sensor.gwmbrasil_'+VEICULO.toLowerCase()+'_estado_do_motor'].state
+                              === '0' ? 'Desligado' :
+                              states['sensor.gwmbrasil_'+VEICULO.toLowerCase()+'_estado_do_motor'].state
+                              === '1' ? 'Ligado' : 'Desconhecido'}
+                        - type: conditional
+                          conditions:
+                            - entity: >-
+                                sensor.gwmbrasil_${VEICULO.toLowerCase()}_autonomia_combustao
+                              state_not: unavailable
+                          row:
+                            entity: >-
+                              sensor.gwmbrasil_${VEICULO.toLowerCase()}_autonomia_combustao
                         - type: conditional
                           conditions:
                             - entity: >-
@@ -1137,8 +1155,14 @@ views:
                           row:
                             entity: >-
                               sensor.gwmbrasil_${VEICULO.toLowerCase()}_autonomia_ev
-                        - entity: >-
-                            sensor.gwmbrasil_${VEICULO.toLowerCase()}_nivel_de_combustivel
+                        - type: conditional
+                          conditions:
+                            - entity: >-
+                                sensor.gwmbrasil_${VEICULO.toLowerCase()}_nivel_de_combustivel
+                              state_not: unavailable
+                          row:
+                            entity: >-
+                              sensor.gwmbrasil_${VEICULO.toLowerCase()}_nivel_de_combustivel
                         - type: conditional
                           conditions:
                             - entity: >-

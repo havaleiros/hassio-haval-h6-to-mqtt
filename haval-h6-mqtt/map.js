@@ -303,17 +303,17 @@ const attributeTopics = {
   //   value: 0,
   // },
   // 2222001: {
-  // 	description: "Estado do Desembaçador Dianteiro (Não Funcionando)",
+  // 	description: "Estado do Desembaçador Dianteiro",
   // 	unit: "null",
   // 	value: 0,
   // },
   // 2210032: {
-  // 	description: "Estado do Desembaçador Traseiro (Não Funcionando)",
+  // 	description: "Estado do Desembaçador Traseiro",
   // 	unit: "null",
   // 	value: 0,
   // },
   // 2212001: {
-  // 	description: "Estado do Capô (Não Funcionando)",
+  // 	description: "Estado do Capô",
   // 	unit: "null",
   // 	value: 0,
   // },
