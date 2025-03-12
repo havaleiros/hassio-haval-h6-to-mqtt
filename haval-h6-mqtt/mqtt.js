@@ -22,8 +22,6 @@ const EntityType = {
 let topicsAndActions = JSON.parse(storage.getItem('topicsAndActions')) || {};
 let topicsToSubscribe = JSON.parse(storage.getItem('topicsToSubscribe')) || {};
 
-const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
-
 const mqttModule = {
   connect() {
     return mqtt.connect(MQTT_HOST, {
@@ -49,29 +47,21 @@ const mqttModule = {
       });
     });
   },
-  async remove(entityType, prefix, vin, code) {
-    var topic = `homeassistant/${entityType.toLowerCase()}/${prefix}_${vin.toLowerCase()}${code ? "_" + code.toLowerCase() : ""}/config`;
+  async remove(entityType, _prefix, vin, code) {
+    var topic = `homeassistant/${entityType.toLowerCase()}/${_prefix}_${vin.toLowerCase()}${code ? "_" + code.toLowerCase() : ""}/config`;
     mqttModule.sendMqtt(topic, null, { retain: false });
 
-    topic = `homeassistant/${entityType.toLowerCase()}/${prefix}_${vin.toLowerCase()}${code ? "_" + code : ""}/config`;
+    topic = `homeassistant/${entityType.toLowerCase()}/${_prefix}_${vin.toLowerCase()}${code ? "_" + code : ""}/config`;
     mqttModule.sendMqtt(topic, null, { retain: false });
 
-    var legacyTopic = `homeassistant/sensor/${prefix}_${vin.toLowerCase()}${code ? "_" + code.toLowerCase() : ""}/config`;
+    var legacyTopic = `homeassistant/sensor/${_prefix}_${vin.toLowerCase()}${code ? "_" + code.toLowerCase() : ""}/config`;
     mqttModule.sendMqtt(legacyTopic, null, { retain: false });
 
-    legacyTopic = `homeassistant/sensor/${prefix}_${vin.toLowerCase()}${code ? "_" + code : ""}/config`;
+    legacyTopic = `homeassistant/sensor/${_prefix}_${vin.toLowerCase()}${code ? "_" + code : ""}/config`;
     mqttModule.sendMqtt(legacyTopic, null, { retain: false });    
   },  
   async register(entityType, vin, code, entity_name, unit = null, device_class = "None", icon = null, actionable = false, initial_value = null, state_class = null) {
 
-    await mqttModule.remove(entityType, "haval", vin, code);
-    await mqttModule.remove(entityType, "haval", vin, null);
-    await mqttModule.remove(entityType, "haval", vin, "None");
-    if(actionable && actionable.action)
-      await mqttModule.remove(entityType, "haval", vin, `${code.toLowerCase()}_${actionable.action.toLowerCase()}`);
-
-    await sleep(1000);
-    
     const slugName = slugify(entity_name.toLowerCase(), "_");
     var topic = `homeassistant/${entityType.toLowerCase()}/${prefix}_${vin.toLowerCase()}_${code.toLowerCase()}/config`;
 

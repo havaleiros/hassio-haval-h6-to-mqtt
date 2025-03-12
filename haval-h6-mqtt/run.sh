@@ -2,10 +2,10 @@
 set +u
 
 export REFRESH_TIME=$(bashio::config 'refresh_time')
-export USERNAME=$(bashio::config 'haval_username')
-export PASSWORD=$(bashio::config 'haval_password')
-export VIN=$(bashio::config 'haval_vin')
-export PIN=$(bashio::config 'haval_pin')
+export USERNAME=$(bashio::config 'gwm_username')
+export PASSWORD=$(bashio::config 'gwm_password')
+export VIN=$(bashio::config 'gwm_vin')
+export PIN=$(bashio::config 'gwm_pin')
 export MQTT_HOST=$(bashio::config 'mqtt_server')
 export MQTT_USER=$(bashio::config 'mqtt_user')
 export MQTT_PASS=$(bashio::config 'mqtt_pass')

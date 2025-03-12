@@ -548,7 +548,7 @@ views:
                               position: absolute;
                               top: 0;
                               left: 0;
-                              z-index: 4;
+                              z-index: 3.1;
                             }
                             ha-card {
                               max-width: 441px;
@@ -975,27 +975,33 @@ views:
                   }
             - type: horizontal-stack
               cards:
-                - type: custom:bar-card
-                  title: Bateria
-                  positions:
-                    icon: 'off'
-                    name: 'off'
-                  tap_action:
-                    action: more-info
-                  hold_action:
-                    action: none
-                  min: 0
-                  max: 100
-                  severity:
-                    - value: 0
-                      color: '#540000'
-                    - value: 50
-                      color: '#ffa200'
-                    - value: 100
-                      color: '#009c72'
-                  entities:
+                - type: conditional
+                  conditions:
                     - entity: >-
                         sensor.gwmbrasil_${VEICULO.toLowerCase()}_estado_de_carga_soc
+                      state_not: unavailable
+                  card:
+                    type: custom:bar-card
+                    title: Bateria
+                    positions:
+                      icon: 'off'
+                      name: 'off'
+                    tap_action:
+                      action: more-info
+                    hold_action:
+                      action: none
+                    min: 0
+                    max: 100
+                    severity:
+                      - value: 0
+                        color: '#540000'
+                      - value: 50
+                        color: '#ffa200'
+                      - value: 100
+                        color: '#009c72'
+                    entities:
+                      - entity: >-
+                          sensor.gwmbrasil_${VEICULO.toLowerCase()}_estado_de_carga_soc
                 - type: custom:bar-card
                   title: Combustível
                   positions:
@@ -1123,13 +1129,25 @@ views:
                             === '1' ? 'Ligado' : 'Desconhecido'}
                         - entity: >-
                             sensor.gwmbrasil_${VEICULO.toLowerCase()}_autonomia_combustao
-                        - entity: >-
-                            sensor.gwmbrasil_${VEICULO.toLowerCase()}_autonomia_ev
+                        - type: conditional
+                          conditions:
+                            - entity: >-
+                                sensor.gwmbrasil_${VEICULO.toLowerCase()}_autonomia_ev
+                              state_not: unavailable
+                          row:
+                            entity: >-
+                              sensor.gwmbrasil_${VEICULO.toLowerCase()}_autonomia_ev
                         - entity: >-
                             sensor.gwmbrasil_${VEICULO.toLowerCase()}_nivel_de_combustivel
-                        - entity: >-
-                            sensor.gwmbrasil_${VEICULO.toLowerCase()}_estado_de_carga_soc
-                          state_color: true
+                        - type: conditional
+                          conditions:
+                            - entity: >-
+                                sensor.gwmbrasil_${VEICULO.toLowerCase()}_estado_de_carga_soc
+                              state_not: unavailable
+                          row:
+                            entity: >-
+                              sensor.gwmbrasil_${VEICULO.toLowerCase()}_estado_de_carga_soc
+                            state_color: true
                         - entity: >-
                             sensor.gwmbrasil_${VEICULO.toLowerCase()}_quilometragem_total
                         - type: custom:template-entity-row
@@ -1175,22 +1193,29 @@ views:
                             sensor.gwmbrasil_${VEICULO.toLowerCase()}_estado_de_carga_12v
                           secondary_info: last-updated
                           state_color: true
-                        - type: custom:template-entity-row
-                          entity: >-
-                            sensor.gwmbrasil_${VEICULO.toLowerCase()}_estado_da_carga
-                          name: Estado de Carregamento
-                          state: >-
-                            ${
-                            states['sensor.gwmbrasil_'+VEICULO.toLowerCase()+'_estado_da_carga'].state
-                            === '0' ? 'Desconectado' :
-                            states['sensor.gwmbrasil_'+VEICULO.toLowerCase()+'_estado_da_carga'].state
-                            === '1' ? 'Carregando' :
-                            states['sensor.gwmbrasil_'+VEICULO.toLowerCase()+'_estado_da_carga'].state
-                            === '2' ? 'Programado' :
-                            states['sensor.gwmbrasil_'+VEICULO.toLowerCase()+'_estado_da_carga'].state
-                            === '3' ? 'Finalizado' :
-                            states['sensor.gwmbrasil_'+VEICULO.toLowerCase()+'_estado_da_carga'].state
-                            === '5' ? 'Aguardando liberação' : 'Desconhecido' }
+                        - type: conditional
+                          conditions:
+                            - entity: >-
+                                sensor.gwmbrasil_${VEICULO.toLowerCase()}_estado_da_carga
+                              state_not: unavailable
+                          row:
+                            type: custom:template-entity-row
+                            entity: >-
+                              sensor.gwmbrasil_${VEICULO.toLowerCase()}_estado_da_carga
+                            name: Estado de Carregamento
+                            state: >-
+                              ${
+                              states['sensor.gwmbrasil_'+VEICULO.toLowerCase()+'_estado_da_carga'].state
+                              === '0' ? 'Desconectado' :
+                              states['sensor.gwmbrasil_'+VEICULO.toLowerCase()+'_estado_da_carga'].state
+                              === '1' ? 'Carregando' :
+                              states['sensor.gwmbrasil_'+VEICULO.toLowerCase()+'_estado_da_carga'].state
+                              === '2' ? 'Programado' :
+                              states['sensor.gwmbrasil_'+VEICULO.toLowerCase()+'_estado_da_carga'].state
+                              === '3' ? 'Finalizado' :
+                              states['sensor.gwmbrasil_'+VEICULO.toLowerCase()+'_estado_da_carga'].state
+                              === '5' ? 'Aguardando liberação' : 'Desconhecido'
+                              }
                         - entity: >-
                             sensor.gwmbrasil_${VEICULO.toLowerCase()}_tempo_de_carga
                           card_mod:
@@ -1207,21 +1232,21 @@ views:
                       open: true
                       entities:
                         - entity: >-
-                            sensor.gwmbrasil_${VEICULO.toLowerCase()}_pressao_do_pneu_dianteiro_direito
-                        - entity: >-
-                            sensor.gwmbrasil_${VEICULO.toLowerCase()}_temperatura_do_pneu_dianteiro_direito
-                        - entity: >-
                             sensor.gwmbrasil_${VEICULO.toLowerCase()}_pressao_do_pneu_dianteiro_esquerdo
                         - entity: >-
                             sensor.gwmbrasil_${VEICULO.toLowerCase()}_temperatura_do_pneu_dianteiro_esquerdo
                         - entity: >-
-                            sensor.gwmbrasil_${VEICULO.toLowerCase()}_pressao_do_pneu_traseiro_direito
+                            sensor.gwmbrasil_${VEICULO.toLowerCase()}_pressao_do_pneu_dianteiro_direito
                         - entity: >-
-                            sensor.gwmbrasil_${VEICULO.toLowerCase()}_temperatura_do_pneu_traseiro_direito
+                            sensor.gwmbrasil_${VEICULO.toLowerCase()}_temperatura_do_pneu_dianteiro_direito
                         - entity: >-
                             sensor.gwmbrasil_${VEICULO.toLowerCase()}_pressao_do_pneu_traseiro_esquerdo
                         - entity: >-
                             sensor.gwmbrasil_${VEICULO.toLowerCase()}_temperatura_do_pneu_traseiro_esquerdo
+                        - entity: >-
+                            sensor.gwmbrasil_${VEICULO.toLowerCase()}_pressao_do_pneu_traseiro_direito
+                        - entity: >-
+                            sensor.gwmbrasil_${VEICULO.toLowerCase()}_temperatura_do_pneu_traseiro_direito
             - type: horizontal-stack
               cards:
                 - type: entities
@@ -1255,14 +1280,18 @@ views:
                             === 'on' ? 'Destrancada' : 'Desconhecido'}
                         - type: custom:template-entity-row
                           entity: >-
-                            binary_sensor.gwmbrasil_${VEICULO.toLowerCase()}_porta_malas
-                          name: Porta malas
+                            binary_sensor.gwmbrasil_${VEICULO.toLowerCase()}_porta_dianteira_esquerda
+                          name: Dianteira esquerda
+                          color: >-
+                            ${
+                            states['binary_sensor.gwmbrasil_'+VEICULO.toLowerCase()+'_porta_dianteira_esquerda'].state
+                            === 'on' ? 'red' : '' }
                           state: >-
                             ${
-                            states['binary_sensor.gwmbrasil_'+VEICULO.toLowerCase()+'_porta_malas'].state
-                            === 'off' ? 'Fechado' :
-                            states['binary_sensor.gwmbrasil_'+VEICULO.toLowerCase()+'_porta_malas'].state
-                            === 'on' ? 'Aberto' : 'Desconhecido'}
+                            states['binary_sensor.gwmbrasil_'+VEICULO.toLowerCase()+'_porta_dianteira_esquerda'].state
+                            === 'off' ? 'Fechada' :
+                            states['binary_sensor.gwmbrasil_'+VEICULO.toLowerCase()+'_porta_dianteira_esquerda'].state
+                            === 'on' ? 'Aberta' : 'Desconhecido'}
                         - type: custom:template-entity-row
                           entity: >-
                             binary_sensor.gwmbrasil_${VEICULO.toLowerCase()}_porta_dianteira_direita
@@ -1276,20 +1305,21 @@ views:
                             states['binary_sensor.gwmbrasil_'+VEICULO.toLowerCase()+'_porta_dianteira_direita'].state
                             === 'off' ? 'Fechada' :
                             states['binary_sensor.gwmbrasil_'+VEICULO.toLowerCase()+'_porta_dianteira_direita'].state
-                            === 'on' ? 'Aberta' : 'Desconhecido'}
+                            === 'on' ? 'Aberta' :
+                            'Desconhecido'}                
                         - type: custom:template-entity-row
                           entity: >-
-                            binary_sensor.gwmbrasil_${VEICULO.toLowerCase()}_porta_dianteira_esquerda
-                          name: Dianteira esquerda
+                            binary_sensor.gwmbrasil_${VEICULO.toLowerCase()}_porta_traseira_esquerda
+                          name: Traseira esquerda
                           color: >-
                             ${
-                            states['binary_sensor.gwmbrasil_'+VEICULO.toLowerCase()+'_porta_dianteira_esquerda'].state
+                            states['binary_sensor.gwmbrasil_'+VEICULO.toLowerCase()+'_porta_traseira_esquerda'].state
                             === 'on' ? 'red' : '' }
                           state: >-
                             ${
-                            states['binary_sensor.gwmbrasil_'+VEICULO.toLowerCase()+'_porta_dianteira_esquerda'].state
+                            states['binary_sensor.gwmbrasil_'+VEICULO.toLowerCase()+'_porta_traseira_esquerda'].state
                             === 'off' ? 'Fechada' :
-                            states['binary_sensor.gwmbrasil_'+VEICULO.toLowerCase()+'_porta_dianteira_esquerda'].state
+                            states['binary_sensor.gwmbrasil_'+VEICULO.toLowerCase()+'_porta_traseira_esquerda'].state
                             === 'on' ? 'Aberta' : 'Desconhecido'}
                         - type: custom:template-entity-row
                           entity: >-
@@ -1307,18 +1337,14 @@ views:
                             === 'on' ? 'Aberta' : 'Desconhecido'}
                         - type: custom:template-entity-row
                           entity: >-
-                            binary_sensor.gwmbrasil_${VEICULO.toLowerCase()}_porta_traseira_esquerda
-                          name: Traseira esquerda
-                          color: >-
-                            ${
-                            states['binary_sensor.gwmbrasil_'+VEICULO.toLowerCase()+'_porta_traseira_esquerda'].state
-                            === 'on' ? 'red' : '' }
+                            binary_sensor.gwmbrasil_${VEICULO.toLowerCase()}_porta_malas
+                          name: Porta malas
                           state: >-
                             ${
-                            states['binary_sensor.gwmbrasil_'+VEICULO.toLowerCase()+'_porta_traseira_esquerda'].state
-                            === 'off' ? 'Fechada' :
-                            states['binary_sensor.gwmbrasil_'+VEICULO.toLowerCase()+'_porta_traseira_esquerda'].state
-                            === 'on' ? 'Aberta' : 'Desconhecido'}
+                            states['binary_sensor.gwmbrasil_'+VEICULO.toLowerCase()+'_porta_malas'].state
+                            === 'off' ? 'Fechado' :
+                            states['binary_sensor.gwmbrasil_'+VEICULO.toLowerCase()+'_porta_malas'].state
+                            === 'on' ? 'Aberto' : 'Desconhecido'}
                       state_color: false
                 - type: entities
                   entities:
@@ -1327,23 +1353,8 @@ views:
                         type: section
                         label: Vidros
                       open: true
+                      state_color: false
                       entities:
-                        - type: custom:template-entity-row
-                          entity: >-
-                            sensor.gwmbrasil_${VEICULO.toLowerCase()}_vidro_dianteiro_direito
-                          name: Dianteiro direito
-                          color: >-
-                            ${
-                            states['sensor.gwmbrasil_'+VEICULO.toLowerCase()+'_vidro_dianteiro_direito'].state
-                            !== '1' ? 'red' : '' }
-                          state: >-
-                            ${
-                            states['sensor.gwmbrasil_'+VEICULO.toLowerCase()+'_vidro_dianteiro_direito'].state
-                            === '1' ? 'Fechado' :
-                            states['sensor.gwmbrasil_'+VEICULO.toLowerCase()+'_vidro_dianteiro_direito'].state
-                            === '2' ? 'Aberto' :
-                            states['sensor.gwmbrasil_'+VEICULO.toLowerCase()+'_vidro_dianteiro_direito'].state
-                            === '3' ? 'Entreaberto' : 'Desconhecido' }
                         - type: custom:template-entity-row
                           entity: >-
                             sensor.gwmbrasil_${VEICULO.toLowerCase()}_vidro_dianteiro_esquerdo
@@ -1362,19 +1373,19 @@ views:
                             === '3' ? 'Entreaberto' : 'Desconhecido' }
                         - type: custom:template-entity-row
                           entity: >-
-                            sensor.gwmbrasil_${VEICULO.toLowerCase()}_vidro_traseiro_direito
-                          name: Traseiro direito
+                            sensor.gwmbrasil_${VEICULO.toLowerCase()}_vidro_dianteiro_direito
+                          name: Dianteiro direito
                           color: >-
                             ${
-                            states['sensor.gwmbrasil_'+VEICULO.toLowerCase()+'_vidro_traseiro_direito'].state
+                            states['sensor.gwmbrasil_'+VEICULO.toLowerCase()+'_vidro_dianteiro_direito'].state
                             !== '1' ? 'red' : '' }
                           state: >-
                             ${
-                            states['sensor.gwmbrasil_'+VEICULO.toLowerCase()+'_vidro_traseiro_direito'].state
+                            states['sensor.gwmbrasil_'+VEICULO.toLowerCase()+'_vidro_dianteiro_direito'].state
                             === '1' ? 'Fechado' :
-                            states['sensor.gwmbrasil_'+VEICULO.toLowerCase()+'_vidro_traseiro_direito'].state
+                            states['sensor.gwmbrasil_'+VEICULO.toLowerCase()+'_vidro_dianteiro_direito'].state
                             === '2' ? 'Aberto' :
-                            states['sensor.gwmbrasil_'+VEICULO.toLowerCase()+'_vidro_traseiro_direito'].state
+                            states['sensor.gwmbrasil_'+VEICULO.toLowerCase()+'_vidro_dianteiro_direito'].state
                             === '3' ? 'Entreaberto' : 'Desconhecido' }
                         - type: custom:template-entity-row
                           entity: >-
@@ -1394,12 +1405,34 @@ views:
                             === '3' ? 'Entreaberto' : 'Desconhecido' }
                         - type: custom:template-entity-row
                           entity: >-
-                            sensor.gwmbrasil_${VEICULO.toLowerCase()}_posicao_do_teto_solar
-                          name: Teto Solar
+                            sensor.gwmbrasil_${VEICULO.toLowerCase()}_vidro_traseiro_direito
+                          name: Traseiro direito
+                          color: >-
+                            ${
+                            states['sensor.gwmbrasil_'+VEICULO.toLowerCase()+'_vidro_traseiro_direito'].state
+                            !== '1' ? 'red' : '' }
                           state: >-
                             ${
-                            states['sensor.gwmbrasil_'+VEICULO.toLowerCase()+'_posicao_do_teto_solar'].state
-                            === '3' ? 'Fechado' : 'Aberto'}
+                            states['sensor.gwmbrasil_'+VEICULO.toLowerCase()+'_vidro_traseiro_direito'].state
+                            === '1' ? 'Fechado' :
+                            states['sensor.gwmbrasil_'+VEICULO.toLowerCase()+'_vidro_traseiro_direito'].state
+                            === '2' ? 'Aberto' :
+                            states['sensor.gwmbrasil_'+VEICULO.toLowerCase()+'_vidro_traseiro_direito'].state
+                            === '3' ? 'Entreaberto' : 'Desconhecido' }
+                        - type: conditional
+                          conditions:
+                            - entity: >-
+                                sensor.gwmbrasil_${VEICULO.toLowerCase()}_posicao_do_teto_solar
+                              state_not: unavailable
+                          row:
+                            type: custom:template-entity-row
+                            entity: >-
+                              sensor.gwmbrasil_${VEICULO.toLowerCase()}_posicao_do_teto_solar
+                            name: Teto Solar
+                            state: >-
+                              ${
+                              states['sensor.gwmbrasil_'+VEICULO.toLowerCase()+'_posicao_do_teto_solar'].state
+                              === '3' ? 'Fechado' : 'Aberto'}
                         - type: custom:bar-card
                           entity: >-
                             sensor.gwmbrasil_${VEICULO.toLowerCase()}_posicao_do_teto_solar
@@ -1422,17 +1455,21 @@ views:
                             style: |
                               :host {
                                 display: {% if is_state('sensor.gwmbrasil_${VEICULO.toLowerCase()}_posicao_do_teto_solar','3') %} none {% elif states('sensor.gwmbrasil_${VEICULO.toLowerCase()}_posicao_do_teto_solar') is none %} none {% else %} block {% endif %};
-                              }
-                      state_color: false
-            - type: custom:collapsable-cards
-              title: Mapa
-              defaultOpen: true
-              cards:
-                - type: map
-                  entities:
-                    - entity: device_tracker.gwmbrasil_${VEICULO.toLowerCase()}
-                  theme_mode: dark
-                  default_zoom: 16
-                  hours_to_show: 30
-                  auto_fit: true
-                  aspect_ratio: '16:9'
+                              }              
+            - type: conditional
+              conditions:
+                - entity: device_tracker.gwmbrasil_${VEICULO.toLowerCase()}
+                  state_not: unavailable
+              card:
+                type: custom:collapsable-cards
+                title: Mapa
+                defaultOpen: true
+                cards:
+                  - type: map
+                    entities:
+                      - entity: device_tracker.gwmbrasil_${VEICULO.toLowerCase()}
+                    theme_mode: dark
+                    default_zoom: 16
+                    hours_to_show: 30
+                    auto_fit: true
+                    aspect_ratio: '16:9'

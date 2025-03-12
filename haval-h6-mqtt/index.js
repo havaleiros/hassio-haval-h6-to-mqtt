@@ -5,13 +5,16 @@ const fs = require("fs");
 const storage = require("./storage");
 const { sensorTopics, attributeTopics } = require("./map");
 const { mqttModule, EntityType, ActionableAndLink } = require('./mqtt');
-const { checkConnection, register, sendDeviceTrackerUpdate, sendMessage, sendMqtt } = mqttModule;
+const { checkConnection, register, remove, sendDeviceTrackerUpdate, sendMessage, sendMqtt } = mqttModule;
 
 const validationSchema = require('./schema')
 const { isTokenExpired } = require('./utils');
 
 require("dotenv").config();
 const { USERNAME, PASSWORD, REFRESH_TIME, DEVICE_TRACKER_ENABLED, VIN } = process.env;
+
+
+const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
 function getCurrentDateTime() {
   const now = new Date();
@@ -169,7 +172,7 @@ validationSchema.validate(process.env)
   .then(() => {
     printLog(LogType.INFO, "  MQTT parameters validated");
     return checkConnection();
-  })  
+  })
   .then(() => {
     printLog(LogType.INFO, "  Retrieving car list");
     return getCarList();
@@ -182,8 +185,39 @@ validationSchema.validate(process.env)
         printLog(LogType.INFO, `  Registering car: ${carList[key].vin}`);      
 
         var _vin = carList[key].vin;
+
+        printLog(LogType.INFO, "    Removing deprecated entities");
+        Object.keys(sensorTopics).forEach(async (code) => {
+          var { entity_type, actionable } = sensorTopics[code];
+
+            await remove(entity_type, "haval", _vin, code);
+            await remove(entity_type, "haval", _vin, null);
+            await remove(entity_type, "haval", _vin, "None");
+            remove(EntityType.DEVICE_TRACKER, "haval", _vin, null);
+            await remove(EntityType.SENSOR, "haval", _vin, "hyEngSts");
+            if(actionable && actionable.action){
+              await remove(actionable.entity_type, "haval", _vin, `${code}_${actionable.action}`);
+              await remove(actionable.entity_type, "haval", _vin, `${code.toLowerCase()}_${actionable.action.toLowerCase()}`);
+            }
+    
+            await sleep(500);
+        });
+
+        const staticEntities = {
+          image: { entity_type: EntityType.SENSOR, },
+          model: { entity_type: EntityType.SENSOR, },
+          color: { entity_type: EntityType.SENSOR, },
+          tankCapacity: { entity_type: EntityType.SENSOR, },
+        }
+        Object.keys(staticEntities).forEach(async (code) => {
+          var { entity_type } = staticEntities[code];
+
+          await remove(entity_type, "haval", _vin, code);
+          await sleep(500);
+        });
+
         if(carList[key].staticImageUrl){
-          printLog(LogType.INFO, "  Registering static entities");
+          printLog(LogType.INFO, "    Registering static entities");
           const staticEntities = {
             image: {
               description: "Imagem do veículo",
@@ -238,15 +272,18 @@ validationSchema.validate(process.env)
                      vin = _vin, 
                      code = "DeviceTracker", 
                      entity_name = desc);
-            printLog(LogType.INFO, "  Device tracker registered");
+            printLog(LogType.INFO, "    Device tracker registered");
+          }
+          else{
+            remove(EntityType.DEVICE_TRACKER, "gwmbrasil", _vin, "DeviceTracker");
           }
         }
-        //
-        printLog(LogType.INFO, "  Retrieving car status");
+        
+        printLog(LogType.INFO, "    Retrieving car status");
         const data = await GetCarLastStatus(_vin);
             
         if(data && data.items){
-          printLog(LogType.INFO, "  Registering entities");
+          printLog(LogType.INFO, "    Registering entities");
           data.items.forEach(({ code, value }) => {
             if (sensorTopics.hasOwnProperty(code)) {
               var { description, unit, device_class, entity_type, icon, actionable, state_class } = sensorTopics[code];
@@ -288,14 +325,14 @@ validationSchema.validate(process.env)
                    state_class = null);
   
           if(data.hasOwnProperty(engineStatus.code)){
-            sendMessage(_vin, engineStatus.code, engineStatus.value);        
+            sendMessage(_vin, engineStatus.code, engineStatus.value);
           }
   
-          printLog(LogType.INFO, "  Activating actionables and linked entities");
+          printLog(LogType.INFO, "    Activating actionables and linked entities");
           ActionableAndLink.execute();
         }
         else{
-          printLog(LogType.ERROR, "¡¡¡No data found. Check your configuration!!!");
+          printLog(LogType.ERROR, "   ¡¡¡No data found. Check your configuration!!!");
         }
         //
       }

@@ -29,10 +29,10 @@ Você precisa ter uma instância do Home Assistant com o add-on `Mosquitto Broke
 1. Após a instalação, vá até a aba **Ajustes** do add-on.
 2. Configure os parâmetros necessários como endereço do broker MQTT, credenciais, e outras opções específicas para os veículos GWM.
 ```yaml
-gmw_username: conta_de_email_vinculada_ao_app_MyGWM
-gmw_password: senha_do_app_MyGWM
-gmw_vin: CHASSIS_DO_CARRO_PRINCIPAL_COM_LETRAS_MAIÚSCULAS
-gmw_pin: senha_de_ativação_de_comandos_no_app_MyGWM
+gwm_username: conta_de_email_vinculada_ao_app_MyGWM
+gwm_password: senha_do_app_MyGWM
+gwm_vin: CHASSIS_DO_CARRO_PRINCIPAL_COM_LETRAS_MAIÚSCULAS
+gwm_pin: senha_de_ativação_de_comandos_no_app_MyGWM
 mqtt_server: mqtt://homeassistant.local:1883
 mqtt_user: nome_de_usuario_do_mqtt
 mqtt_pass: senha_do_mqtt

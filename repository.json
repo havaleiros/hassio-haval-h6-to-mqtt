@@ -1,5 +1,5 @@
 {
-  "name": "GWM Brasil Haval H6 com MQTT",
+  "name": "GWM Brasil com MQTT",
   "url": "https://github.com/havaleiros/hassio-haval-h6-to-mqtt",
   "maintainer": "Havaleiros Brasil <havaleiros@gmail.com>"
 }

@@ -2,15 +2,15 @@ configuration:
   refresh_time:
     name: "Intervalo de Atualização (segundos)"
     description: "Tempo para consulta da API e atualização dos dados das entidades criadas por esta integração. Não pode ser menor que 5 segundos."
-  haval_username:
+  gwm_username:
     name: "Nome de usuário do aplicativo 'My GWM'"
     description: "O endereço de e-mail utilizado no cadastro."
-  haval_password:
+  gwm_password:
     name: "Senha do aplicativo 'My GWM'"
-  haval_vin:
+  gwm_vin:
     name: "Chassis do veículo principal"
     description: "Verifique no aplicativo ou na nota fiscal."
-  haval_pin:
+  gwm_pin:
     name: "PIN do aplicativo 'My GWM' para comandos"
     description: "Código PIN usado no aplicativo 'My GWM' para ativar a solicitação de comando, como ligar o ar condicionado."
   mqtt_server:
