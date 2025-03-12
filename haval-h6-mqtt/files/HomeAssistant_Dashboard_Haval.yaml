@@ -10,6 +10,61 @@ views:
       - type: custom:config-template-card
         entities:
           - select.gwmbrasil_veiculos_registados
+          - >-
+            binary_sensor.gwmbrasil_${VEICULO.toLowerCase()}_agendamento_de_carga
+          - binary_sensor.gwmbrasil_${VEICULO.toLowerCase()}_estado_da_trava
+          - >-
+            binary_sensor.gwmbrasil_${VEICULO.toLowerCase()}_estado_do_ar_condicionado
+          - >-
+            binary_sensor.gwmbrasil_${VEICULO.toLowerCase()}_estado_do_controle_de_carga
+          - >-
+            binary_sensor.gwmbrasil_${VEICULO.toLowerCase()}_estado_do_purificador_de_ar
+          - >-
+            binary_sensor.gwmbrasil_${VEICULO.toLowerCase()}_porta_dianteira_direita
+          - >-
+            binary_sensor.gwmbrasil_${VEICULO.toLowerCase()}_porta_dianteira_esquerda
+          - binary_sensor.gwmbrasil_${VEICULO.toLowerCase()}_porta_malas
+          - >-
+            binary_sensor.gwmbrasil_${VEICULO.toLowerCase()}_porta_traseira_direita
+          - >-
+            binary_sensor.gwmbrasil_${VEICULO.toLowerCase()}_porta_traseira_esquerda
+          - >-
+            button.gwmbrasil_${VEICULO.toLowerCase()}_ativacao_do_ar_condicionado
+          - device_tracker.gwmbrasil_${VEICULO.toLowerCase()}
+          - sensor.gwmbrasil_${VEICULO.toLowerCase()}_autonomia_combustao
+          - sensor.gwmbrasil_${VEICULO.toLowerCase()}_autonomia_ev
+          - sensor.gwmbrasil_${VEICULO.toLowerCase()}_capacidade_do_tanque
+          - sensor.gwmbrasil_${VEICULO.toLowerCase()}_cor_do_veiculo
+          - sensor.gwmbrasil_${VEICULO.toLowerCase()}_estado_da_carga
+          - sensor.gwmbrasil_${VEICULO.toLowerCase()}_estado_de_carga_12v
+          - sensor.gwmbrasil_${VEICULO.toLowerCase()}_estado_de_carga_soc
+          - sensor.gwmbrasil_${VEICULO.toLowerCase()}_estado_do_motor
+          - sensor.gwmbrasil_${VEICULO.toLowerCase()}_imagem_do_veiculo
+          - sensor.gwmbrasil_${VEICULO.toLowerCase()}_modelo_do_veiculo
+          - sensor.gwmbrasil_${VEICULO.toLowerCase()}_nivel_de_combustivel
+          - sensor.gwmbrasil_${VEICULO.toLowerCase()}_posicao_do_teto_solar
+          - >-
+            sensor.gwmbrasil_${VEICULO.toLowerCase()}_pressao_do_pneu_dianteiro_direito
+          - >-
+            sensor.gwmbrasil_${VEICULO.toLowerCase()}_pressao_do_pneu_dianteiro_esquerdo
+          - >-
+            sensor.gwmbrasil_${VEICULO.toLowerCase()}_pressao_do_pneu_traseiro_direito
+          - >-
+            sensor.gwmbrasil_${VEICULO.toLowerCase()}_pressao_do_pneu_traseiro_esquerdo
+          - sensor.gwmbrasil_${VEICULO.toLowerCase()}_quilometragem_total
+          - >-
+            sensor.gwmbrasil_${VEICULO.toLowerCase()}_temperatura_do_pneu_dianteiro_direito
+          - >-
+            sensor.gwmbrasil_${VEICULO.toLowerCase()}_temperatura_do_pneu_dianteiro_esquerdo
+          - >-
+            sensor.gwmbrasil_${VEICULO.toLowerCase()}_temperatura_do_pneu_traseiro_direito
+          - >-
+            sensor.gwmbrasil_${VEICULO.toLowerCase()}_temperatura_do_pneu_traseiro_esquerdo
+          - sensor.gwmbrasil_${VEICULO.toLowerCase()}_tempo_de_carga
+          - sensor.gwmbrasil_${VEICULO.toLowerCase()}_vidro_dianteiro_direito
+          - sensor.gwmbrasil_${VEICULO.toLowerCase()}_vidro_dianteiro_esquerdo
+          - sensor.gwmbrasil_${VEICULO.toLowerCase()}_vidro_traseiro_direito
+          - sensor.gwmbrasil_${VEICULO.toLowerCase()}_vidro_traseiro_esquerdo
         card:
           type: vertical-stack
           cards:
@@ -1102,10 +1157,20 @@ views:
                                 Tem certeza de que deseja ligar o ar
                                 condicionado?
                           card_mod:
-                            style: |
+                            style: >
                               :host {
-                                display: {% if states('binary_sensor.gwmbrasil_${VEICULO.toLowerCase()}_estado_do_ar_condicionado') === 'off' and states('binary_sensor.gwmbrasil_${VEICULO.toLowerCase()}_estado_da_trava') === 'off' and states('sensor.gwmbrasil_${VEICULO.toLowerCase()}_estado_do_motor') === '0' %} block {% else %} none {% endif %};
-                              }
+                                display: ${
+                              states['binary_sensor.gwmbrasil_'+VEICULO.toLowerCase()+'_estado_do_ar_condicionado'].state
+
+                              === 'on' ? 'none' :
+
+                              states['binary_sensor.gwmbrasil_'+VEICULO.toLowerCase()+'_estado_da_trava'].state
+
+                              === 'on' ? 'none' :
+
+                              states['sensor.gwmbrasil_'+VEICULO.toLowerCase()+'_estado_do_motor'].state
+
+                              === '1' ? 'none' : 'block' }
                         - entity: >-
                             sensor.gwmbrasil_${VEICULO.toLowerCase()}_estado_de_carga_12v
                           secondary_info: last-updated
@@ -1356,7 +1421,7 @@ views:
                           card_mod:
                             style: |
                               :host {
-                                display: {% if states('sensor.gwmbrasil_${VEICULO.toLowerCase()}_posicao_do_teto_solar') == '3' %} none {% elif states('sensor.gwmbrasil_${VEICULO.toLowerCase()}_posicao_do_teto_solar') is none %} none {% else %} block {% endif %};
+                                display: {% if is_state('sensor.gwmbrasil_${VEICULO.toLowerCase()}_posicao_do_teto_solar','3') %} none {% elif states('sensor.gwmbrasil_${VEICULO.toLowerCase()}_posicao_do_teto_solar') is none %} none {% else %} block {% endif %};
                               }
                       state_color: false
             - type: custom:collapsable-cards
