@@ -9,7 +9,7 @@
 - Atualizado o arquivo `README.md` com o nome correto das configurações.
 
 ### Modificado
-- BREAKING CHANGE: Alteradas as variáveis de configuração de `haval_*` para `gwm_*`. _ATENÇÃO: será necessário atualizar as variáveis de configuração antes de iniciar o add-on._
+- 🚨⚠ BREAKING CHANGE: Alteradas as variáveis de configuração de `haval_*` para `gwm_*`. _ATENÇÃO: será necessário atualizar as variáveis de configuração antes de iniciar o add-on._
 - Atualizado arquivo `HomeAssistant_Dashboard_Haval.yaml` para atualização automática do dashboard após mudança de valores das entidades. Dashboard somente exibirá entidades que existirem, omitindo entidades específicas dos modelos PHEV quando um veículo HEV estiver selecionado.
 
 ## [0.0.15] - 2025-03-10
