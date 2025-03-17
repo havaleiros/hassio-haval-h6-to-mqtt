@@ -18,7 +18,7 @@
     "gwm_vin": "str",
     "gwm_pin": "password?",
     "mqtt_server": "str?",
-    "mqtt_user": "str",
+    "mqtt_user": "str?",
     "mqtt_pass": "password?",
     "refresh_time": "int",
     "device_tracker_enabled": "bool"
