@@ -28,8 +28,6 @@ views:
             binary_sensor.gwmbrasil_${VEICULO.toLowerCase()}_porta_traseira_direita
           - >-
             binary_sensor.gwmbrasil_${VEICULO.toLowerCase()}_porta_traseira_esquerda
-          - >-
-            button.gwmbrasil_${VEICULO.toLowerCase()}_ativacao_do_ar_condicionado
           - device_tracker.gwmbrasil_${VEICULO.toLowerCase()}
           - sensor.gwmbrasil_${VEICULO.toLowerCase()}_autonomia_combustao
           - sensor.gwmbrasil_${VEICULO.toLowerCase()}_autonomia_ev
@@ -65,6 +63,9 @@ views:
           - sensor.gwmbrasil_${VEICULO.toLowerCase()}_vidro_dianteiro_esquerdo
           - sensor.gwmbrasil_${VEICULO.toLowerCase()}_vidro_traseiro_direito
           - sensor.gwmbrasil_${VEICULO.toLowerCase()}_vidro_traseiro_esquerdo
+          - >-
+            button.gwmbrasil_${VEICULO.toLowerCase()}_ativacao_do_ar_condicionado
+          - button.gwmbrasil_${VEICULO.toLowerCase()}_interromper_carregamento
         card:
           type: vertical-stack
           cards:
@@ -1242,6 +1243,24 @@ views:
                               }
                         - entity: >-
                             sensor.gwmbrasil_${VEICULO.toLowerCase()}_tempo_de_carga
+                          card_mod:
+                            style: |
+                              :host {
+                                display: {% if is_state('sensor.gwmbrasil_${VEICULO.toLowerCase()}_estado_da_carga','1') %} block {% else %} none {% endif %};
+                              }
+                        - type: custom:mushroom-template-card
+                          primary: Interromper carregamento
+                          icon: mdi:ev-plug-type2
+                          entity: >-
+                            button.gwmbrasil_${VEICULO.toLowerCase()}_interromper_carregamento
+                          hold_action:
+                            action: none
+                          tap_action:
+                            action: toggle
+                            confirmation:
+                              text: >-
+                                Tem certeza de que deseja interromper o
+                                carregamento?
                           card_mod:
                             style: |
                               :host {
