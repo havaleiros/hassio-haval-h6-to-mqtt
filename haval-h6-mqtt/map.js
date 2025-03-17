@@ -113,6 +113,13 @@ const sensorTopics = {
     device_class: "None",
     entity_type: "sensor",
     icon: "mdi:ev-station",
+    actionable: {
+      action: "stopCharging",
+      description: "Interromper carregamento",
+      entity_type: "button",
+      icon: "mdi:ev-plug-type2",
+      link_type: "press", //(sync: sincroniza os status, toggle: invertido, press: acionamento sem sincronização)
+    }
   },
   2210005: {
     description: "Posição do Teto Solar", //(3: Fechado >3 posição do teto solar em %)

@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.0.17] - 2025-03-16
+
+### Adicionado
+- ⚡Novo botão que ao ser acionado, gera um agendamento de carregamento para os próximos 5 minutos, de forma a liberar o bocal de carregamento para modelos Haval H6 PHEV34 e Haval H6 GT que após a atualização de software do OBC (_Onboard Charger_) para ativação do V2L não podem mais liberar o bocal de carregamento para retirada do plug do wallbox ou carregador DC antes da carga em 100% da bateria. Esta é uma solução paliativa tendo em vista que a GWM não provê outra forma que não o agendamento da recarga no veículo, no aplicativo ou utilizar o mecanismo de emergência, a corda na caixa de roda. Relacionado ao post no app [My GWM](https://shorturl.at/fvxoq).
+
+### Consertado
+- Funcionamento do botão de acionamento do ar condicionado. Após release `0.0.14` ocorria falha no acionamento por falta do número de chassis a ser utilizado.
+
+### Modificado
+- Parâmetro de configuração `MQTT_USER` é agora opcional.
+- Atualizado arquivo `HomeAssistant_Dashboard_Haval.yaml` para adicionar o botão `button.gwmbrasil_{chassis}_interromper_carregamento` quando o estado da carga for _Carregando_.
+
 ## [0.0.16] - 2025-03-12
 
 ### Adicionado
@@ -28,7 +40,7 @@
 
 ### Adicionado
 - Alterações nos sensores para permitir o uso em coleta de estatísticas.
-- Adicionada caixa de seleção de veículo `select.gwmbrasil_veiculos_registrados` para usuários que possuam mais de um veículo cadastrado no aplicatiov My GWM.
+- Adicionada caixa de seleção de veículo `select.gwmbrasil_veiculos_registrados` para usuários que possuam mais de um veículo cadastrado no aplicativo My GWM.
 
 ### Modificado
 - Nova versão do `HomeAssistant_Dashboard_Haval.yaml` com melhorias e agora sem a necessidade de ajustes manuais, tendo comportamento dinâmico de acordo com o veículo selecionado. _ATENÇÃO: Para a controle de comandos via relógio inteligente, ainda é necessário configurar o chassis manualmente, conforme descrito no `README.md`_.

@@ -3,6 +3,7 @@ const https = require("https");
 const fs = require("fs");
 const storage = require("./storage");
 const md5 = require("md5");
+const chrgFn = require('./axios_add.js');
 
 require("dotenv").config();
 
@@ -35,7 +36,6 @@ const headers = {
 };
 
 axios.sendCmd = async (instructions, remoteType, securityPassword, seqNo, type, vin) => {
-  var res;
   try {
     let options = {
       headers,
@@ -56,7 +56,7 @@ axios.sendCmd = async (instructions, remoteType, securityPassword, seqNo, type, 
 
     return res.data;
   } catch (e) {
-    console.log("Error send vehicles command: ", e.message, res);
+    console.log("Error send vehicles command: ", e.message);
     return false;
   }
 };
@@ -93,7 +93,8 @@ const commands = {
         console.error(`***Error executing action airConditioner***`);
         console.error(e.message);
       }
-  }
+  },
+  chrgFn
 }
 
 module.exports = { axios, commands };

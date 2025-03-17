@@ -200,7 +200,7 @@ validationSchema.validate(process.env)
               await remove(actionable.entity_type, "haval", _vin, `${code.toLowerCase()}_${actionable.action.toLowerCase()}`);
             }
     
-            await sleep(500);
+            await sleep(1000);
         });
 
         const staticEntities = {

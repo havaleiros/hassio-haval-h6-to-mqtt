@@ -1,6 +1,6 @@
 {
   "name": "haval-mqtt",
-  "version": "0.0.16",
+  "version": "0.0.17",
   "dependencies": {
     "axios": "^1.8.2",
     "dotenv": "^16.4.5",
@@ -12,7 +12,6 @@
   },
   "scripts": {
     "start": "node index.js",
-    "test": "node localTest.js",
-    "check-unused": "depcheck"
+    "test": "node localTest.js"
   }
 }
