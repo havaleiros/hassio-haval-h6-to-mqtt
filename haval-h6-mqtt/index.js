@@ -13,9 +13,6 @@ const { isTokenExpired } = require('./utils');
 require("dotenv").config();
 const { USERNAME, PASSWORD, REFRESH_TIME, DEVICE_TRACKER_ENABLED, VIN } = process.env;
 
-
-const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
-
 function getCurrentDateTime() {
   const now = new Date();
   const year = now.getFullYear();
@@ -187,20 +184,18 @@ validationSchema.validate(process.env)
         var _vin = carList[key].vin;
 
         printLog(LogType.INFO, "    Removing deprecated entities");
-        Object.keys(sensorTopics).forEach(async (code) => {
+        Object.keys(sensorTopics).forEach((code) => {
           var { entity_type, actionable } = sensorTopics[code];
 
-            await remove(entity_type, "haval", _vin, code);
-            await remove(entity_type, "haval", _vin, null);
-            await remove(entity_type, "haval", _vin, "None");
-            remove(EntityType.DEVICE_TRACKER, "haval", _vin, null);
-            await remove(EntityType.SENSOR, "haval", _vin, "hyEngSts");
-            if(actionable && actionable.action){
-              await remove(actionable.entity_type, "haval", _vin, `${code}_${actionable.action}`);
-              await remove(actionable.entity_type, "haval", _vin, `${code.toLowerCase()}_${actionable.action.toLowerCase()}`);
-            }
-    
-            await sleep(1000);
+          remove(entity_type, "haval", _vin, code);
+          remove(entity_type, "haval", _vin, null);
+          remove(entity_type, "haval", _vin, "None");
+          remove(EntityType.DEVICE_TRACKER, "haval", _vin, null);
+          remove(EntityType.SENSOR, "haval", _vin, "hyEngSts");
+          if(actionable && actionable.action){
+            remove(actionable.entity_type, "haval", _vin, `${code}_${actionable.action}`);
+            remove(actionable.entity_type, "haval", _vin, `${code.toLowerCase()}_${actionable.action.toLowerCase()}`);
+          }
         });
 
         const staticEntities = {
@@ -209,11 +204,10 @@ validationSchema.validate(process.env)
           color: { entity_type: EntityType.SENSOR, },
           tankCapacity: { entity_type: EntityType.SENSOR, },
         }
-        Object.keys(staticEntities).forEach(async (code) => {
+        Object.keys(staticEntities).forEach((code) => {
           var { entity_type } = staticEntities[code];
 
-          await remove(entity_type, "haval", _vin, code);
-          await sleep(500);
+          remove(entity_type, "haval", _vin, code);
         });
 
         if(carList[key].staticImageUrl){

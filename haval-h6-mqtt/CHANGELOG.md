@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.0.18] - 2025-03-17
+
+### Adicionado
+- Autonomia total para veículos PHEV no dashboard, somando a autonomia EV e a autonomia à combustão.
+
+### Consertado
+- Atualizado arquivo `HomeAssistant_Dashboard_Haval.yaml` para exibir somente as entidades de acordo com o modelo do veículo (HEV, PHEV, BEV).
+
+### Modificado
+- Entidades são criadas por padrão, mesmo quando não utilizadas por um veículo, revertendo o que havia sido implementado na release `0.0.10`. Motivo: compatibilidade entre tipos de veículos para correta exibição do dashboard.
+- Adicionada a instrução no `README.md` para utilizar a versão `1.3.7-beta.1` do `config-template-card`.
+
 ## [0.0.17] - 2025-03-16
 
 ### Adicionado

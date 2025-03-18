@@ -5,6 +5,7 @@ const sensorTopics = {
     device_class: "distance",
     entity_type: "sensor",
     state_class: "total",
+    icon: "mdi:counter",
   },
   2013021: {
     description: "Estado de Carga (SoC)",

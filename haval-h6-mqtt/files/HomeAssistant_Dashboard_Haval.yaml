@@ -1144,6 +1144,29 @@ views:
                                 sensor.gwmbrasil_${VEICULO.toLowerCase()}_estado_de_carga_12v
                               secondary_info: last-updated
                               state_color: true
+                            - type: custom:template-entity-row
+                              name: Autonomia Total
+                              state: |-
+                                ${
+                                  parseFloat(states['sensor.gwmbrasil_'+VEICULO.toLowerCase()+'_autonomia_combustao'].state) +
+                                  parseFloat(states['sensor.gwmbrasil_'+VEICULO.toLowerCase()+'_autonomia_ev'].state) + " km"
+                                  ;
+                                }
+                              stateq: >-
+                                {{ (
+                                (states('sensor.gwmbrasil_${VEICULO.toLowerCase()}_autonomia_combustao')
+                                | float(0)) +
+                                (states('sensor.gwmbrasil_${VEICULO.toLowerCase()}_autonomia_ev')
+                                | float(0)) ) | round(2) }} km
+                              icon: mdi:numeric
+                              card_mod:
+                                style: |
+                                  :host {
+                                    {% set modelo = states('sensor.gwmbrasil_${VEICULO.toLowerCase()}_modelo_do_veiculo').split(' ') %}
+                                    {% if 'PHEV' not in modelo %}
+                                      display: none
+                                    {% endif %} !important;
+                                  }
                           card_mod:
                             style: |
                               ha-card {
