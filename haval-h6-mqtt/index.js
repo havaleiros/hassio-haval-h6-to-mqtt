@@ -284,21 +284,24 @@ validationSchema.validate(process.env)
             
         if(data && data.items){
           printLog(LogType.INFO, "    Registering entities");
+
+          Object.keys(sensorTopics).forEach((code) => {
+            var { description, unit, device_class, entity_type, icon, actionable, state_class } = sensorTopics[code];
+  
+            register(entityType = EntityType[entity_type.toUpperCase()],
+                    vin = _vin,
+                    code = code, 
+                    entity_name = description, 
+                    unit = unit, 
+                    device_class = device_class, 
+                    icon = icon, 
+                    actionable = actionable, 
+                    initial_value = null, 
+                    state_class = state_class);
+          });
+
           data.items.forEach(({ code, value }) => {
             if (sensorTopics.hasOwnProperty(code)) {
-              var { description, unit, device_class, entity_type, icon, actionable, state_class } = sensorTopics[code];
-  
-              register(entityType = EntityType[entity_type.toUpperCase()],
-                      vin = _vin,
-                      code = code, 
-                      entity_name = description, 
-                      unit = unit, 
-                      device_class = device_class, 
-                      icon = icon, 
-                      actionable = actionable, 
-                      initial_value = null, 
-                      state_class = state_class);
-
               var entity_value = value;
               if(sensorTopics[code].formula) entity_value = eval(sensorTopics[code].formula.replace("value", value));
               sendMessage(_vin, code, entity_value);
