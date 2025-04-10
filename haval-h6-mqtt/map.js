@@ -287,6 +287,11 @@ const attributeTopics = {
     unit: "-",
     value: 1,
   },
+  4105008: {
+    description: "Potência do sinal de rede móvel",
+    unit: "-",
+    value: 0,
+  }
 };
 
 //const notUsedTopics = {

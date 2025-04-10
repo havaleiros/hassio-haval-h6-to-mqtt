@@ -137,7 +137,7 @@ views:
                       card_mod:
                         style: |
                           :host {
-                            z-index: 1;
+                            z-index: 3;
                             position: relative;
                           }
                           ha-card {
@@ -169,7 +169,7 @@ views:
                               position: absolute;
                               top: 0;
                               left: 0;
-                              z-index: 4;
+                              z-index: 6;
                             }
                             ha-card {
                               max-width: 441px;
@@ -200,7 +200,7 @@ views:
                               position: absolute;
                               top: 0;
                               left: 0;
-                              z-index: 4;
+                              z-index: 6;
                             }
                             ha-card {
                               max-width: 441px;
@@ -232,7 +232,7 @@ views:
                               position: absolute;
                               top: 0;
                               left: 0;
-                              z-index: 2;
+                              z-index: 4;
                             }
                             ha-card {
                               max-width: 441px;
@@ -264,7 +264,7 @@ views:
                               position: absolute;
                               top: 0;
                               left: 0;
-                              z-index: 2;
+                              z-index: 4;
                             }
                             ha-card {
                               max-width: 441px;
@@ -296,7 +296,7 @@ views:
                               position: absolute;
                               top: 0;
                               left: 0;
-                              z-index: 2;
+                              z-index: 4;
                             }
                             ha-card {
                               max-width: 441px;
@@ -328,7 +328,7 @@ views:
                               position: absolute;
                               top: 0;
                               left: 0;
-                              z-index: 2;
+                              z-index: 4;
                             }
                             ha-card {
                               max-width: 441px;
@@ -359,7 +359,7 @@ views:
                               position: absolute;
                               top: 0;
                               left: 0;
-                              z-index: 2;
+                              z-index: 4;
                             }
                             ha-card {
                               max-width: 441px;
@@ -391,7 +391,7 @@ views:
                               position: absolute;
                               top: 0;
                               left: 0;
-                              z-index: 2;
+                              z-index: 4;
                             }
                             ha-card {
                               max-width: 441px;
@@ -423,7 +423,7 @@ views:
                               position: absolute;
                               top: 0;
                               left: 0;
-                              z-index: 2;
+                              z-index: 4;
                             }
                             ha-card {
                               max-width: 441px;
@@ -455,7 +455,7 @@ views:
                               position: absolute;
                               top: 0;
                               left: 0;
-                              z-index: 2;
+                              z-index: 4;
                             }
                             ha-card {
                               max-width: 441px;
@@ -487,7 +487,7 @@ views:
                               position: absolute;
                               top: 0;
                               left: 0;
-                              z-index: 2;
+                              z-index: 4;
                             }
                             ha-card {
                               max-width: 441px;
@@ -518,7 +518,7 @@ views:
                               position: absolute;
                               top: 0;
                               left: 0;
-                              z-index: 2;
+                              z-index: 4;
                             }
                             ha-card {
                               max-width: 441px;
@@ -549,7 +549,7 @@ views:
                               position: absolute;
                               top: 0;
                               left: 0;
-                              z-index: 3.1;
+                              z-index: 2;
                             }
                             ha-card {
                               max-width: 441px;
@@ -580,7 +580,7 @@ views:
                               position: absolute;
                               top: 0;
                               left: 0;
-                              z-index: 3;
+                              z-index: 5;
                             }
                             ha-card {
                               max-width: 441px;
@@ -612,7 +612,7 @@ views:
                               position: absolute;
                               top: 0;
                               left: 0;
-                              z-index: 4;
+                              z-index: 6;
                             }
                             ha-card {
                               max-width: 441px;
@@ -644,7 +644,7 @@ views:
                               position: absolute;
                               top: 0;
                               left: 0;
-                              z-index: 3;
+                              z-index: 5;
                             }
                             ha-card {
                               max-width: 441px;
@@ -676,7 +676,7 @@ views:
                               position: absolute;
                               top: 0;
                               left: 0;
-                              z-index: 4;
+                              z-index: 6;
                             }
                             ha-card {
                               max-width: 441px;
@@ -708,7 +708,7 @@ views:
                               position: absolute;
                               top: 0;
                               left: 0;
-                              z-index: 3;
+                              z-index: 5;
                             }
                             ha-card {
                               max-width: 441px;
@@ -740,7 +740,7 @@ views:
                               position: absolute;
                               top: 0;
                               left: 0;
-                              z-index: 4;
+                              z-index: 6;
                             }
                             ha-card {
                               max-width: 441px;
@@ -772,7 +772,7 @@ views:
                               position: absolute;
                               top: 0;
                               left: 0;
-                              z-index: 3;
+                              z-index: 5;
                             }
                             ha-card {
                               max-width: 441px;
@@ -804,7 +804,7 @@ views:
                               position: absolute;
                               top: 0;
                               left: 0;
-                              z-index: 4;
+                              z-index: 6;
                             }
                             ha-card {
                               max-width: 441px;
@@ -836,7 +836,7 @@ views:
                               position: absolute;
                               top: 0;
                               left: 0;
-                              z-index: 3;
+                              z-index: 5;
                             }
                             ha-card {
                               max-width: 441px;
@@ -867,7 +867,7 @@ views:
                               position: absolute;
                               top: 0;
                               left: 0;
-                              z-index: -1;
+                              z-index: 1;
                             }
                             ha-card {
                               max-width: 441px;
@@ -898,7 +898,7 @@ views:
                               position: absolute;
                               top: 0;
                               left: 0;
-                              z-index: -1;
+                              z-index: 1;
                             }
                             ha-card {
                               max-width: 441px;
@@ -929,7 +929,7 @@ views:
                               position: absolute;
                               top: 0;
                               left: 0;
-                              z-index: -1;
+                              z-index: 1;
                             }
                             ha-card {
                               max-width: 441px;

@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.0.19] - 2025-04-10
+
+## Adicionado
+- Novo atributo para o device tracker `Potência do sinal de rede móvel`.
+
+### Consertado
+- Corrigida a chamada para listagem de veículos na conta vinculada.
+
 ## [0.0.18] - 2025-03-17
 
 ### Adicionado

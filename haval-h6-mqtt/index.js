@@ -113,7 +113,7 @@ const auth = async () => {
 const getCarList = async () => {
   try {
     await auth();
-    const { data } = await axios.getCarInfo('vehicle/acquireVehicles');
+    const { data } = await axios.getCarInfo('globalapp/vehicle/acquireVehicles');
     var carList;
     if(data.data){
       //carData = data.data.find(car => car.vin === vin);

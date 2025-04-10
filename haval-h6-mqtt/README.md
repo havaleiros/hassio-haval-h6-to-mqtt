@@ -42,7 +42,7 @@ device_tracker_enabled: true [ou] false
 
 ![Ajustes dos add-on](https://raw.githubusercontent.com/havaleiros/hassio-haval-h6-to-mqtt/main/haval-h6-mqtt/images/addon_settings.png)
 
-Nota: Caso o campo `mqtt_pass` não esteja disponível na tela, ative a opção _Mostrar opções de configuração opcionais não utilizadas_.
+Nota: Caso os campos para configuração do MQTT não esteja, disponíveis na tela, ative a opção _Mostrar opções de configuração opcionais não utilizadas_ ao final da tela.
 
 3. Salve as configurações.
 4. Iniciando o Add-on
@@ -55,6 +55,7 @@ Nota: Caso o campo `mqtt_pass` não esteja disponível na tela, ative a opção 
 - Verifique se as entidades iniciadas com *sensor.gwmbrasil_* estão listados na aba _Estado_.
 - Agora, você deve ser capaz de monitorar o seu veículo diretamente pelo painel do Home Assistant.
 
+==========================================================
 ### OPCIONAL - Instalações core ou não-supervisionadas ###
 
 Esta sessão é destinada somente para instalações que não possuam o **Home Assistant Supervisor** em suas instâncias locais, necessitando da configuração manual do add-on em um container para execução.
@@ -155,12 +156,14 @@ docker compose up -d
 
 #### 4. Acessar as entidades via MQTT
 
-- Acessar sua instalação do Home Assistant e recarregar a integração MQTT para que as entidades sejam corretamente lidas pelo sistema
-- Caso alguma entidade apresente status indisponível, dê um restart no container `hassio-haval-h6-to-mqtt`
+- Acessar sua instalação do Home Assistant e recarregar a integração MQTT para que as entidades sejam corretamente lidas pelo sistema.
+- Caso alguma entidade apresente status indisponível, dê um restart no container `hassio-haval-h6-to-mqtt`.
 
 ### Configurar um novo Dashboard em seu Home Assistant
 
 Utilizar um novo dashboard evita a edição e impactos em dashboards existentes.
+
+==========================================================
 
 #### Adicionando Imagens do Veículo
 
@@ -208,6 +211,7 @@ Depois de instalar o HACS, siga as instruções específicas de cada card para a
 9. Apague o conteúdo existente que será exibido, copie o conteúdo do arquivo `HomeAssistant_Dashboard_Haval.yaml` fornecido como template e cole nesta tela. [Baixe aqui o arquivo YAML](https://github.com/havaleiros/hassio-haval-h6-to-mqtt/blob/main/haval-h6-mqtt/files/HomeAssistant_Dashboard_Haval.yaml). Consulte sempre a data de atualização do arquivo para identificar se há uma versão mais recente.
 
 Agora, seu novo dashboard estará configurado para exibir informações detalhadas sobre o seu veículo GWM.
+Você poderá, além de monitorar as informações do veículo, ligar o ar condicionado e interromper o carregamento, para soltar o plugue do carregador antes da finalização da carga.
 
 Nota: Caso a pressão dos pneus seja exibida com a unidade de medida `kPa`, toque sobre cada entidade na lista Pneus - do lado direito do dashboard - e toque no ícone de engrenagem, _Configurações_. Altere a unidade de medida para `psi`.
 
