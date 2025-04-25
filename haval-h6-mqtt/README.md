@@ -328,6 +328,44 @@ Agora, os controles estarão configurados e poderá ser acionado diretamente pel
 
 ![Botão no Apple Watch](https://raw.githubusercontent.com/havaleiros/hassio-haval-h6-to-mqtt/main/haval-h6-mqtt/images/HA_Companion_watchOS.png)
 
+### Automações e avisos com NodeRed
+
+#### O que é o NodeRed?
+
+O **NodeRed** é uma ferramenta de desenvolvimento baseada em fluxo que permite criar automações e integrações de forma visual e intuitiva. Ele é amplamente utilizado para conectar dispositivos, APIs e serviços, sendo uma excelente opção para criar automações avançadas no Home Assistant.
+
+Com o NodeRed, você pode criar fluxos personalizados para monitorar e controlar dispositivos, enviar notificações e executar ações com base em eventos específicos.
+
+#### Como instalar o NodeRed no Home Assistant?
+
+1. Acesse a interface web do Home Assistant.
+2. Navegue até **Supervisor** no menu lateral.
+3. Clique na aba **Add-on Store**.
+4. Procure por **Node-RED** na lista de add-ons disponíveis.
+5. Clique em **Node-RED** e, em seguida, clique em **Instalar**.
+6. Após a instalação, vá até a aba **Configuração** do add-on e configure as opções desejadas.
+7. Salve as configurações e volte para a aba **Informação**.
+8. Clique em **Iniciar** para inicializar o NodeRed.
+9. Habilite a opção **Iniciar na Inicialização** para que o NodeRed seja iniciado automaticamente junto com o Home Assistant.
+
+#### Como importar o arquivo de exemplo `files/nodered_flow_Haval.json`?
+
+1. Acesse o NodeRed através do menu lateral do Home Assistant.
+2. No canto superior direito da interface do NodeRed, clique no ícone de menu (três linhas horizontais).
+3. Selecione **Importar** no menu suspenso.
+4. Clique em **Selecionar arquivo** e escolha o arquivo `files/nodered_flow_Haval.json` que você baixou do repositório.
+5. Após carregar o arquivo, clique em **Importar** para adicionar o fluxo ao seu ambiente NodeRed.
+6. Ajuste as configurações do fluxo, como credenciais e entidades específicas, conforme necessário.
+7. Clique em **Implantar** no canto superior direito para ativar o fluxo.
+
+![Exemplo de fluxo no Node-RED](https://raw.githubusercontent.com/havaleiros/hassio-haval-h6-to-mqtt/main/haval-h6-mqtt/images/Node-RED_Example.png)
+
+#### Observação importante
+
+Este é apenas um exemplo de fluxo. É necessário editá-lo antes de utilizá-lo, substituindo todas as ocorrências de `{chassis}` pelo número do chassis real do veículo que será monitorado. Além disso, configure os números de telefone que receberão notificações diretamente no NodeRed, ajustando-os conforme sua necessidade.
+
+Agora, o fluxo de automação estará configurado e pronto para uso no NodeRed, permitindo que você aproveite as funcionalidades avançadas para monitorar e controlar seu veículo GWM diretamente no Home Assistant.
+
 ## Suporte
 Para dúvidas, problemas ou sugestões, abra uma issue.
 
