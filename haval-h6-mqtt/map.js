@@ -13,6 +13,14 @@ const sensorTopics = {
     device_class: "battery",
     entity_type: "sensor",
     state_class: "measurement",
+    actionable: {
+      action: "chargingLogs",
+      description: "Histórico de carregamento",
+      entity_type: "button",
+      icon: "mdi:clipboard-text-clock",
+      parent_attributes: "Y",
+      link_type: "press", //(sync: sincroniza os status, toggle: invertido, press: acionamento sem sincronização)
+    }
   },
   2011007: {
     description: "Autonomia Combustão",
@@ -344,11 +352,6 @@ const attributeTopics = {
   // 	description: "VehSpd",
   // 	unit: "Km",
   // 	device_class: "distance",
-  // },
-  // 4105008: {
-  // 	description: "networkSignalStrength",
-  // 	unit: "-",
-  // 	device_class: "None",
   // },
 //};
 

@@ -7,6 +7,20 @@ Você precisa ter uma instância do Home Assistant com o add-on `Mosquitto Broke
 
 [![Add Add-on to Home Assistant](https://my.home-assistant.io/badges/supervisor_add_addon_repository.svg)](https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2Fhavaleiros%2Fhassio-haval-h6-to-mqtt)
 
+## O que é o Home Assistant?
+
+O **Home Assistant** é uma plataforma de automação residencial de código aberto que permite integrar e controlar dispositivos inteligentes de diferentes fabricantes em um único lugar. Ele é altamente personalizável e pode ser executado em dispositivos como Raspberry Pi, servidores locais ou até mesmo na nuvem.
+
+Com o Home Assistant, você pode criar automações avançadas, dashboards personalizados e monitorar o status de seus dispositivos em tempo real. É uma solução ideal para quem busca centralizar o controle de sua casa inteligente.
+
+### Links úteis:
+- [Site oficial do Home Assistant](https://www.home-assistant.io/)
+- [Fórum oficial do Home Assistant](https://community.home-assistant.io/)
+- [Fórum Home Assistant Brasil](https://forum.homeassistantbrasil.com.br/)
+
+### Dica:
+Se você está começando, recomendamos pesquisar no YouTube por tutoriais sobre o Home Assistant. Há uma grande quantidade de vídeos em português e inglês que podem ajudar na instalação, configuração e uso da plataforma.
+
 ### Passo a Passo para adicionar o add-on ao Home Assistant
 
 #### 1. Adicionando o Repositório do Add-on
@@ -181,7 +195,7 @@ Caso a pasta `www` não exista em sua estrutura de pastas, você pode criá-la. 
 
 #### Instalando Custom Cards
 
-Para uma melhor experiência visual, é necessário instalar alguns custom cards através do HACS (Home Assistant Community Store). Siga o [guia de instalação do HACS](https://hacs.xyz/docs/setup/download) para configurá-lo no seu Home Assistant.
+Para uma melhor experiência visual, é necessário instalar alguns custom cards através do HACS (Home Assistant Community Store).
 
 Os seguintes custom cards são necessários:
 
@@ -195,8 +209,30 @@ Os seguintes custom cards são necessários:
 - [config-template-card](https://github.com/iantrich/config-template-card) - _Utilize a versão `1.3.7-beta.1` do `config-template-card`_.
 - [lovelace-collapsable-cards](https://github.com/RossMcMillan92/lovelace-collapsable-cards)
 - [mini-graph-card](https://github.com/kalkih/mini-graph-card)
+- [html-template-card](https://github.com/PiotrMachowski/Home-Assistant-Lovelace-HTML-Jinja2-Template-card)
+- [havaleiros-charging-hist-card](https://github.com/havaleiros/hassio-havaleiros-charging-hist-card) - Nosso card para exibir o histórico de carregamento.
 
-Depois de instalar o HACS, siga as instruções específicas de cada card para adicioná-los ao seu dashboard.
+### Passo a Passo para adicionar um novo repositório no HACS
+
+1. Certifique-se de que o HACS já está instalado e configurado no seu Home Assistant. Caso ainda não tenha instalado, siga o [guia de instalação do HACS](https://hacs.xyz/docs/use/).
+
+2. Acesse a interface web do Home Assistant.
+3. No menu lateral, clique em **HACS**.
+4. No canto superior direito da tela, clique no ícone de três pontos verticais e selecione **Custom repositories** (Repositórios personalizados).
+5. Na janela que abrir, insira o URL do repositório que deseja adicionar no campo **Repository**. Por exemplo:
+  ```
+  https://github.com/custom-cards/button-card
+  ```
+6. No campo **Category**, selecione a categoria apropriada para o repositório. As opções geralmente incluem:
+  - **Template**
+  - **Dashboard** (Painel)
+  - **Theme** (Tema)
+  - **Integration** (Integração)
+7. Clique em **Add** (Adicionar) para salvar o repositório.
+8. Após adicionar o repositório, ele estará disponível na seção correspondente do HACS. Navegue até a categoria apropriada, localize o repositório e clique em **Install** (Instalar) para adicioná-lo ao seu Home Assistant.
+9. Reinicie o Home Assistant, se necessário, para aplicar as alterações.
+
+Agora, o repositório estará configurado e pronto para uso no seu Home Assistant.
 
 #### Adicionando um Novo Dashboard
 
@@ -219,9 +255,10 @@ Nota: Caso a pressão dos pneus seja exibida com a unidade de medida `kPa`, toqu
 
 ### Configuração do controle do ar condicionado via Smart Watch no Home Assistant Companion
 
-A configuração para smart watch funciona tanto para Android, quanto para iOS. No entanto, este guia aborda somente a configuração para iOS. Verifique a documentação do Home Assistant para a configuração para dispositivos Android.
+A configuração para smart watch funciona tanto para Android, quanto para iOS. No entanto, este guia aborda somente a configuração para iOS.
+Verifique a documentação do Home Assistant para a configuração para dispositivos Android.
 
-#### Adicionando "ios" e "AC Haval" no `configuration.yaml`
+#### Adicionando "ios" e as configurações de botões no `configuration.yaml`
 
 Para integrar o controle do ar-condicionado do Haval H6 com o Home Assistant, siga os seguintes passos para configurar o `configuration.yaml`:
 
@@ -236,31 +273,58 @@ ios:
     - name: AC Haval
       background_color: "#141717"
       label:
-        text: "AC Haval"
+        text: "Ligar A/C"
         color: "#FFFFFF"
       icon:
         icon: mdi:car-estate
         color: "#FFFFFF"
+    - name: Interromper carregamento
+      background_color: "#FF0000"
+      label:
+        text: "Parar carga"
+        color: "#FFFFFF"
+      icon:
+        icon: mdi:ev-plug-type2
+        color: "#FFFFFF"
 ```
 
-2. **Configurando o "AC Haval":**
-Para integrar o controle do ar-condicionado do seu Haval H6, certifique-se de seguir as instruções de instalação deste repositório, e então adicione a automação ou entidade correspondente ao ar-condicionado no seu Home Assistant. Um exemplo de configuração do "AC Haval" pode ser feito com base nas informações que o MQTT está expondo no seu servidor.
-Substitua `{chassis}` pelo código de chassis de seu veículo, sempre com letras minúsculas. Remova também as chaves ({}) na substituição.
+2. **Configurando os botões em seu aplicativo para Smart Watch:**
+Para integrar os controles de seu veículo em seu smart watch, certifique-se de seguir as instruções de instalação deste repositório, e então adicione a automação ou entidade correspondente ao ar-condicionado no seu Home Assistant. Um exemplo de configuração dos botões pode ser visto abaixo e utilizado seguindo os passos.
 
-Exemplo de automação para controle do AC usando um botão:
-```yaml
-automation:
-  - alias: "Acionamento temporário do AC do Haval"
-    initial_state: false
+#### Passo a Passo para adicionar no `automation.yaml`:
+
+1. Acesse o arquivo `automation.yaml` da sua instalação do Home Assistant.
+2. Adicione a seguinte automação ao final do arquivo ou em uma seção apropriada:
+  ```yaml
+  - alias: "Acionamento temporário do A/C do veículo"
+    initial_state: true
     trigger:
-      - platform: event
-        event_type: ios.action_fired
-        event_data:
-          actionName: "AC Haval"
+     - platform: event
+      event_type: ios.action_fired
+      event_data:
+        actionName: "AC Haval"
     action:
-      - action: button.press
+     - service: button.press
+      target:
         entity_id: button.gwmbrasil_{chassis}_ativacao_do_ar_condicionado
-```
+
+  - alias: "Interromper carregamento"
+    initial_state: true
+    trigger:
+     - platform: event
+      event_type: ios.action_fired
+      event_data:
+        actionName: "Interromper carregamento"
+    action:
+     - service: button.press
+      target:
+        entity_id: button.gwmbrasil_{chassis}_interromper_carregamento
+  ```  
+3. Substitua `{chassis}` pelo código de chassis do seu veículo, utilizando letras minúsculas. Remova também as chaves ({}) na substituição.
+4. Salve o arquivo.
+5. Reinicie o Home Assistant para aplicar as alterações.
+
+Agora, os controles estarão configurados e poderá ser acionado diretamente pelos botões no aplicativo Home Assistant Companion em seu smart watch. _Caso tenha problemas em atualizar as opções exibidas no relógio, remova o aplicativo via celular e instale novamente_.
 
 ![Botão no Apple Watch](https://raw.githubusercontent.com/havaleiros/hassio-haval-h6-to-mqtt/main/haval-h6-mqtt/images/HA_Companion_watchOS.png)
 

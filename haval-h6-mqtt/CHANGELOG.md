@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.0.20] - 2025-04-25
+### Adicionado
+- Implementado o método `getChargingLogs` no arquivo `axios.js` para obter os registros de carregamento do veículo.
+- Adicionado o painel para histórico de carregamento no arquivo YAML do dashboard do Home Assistant, atualizando o arquivo `HomeAssistant_Dashboard_Haval.yaml`.
+- Adicionado botão no aplicativo Home Assistant Companion para interromper o carregamento no `README.md`.
+- Adicionado botão `button.gwmbrasil_{chassis}_historico_de_carregamento` para atualizar o histórico de carregamentos como um atributo de `sensor.gwmbrasil_{chassis}__estado_de_carga_soc`.
+- Adicionado novo custom card necessário para o histórico de carregamento: `havaleiros-charging-hist-card`.
+
+### Modificado
+- Melhorado o módulo MQTT para lidar com ações relacionadas aos registros de carregamento.
+- Atualizado o arquivo `map.js` para incluir item acionável para os registros de carregamento.
+- Melhorada a explicação sobre o que é o Home Assistant e como adicionar repositórios no HACS no `README.md`..
+- Atualizadas imagens de exemplo no `README.md`.
+
 ## [0.0.19] - 2025-04-10
 
 ## Adicionado

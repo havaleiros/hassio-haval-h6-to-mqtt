@@ -66,6 +66,7 @@ views:
           - >-
             button.gwmbrasil_${VEICULO.toLowerCase()}_ativacao_do_ar_condicionado
           - button.gwmbrasil_${VEICULO.toLowerCase()}_interromper_carregamento
+          - button.gwmbrasil_${VEICULO.toLowerCase()}_historico_de_carregamento
         card:
           type: vertical-stack
           cards:
@@ -1617,3 +1618,27 @@ views:
                     hours_to_show: 30
                     auto_fit: true
                     aspect_ratio: '16:9'
+  - type: panel
+    path: gwm-charging-history
+    cards:
+      - type: custom:config-template-card
+        entities:
+          - button.gwmbrasil_${VEICULO.toLowerCase()}_historico_de_carregamento
+          - sensor.gwmbrasil_${VEICULO.toLowerCase()}_estado_de_carga_soc
+        card:
+          type: vertical-stack
+          cards:
+            - type: custom:mushroom-template-card
+              primary: Atualizar histórico de carregamento
+              icon: mdi:clipboard-clock-outline
+              entity: >-
+                button.gwmbrasil_${VEICULO.toLowerCase()}_historico_de_carregamento
+              hold_action:
+                action: none
+              tap_action:
+                action: toggle
+            - type: custom:gwm-charging-history-card
+              entity: sensor.gwmbrasil_${VEICULO.toLowerCase()}_estado_de_carga_soc
+    title: Histórico de carregamento
+    icon: mdi:clipboard-text-clock
+    subview: false

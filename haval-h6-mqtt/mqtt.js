@@ -94,6 +94,7 @@ const mqttModule = {
 
     if (entityType === EntityType.SENSOR && state_class !== null && !["-", " ", "_", "", "None", "null"].includes(unit)) {
       payload.state_class = state_class;
+      payload.json_attributes_topic = `homeassistant/${entityType.toLowerCase()}/${prefix}_${vin.toLowerCase()}_${code.toLowerCase()}/attributes`;
     }
 
     if (entityType === EntityType.DEVICE_TRACKER) {
@@ -136,7 +137,7 @@ const mqttModule = {
           action: actionable.action, 
           topic_to_monitor_parent: topicToMonitorParent, 
           topic_to_monitor_actionable: "", 
-          topic_to_update: "", 
+          parent_attributes: actionable.parent_attributes && actionable.parent_attributes === "Y" ? payload.json_attributes_topic : "",
           link_type: actionable.link_type,
           vin: vin };
 
@@ -204,26 +205,42 @@ const ActionableAndLink = {
               if(storage.getItem('Startup') == "true") return;
 
                 const actions = {
-                airConditioner: async () => {
-                  await commands.airConditioner(PIN, topicsAndActions[key].vin, true);
-                },
-                stopCharging: async () => {
-                  await commands.chrgFn(true, topicsAndActions[key].vin);
-                  setTimeout(async () => { 
-                    await commands.chrgFn(false, topicsAndActions[key].vin);
-                    console.info('>>>Charging stop WA request reverted successfully.');
-                  }, 2 * 60 * 1000);                  
-                }
+                  airConditioner: async () => {
+                    await commands.airConditioner(PIN, topicsAndActions[key].vin, true);
+                  },
+                  stopCharging: async () => {
+                    await commands.chrgFn(true, topicsAndActions[key].vin);
+                    setTimeout(async () => { 
+                      await commands.chrgFn(false, topicsAndActions[key].vin);
+                      console.info('>>>Charging stop WA request reverted successfully<<<');
+                    }, 2 * 60 * 1000);                  
+                  },
+                  chargingLogs: async () => {
+                    const list = await commands.getChargingLogs(topicsAndActions[key].vin);
+                    if(list && list.length > 0 && topicsAndActions[key].parent_attributes){
+                      const json_attributes_topic = topicsAndActions[key].parent_attributes;
+                      console.log("json_attributes_topic: ", json_attributes_topic);
+                      const last_update = new Date().toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo', });
+                      const attributesPayload = {
+                        charging_logs: list,
+                        last_update: last_update
+                      };
+                      mqttModule.sendMqtt(json_attributes_topic, JSON.stringify(attributesPayload), { retain: true });
+                    }
+                    else{
+                      mqttModule.sendMqtt(json_attributes_topic, JSON.stringify({ charging_logs: "", last_update: last_update }), { retain: true });
+                    }
+                  }
                 };
 
                 const action = actions[String(topicsAndActions[key].action)];
                   if (action && String(messageValue) === (String(topicsAndActions[key].link_type) === "press" ? 'PRESS' : 'ON')) {
                   try {
-                  await action();
-                  console.info(`>>>Action [${String(topicsAndActions[key].action)}] executed successfully for VIN ${topicsAndActions[key].vin}.`);
+                    await action();
+                    console.info(`>>>Action [${String(topicsAndActions[key].action)}] executed successfully for VIN ${topicsAndActions[key].vin}<<<`);
                   } catch (e) {
-                  console.error(`***Error executing action [${String(topicsAndActions[key].action)}]***`);
-                  console.error(e.message);
+                    console.error(`***Error executing action [${String(topicsAndActions[key].action)}]***`);
+                    console.error(e.message);
                   }
                 }
             }

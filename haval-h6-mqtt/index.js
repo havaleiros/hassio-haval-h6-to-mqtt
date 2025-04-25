@@ -189,12 +189,14 @@ validationSchema.validate(process.env)
 
           remove(entity_type, "haval", _vin, code);
           remove(entity_type, "haval", _vin, null);
-          remove(entity_type, "haval", _vin, "None");
+          remove(entity_type, "haval", _vin, "None");          
           remove(EntityType.DEVICE_TRACKER, "haval", _vin, null);
+          remove(EntityType.IMAGE, "haval", _vin, "image");
           remove(EntityType.SENSOR, "haval", _vin, "hyEngSts");
           if(actionable && actionable.action){
             remove(actionable.entity_type, "haval", _vin, `${code}_${actionable.action}`);
             remove(actionable.entity_type, "haval", _vin, `${code.toLowerCase()}_${actionable.action.toLowerCase()}`);
+            remove(EntityType.SWITCH, "haval", _vin, `${code.toLowerCase()}_${actionable.action.toLowerCase()}`);
           }
         });
 
@@ -208,6 +210,7 @@ validationSchema.validate(process.env)
           var { entity_type } = staticEntities[code];
 
           remove(entity_type, "haval", _vin, code);
+          remove(EntityType.IMAGE, "haval", _vin, code);
         });
 
         if(carList[key].staticImageUrl){
@@ -258,8 +261,7 @@ validationSchema.validate(process.env)
 
           const isDeviceTrackerEnabled = Boolean(DEVICE_TRACKER_ENABLED === 'true');
           if(isDeviceTrackerEnabled){
-            storage.setItem('simIccid-'+_vin, carList[key].simIccid);
-            storage.setItem('imsi-'+_vin, carList[key].imsi);
+            storage.setItem('imsi-' + _vin, carList[key].imsi);
 
             var desc = `${carList[key].appShowSeriesName} ${carList[key].powerType} - ${carList[key].color}`;
             register(EntityType.DEVICE_TRACKER,
@@ -350,45 +352,44 @@ validationSchema.validate(process.env)
     for (const vin of carList) {
       const data = await GetCarLastStatus(vin);
 
-    const attributes = {};
-    var slugify = require("slugify");
-   
-    try{
-        if(data && data.items){
-          printLog(LogType.INFO, "Updating status");
-          data.items.forEach(({ code, value }) => {
-            var entity_value = value;
-            if (sensorTopics.hasOwnProperty(code)) {
-              if(sensorTopics[code].formula) entity_value = eval(sensorTopics[code].formula.replace("value", value));
+      const attributes = {};
+      var slugify = require("slugify");
+    
+      try{
+          if(data && data.items){
+            printLog(LogType.INFO, "Updating status");
+            data.items.forEach(({ code, value }) => {
+              var entity_value = value;
+              if (sensorTopics.hasOwnProperty(code)) {
+                if(sensorTopics[code].formula) entity_value = eval(sensorTopics[code].formula.replace("value", value));
+                
+                sendMessage(vin, code, entity_value);
+              }
               
-              sendMessage(vin, code, entity_value);
+              if (attributeTopics.hasOwnProperty(code)) {
+                attributes[slugify(attributeTopics[code].description.toLowerCase(), "_")] = String(value);
+              }
+            });
+
+            const isDeviceTrackerEnabled = Boolean(DEVICE_TRACKER_ENABLED === 'true');
+            if(isDeviceTrackerEnabled){
+              attributes['imsi'] = storage.getItem('imsi-' + vin);
+              attributes['icon'] = "mdi:car-electric-outline";
+
+              sendDeviceTrackerUpdate(vin, String(data.latitude), String(data.longitude), attributes);
             }
-            
-            if (attributeTopics.hasOwnProperty(code)) {
-              attributes[slugify(attributeTopics[code].description.toLowerCase(), "_")] = String(value);
+
+            if(data.hasOwnProperty("hyEngSts")){
+              sendMessage(vin, "hyEngSts", data.hyEngSts);
             }
-          });
-
-          const isDeviceTrackerEnabled = Boolean(DEVICE_TRACKER_ENABLED === 'true');
-          if(isDeviceTrackerEnabled){
-            attributes['simIccid'] = storage.getItem('simIccid-'+vin);
-            attributes['imsi'] = storage.getItem('imsi-'+vin);
-            attributes['icon'] = "mdi:car-electric-outline";
-
-            sendDeviceTrackerUpdate(vin, String(data.latitude), String(data.longitude), attributes);
           }
-
-          if(data.hasOwnProperty("hyEngSts")){
-            sendMessage(vin, "hyEngSts", data.hyEngSts);
-          }
-        }
-        else
-          printLog(LogType.ERROR, "***Failed to update status");
-    } catch (e) {
-      printLog(LogType.ERROR, `***Error updating information: ${e.message}`);
-      process.exit(0);
-    }
+          else
+            printLog(LogType.ERROR, "***Failed to update status");
+      } catch (e) {
+        printLog(LogType.ERROR, `***Error updating information: ${e.message}`);
+        process.exit(0);
+      }
   }
 };
 
-setInterval(async () => updateState(), (REFRESH_TIME || 1) * 1000); 
+setInterval(async () => updateState(), (REFRESH_TIME || 1) * 1000);
