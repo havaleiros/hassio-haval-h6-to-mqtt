@@ -3,6 +3,7 @@ var slugify = require("slugify");
 const { commands } = require("./axios");
 const storage = require("./storage");
 const prefix = 'gwmbrasil';
+const { LogType, printLog } = require('./utils');
 
 require("dotenv").config();
 
@@ -42,12 +43,12 @@ const mqttModule = {
 
     client.on("connect", () => {
       client.publish(topic, payload, options, (err) => {
-          if (err) console.error(err);
+          if (err) printLog(LogType.ERRRO, `***MQTT connection error: ${err.message}`);
           client.end();
       });
     });
   },
-  async remove(entityType, _prefix, vin, code) {
+  async remove(entityType, _prefix, vin, code) {    
     var topic = `homeassistant/${entityType.toLowerCase()}/${_prefix}_${vin.toLowerCase()}${code ? "_" + code.toLowerCase() : ""}/config`;
     mqttModule.sendMqtt(topic, null, { retain: false });
 
@@ -106,7 +107,8 @@ const mqttModule = {
 
     if (entityType === EntityType.SWITCH) {      
       topic = `homeassistant/switch/${prefix}_${vin.toLowerCase()}_${code.toLowerCase()}/config`;
-      payload.command_topic = `homeassistant/switch/${prefix}_${vin.toLowerCase()}_${code.toLowerCase()}/set`;
+      payload.command_topic = `homeassistant/switch/${prefix}_${vin.toLowerCase()}_${code.toLowerCase()}/state`;
+      payload.state_topic = `homeassistant/switch/${prefix}_${vin.toLowerCase()}_${code.toLowerCase()}/state`;
       payload.optimistic = 'true';
       payload.payload_on = 'ON';
       payload.payload_off = 'OFF';
@@ -120,7 +122,7 @@ const mqttModule = {
 
     if (entityType === EntityType.SELECT) {
       topic = `homeassistant/select/${code.toLowerCase()}/config`;
-      payload.command_topic = `homeassistant/select/${code.toLowerCase()}/set`;
+      payload.command_topic = `homeassistant/select/${code.toLowerCase()}/state`;
       payload.state_topic = `homeassistant/select/${code.toLowerCase()}/state`;
       payload.options = initial_value;
       payload.unique_id = `${code.toLowerCase()}`;
@@ -192,7 +194,7 @@ const ActionableAndLink = {
 
           client.subscribe(String(topicsToSubscribe[key].topic), (err) => {
             if (err) {
-              console.error(`***Error subscribing to topic [${String(topicsToSubscribe[key].topic)}]: `, err);
+              printLog(LogType.ERROR, `***Error subscribing to topic [${String(topicsToSubscribe[key].topic)}]: ${err.message}`);
             }
           });
         });
@@ -212,14 +214,14 @@ const ActionableAndLink = {
                     await commands.chrgFn(true, topicsAndActions[key].vin);
                     setTimeout(async () => { 
                       await commands.chrgFn(false, topicsAndActions[key].vin);
-                      console.info('>>>Charging stop WA request reverted successfully<<<');
+                      printLog(LogType.INFO, '>>>Charging stop WA request reverted successfully<<<');
                     }, 2 * 60 * 1000);                  
                   },
                   chargingLogs: async () => {
                     const list = await commands.getChargingLogs(topicsAndActions[key].vin);
                     if(list && list.length > 0 && topicsAndActions[key].parent_attributes){
                       const json_attributes_topic = topicsAndActions[key].parent_attributes;
-                      console.log("json_attributes_topic: ", json_attributes_topic);
+                      
                       const last_update = new Date().toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo', });
                       const attributesPayload = {
                         charging_logs: list,
@@ -237,10 +239,9 @@ const ActionableAndLink = {
                   if (action && String(messageValue) === (String(topicsAndActions[key].link_type) === "press" ? 'PRESS' : 'ON')) {
                   try {
                     await action();
-                    console.info(`>>>Action [${String(topicsAndActions[key].action)}] executed successfully for VIN ${topicsAndActions[key].vin}<<<`);
+                    printLog(LogType.INFO, `>>>Action [${String(topicsAndActions[key].action)}] executed successfully for VIN ${topicsAndActions[key].vin}<<<`);
                   } catch (e) {
-                    console.error(`***Error executing action [${String(topicsAndActions[key].action)}]***`);
-                    console.error(e.message);
+                    printLog(LogType.ERROR, `***Error executing action [${String(topicsAndActions[key].action)}]***: ${e.message}`);
                   }
                 }
             }
@@ -258,10 +259,10 @@ const ActionableAndLink = {
                 }
               }
               catch(e){
-                console.error(`***Error executing the parent and child status sync/toggle.***`)
-                console.error(`Parent topic: `, String(topicsAndActions[key].topic_to_monitor_parent));
-                console.error(`Child topic: `, String(topicsAndActions[key].topic_to_update));
-                console.error(e.message);
+                printLog(LogType.ERROR, `***Error executing the parent and child status sync/toggle.***`)
+                printLog(LogType.ERROR, `Parent topic: ${String(topicsAndActions[key].topic_to_monitor_parent)}`);
+                printLog(LogType.ERROR, `Child topic: ${String(topicsAndActions[key].topic_to_update)}`);
+                printLog(LogType.ERROR, e.message);
               }
             }
           });
@@ -269,7 +270,7 @@ const ActionableAndLink = {
     });
 
     client.on('error', (e) => {
-      console.error('***Error on MQTT [ActionableAndLink] connection:', e.message);
+      printLog(LogType.ERROR, `***Error on MQTT [ActionableAndLink] connection: ${e.message}` );
     });
   }
 }

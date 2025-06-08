@@ -1253,7 +1253,7 @@ views:
                               card_mod:
                                 style: |
                                   :host {
-                                    display: {% if is_state('sensor.gwmbrasil_${VEICULO.toLowerCase()}_estado_da_carga','1') %} block {% else %} none {% endif %};
+                                    display: {% if states('sensor.gwmbrasil_${VEICULO.toLowerCase()}_estado_da_carga') in ['1','5'] %} block {% else %} none {% endif %};
                                   }
                           card_mod:
                             style: |
@@ -1350,7 +1350,11 @@ views:
                       tap_action:
                         action: toggle
                         confirmation:
-                          text: Tem certeza de que deseja ligar o ar condicionado?
+                          text: >-
+                            Tem certeza de que deseja ligar o ar condicionado? O
+                            veículo tem que estar trancado, desligado e, para
+                            modelos PHEV, não pode estar em carregamento ou com
+                            o plugue conectado.
                       card_mod:
                         style: >
                           :host {

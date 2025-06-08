@@ -227,6 +227,64 @@ const sensorTopics = {
     entity_type: "binary_sensor",
     icon: "mdi:car-door",
   },
+  2078020: {
+    description: "Filtragem do Ar do Cockpit", //(1: Ligado 0: Desligado)
+    device_class: "None",
+    entity_type: "binary_sensor",
+    icon: "mdi:air-filter",
+  },
+  2222001: {
+   	description: "Estado do Desembaçador Dianteiro", //Tank
+    device_class: "None",
+    entity_type: "binary_sensor",
+    icon: "mdi:car-defrost-front",
+  },
+  2210032: {
+  	description: "Estado do Desembaçador Traseiro", //Tank
+    device_class: "None",
+    entity_type: "binary_sensor",
+    icon: "mdi:car-defrost-rear",
+  },
+  2201001: {
+  	description: "Temperatura da cabine", //Tank
+    unit: "°C",
+    device_class: "temperature",
+    entity_type: "sensor",
+    state_class: "measurement",
+    icon: "mdi:temperature-celsius",
+  },
+  2060016: {
+  	description: "Aquecimento do volante", //Tank
+    device_class: "None",
+    entity_type: "binary_sensor",
+    icon: "mdi:steering",
+  },
+  2220001: {
+  	description: "Aquecimento do banco do motorista", //Tank
+    device_class: "None",
+    entity_type: "binary_sensor",
+    icon: "mdi:car-seat-heater",
+  },
+  2220002: {
+  	description: "Aquecimento do banco do passageiro", //Tank
+    device_class: "None",
+    entity_type: "binary_sensor",
+    icon: "mdi:car-seat-heater",
+  },
+  2042071: {
+  	description: "Temperatura das baterias", //Tank
+    unit: "°C",
+    device_class: "temperature",
+    entity_type: "sensor",
+    state_class: "measurement",
+    icon: "mdi:car-seat-heater",
+  },
+  2012687: {
+  	description: "Aquecimento da cabine", //Tank
+    device_class: "None",
+    entity_type: "binary_sensor",
+    icon: "mdi:heating-coil",
+  },
 };
 
 const attributeTopics = {
@@ -303,11 +361,6 @@ const attributeTopics = {
 };
 
 //const notUsedTopics = {
-  //2078020: {
-  //  description: "Filtragem do Ar do Cockpit", //(1: Ligado 0: Desligado)
-  //  device_class: "None",
-  //  entity_type: "sensor",
-  //},
   // 2204007: {
   //   description: "Estado do Farol", //(1: Ligado 0: Desligado)
   //   unit: "-",
@@ -323,23 +376,8 @@ const attributeTopics = {
   //   unit: "-",
   //   value: 0,
   // },
-  // 2222001: {
-  // 	description: "Estado do Desembaçador Dianteiro",
-  // 	unit: "null",
-  // 	value: 0,
-  // },
-  // 2210032: {
-  // 	description: "Estado do Desembaçador Traseiro",
-  // 	unit: "null",
-  // 	value: 0,
-  // },
   // 2212001: {
   // 	description: "Estado do Capô",
-  // 	unit: "null",
-  // 	value: 0,
-  // },
-  // 2201001: {
-  // 	description: "Temperatura da cabine",
   // 	unit: "null",
   // 	value: 0,
   // },

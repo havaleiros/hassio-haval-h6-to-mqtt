@@ -1002,7 +1002,7 @@ views:
                     style: |
                       :host {
                         {% set modelo = states('sensor.gwmbrasil_${VEICULO.toLowerCase()}_modelo_do_veiculo').split(' ') %}
-                        {% if 'HEV' in modelo  %}
+                        {% if 'HEV' in modelo  or 'TANK' in modelo %}
                           display: none
                         {% endif %} !important;
                       }
@@ -1031,7 +1031,64 @@ views:
                     style: |
                       :host {
                         {% set modelo = states('sensor.gwmbrasil_${VEICULO.toLowerCase()}_modelo_do_veiculo').split(' ') %}
-                        {% if 'ORA' in modelo %}
+                        {% if 'HAVAL' not in modelo %}
+                          display: none
+                        {% endif %} !important;
+                      }
+                - type: custom:bar-card
+                  title: Autonomia EV
+                  positions:
+                    icon: 'off'
+                    name: 'off'
+                  tap_action:
+                    action: more-info
+                  hold_action:
+                    action: none
+                  min: 0
+                  max: 100
+                  severity:
+                    - value: 0
+                      color: '#540000'
+                    - value: 50
+                      color: '#ffa200'
+                    - value: 100
+                      color: '#009c72'
+                  entities:
+                    - entity: sensor.gwmbrasil_${VEICULO.toLowerCase()}_autonomia_ev
+                  card_mod:
+                    style: |
+                      :host {
+                        {% set modelo = states('sensor.gwmbrasil_${VEICULO.toLowerCase()}_modelo_do_veiculo').split(' ') %}
+                        {% if 'TANK' not in modelo  %}
+                          display: none
+                        {% endif %} !important;
+                      }
+                - type: custom:bar-card
+                  title: Autonomia Combustão
+                  positions:
+                    icon: 'off'
+                    name: 'off'
+                  tap_action:
+                    action: more-info
+                  hold_action:
+                    action: none
+                  min: 0
+                  max: 800
+                  severity:
+                    - value: 0
+                      color: '#540000'
+                    - value: 200
+                      color: '#ffa200'
+                    - value: 800
+                      color: '#009c72'
+                  entities:
+                    - entity: >-
+                        sensor.gwmbrasil_${VEICULO.toLowerCase()}_autonomia_combustao
+                  card_mod:
+                    style: |
+                      :host {
+                        {% set modelo = states('sensor.gwmbrasil_${VEICULO.toLowerCase()}_modelo_do_veiculo').split(' ') %}
+                        {% if 'TANK' not in modelo %}
                           display: none
                         {% endif %} !important;
                       }
@@ -1145,6 +1202,14 @@ views:
                                 sensor.gwmbrasil_${VEICULO.toLowerCase()}_estado_de_carga_12v
                               secondary_info: last-updated
                               state_color: true
+                              card_mod:
+                                style: |
+                                  :host {
+                                    {% set modelo = states('sensor.gwmbrasil_${VEICULO.toLowerCase()}_modelo_do_veiculo').split(' ') %}
+                                    {% if 'TANK' in modelo %}
+                                      display: none
+                                    {% endif %} !important;
+                                  }
                             - type: custom:template-entity-row
                               name: Autonomia Total
                               state: |-
@@ -1168,32 +1233,34 @@ views:
                                       display: none
                                     {% endif %} !important;
                                   }
-                          card_mod:
-                            style: |
-                              ha-card {
-                                border-width: 0px !important;
-                                background: none
-                              }
-                        - type: entities
-                          entities:
                             - entity: >-
                                 sensor.gwmbrasil_${VEICULO.toLowerCase()}_autonomia_combustao
+                              card_mod:
+                                style: |
+                                  :host {
+                                    {% set modelo = states('sensor.gwmbrasil_${VEICULO.toLowerCase()}_modelo_do_veiculo').split(' ') %}
+                                    {% if 'ORA' in modelo %}
+                                      display: none
+                                    {% endif %} !important;
+                                  }
+                                  ha-card {
+                                    border-width: 0px !important;
+                                    background: none
+                                  }
                             - entity: >-
                                 sensor.gwmbrasil_${VEICULO.toLowerCase()}_nivel_de_combustivel
-                          card_mod:
-                            style: |
-                              :host {
-                                {% set modelo = states('sensor.gwmbrasil_${VEICULO.toLowerCase()}_modelo_do_veiculo').split(' ') %}
-                                {% if 'ORA' in modelo %}
-                                  display: none
-                                {% endif %} !important;
-                              }
-                              ha-card {
-                                border-width: 0px !important;
-                                background: none
-                              }
-                        - type: entities
-                          entities:
+                              card_mod:
+                                style: |
+                                  :host {
+                                    {% set modelo = states('sensor.gwmbrasil_${VEICULO.toLowerCase()}_modelo_do_veiculo').split(' ') %}
+                                    {% if 'HAVAL' not in modelo %}
+                                      display: none
+                                    {% endif %} !important;
+                                  }
+                                  ha-card {
+                                    border-width: 0px !important;
+                                    background: none
+                                  }
                             - entity: >-
                                 sensor.gwmbrasil_${VEICULO.toLowerCase()}_autonomia_ev
                             - entity: >-
@@ -1253,7 +1320,7 @@ views:
                               card_mod:
                                 style: |
                                   :host {
-                                    display: {% if is_state('sensor.gwmbrasil_${VEICULO.toLowerCase()}_estado_da_carga','1') %} block {% else %} none {% endif %};
+                                    display: {% if states('sensor.gwmbrasil_${VEICULO.toLowerCase()}_estado_da_carga') in ['1','5'] %} block {% else %} none {% endif %};
                                   }
                           card_mod:
                             style: |
@@ -1324,7 +1391,7 @@ views:
                     background: none
                   }
             - type: custom:collapsable-cards
-              title: Ar condicionado
+              title: Climatização
               defaultOpen: true
               cards:
                 - type: entities
@@ -1350,7 +1417,11 @@ views:
                       tap_action:
                         action: toggle
                         confirmation:
-                          text: Tem certeza de que deseja ligar o ar condicionado?
+                          text: >-
+                            Tem certeza de que deseja ligar o ar condicionado? O
+                            veículo tem que estar trancado, desligado e, para
+                            modelos PHEV, não pode estar em carregamento ou com
+                            o plugue conectado.
                       card_mod:
                         style: >
                           :host {
@@ -1376,8 +1447,40 @@ views:
                         === 'off' ? 'Desligado' :
                         states['binary_sensor.gwmbrasil_'+VEICULO.toLowerCase()+'_estado_do_purificador_de_ar'].state
                         === 'on' ? 'Ligado' : 'Desconhecido'}
+                      card_mod:
+                        style: |
+                          :host {
+                            {% set modelo = states('sensor.gwmbrasil_${VEICULO.toLowerCase()}_modelo_do_veiculo').split(' ') %}
+                            {% if 'TANK' in modelo %}
+                              display: none
+                            {% endif %} !important;
+                          }              
                   card_mod:
                     style: |
+                      ha-card {
+                        border-width: 0px !important;
+                        background: none
+                      }
+                - type: entities
+                  entities:
+                    - entity: >-
+                        sensor.gwmbrasil_${VEICULO.toLowerCase()}_temperatura_da_cabine
+                    - entity: >-
+                        binary_sensor.gwmbrasil_${VEICULO.toLowerCase()}_aquecimento_da_cabine
+                    - entity: >-
+                        binary_sensor.gwmbrasil_${VEICULO.toLowerCase()}_aquecimento_do_banco_do_motorista
+                    - entity: >-
+                        binary_sensor.gwmbrasil_${VEICULO.toLowerCase()}_aquecimento_do_banco_do_passageiro
+                    - entity: >-
+                        binary_sensor.gwmbrasil_${VEICULO.toLowerCase()}_aquecimento_do_volante
+                  card_mod:
+                    style: |
+                      :host {
+                        {% set modelo = states('sensor.gwmbrasil_${VEICULO.toLowerCase()}_modelo_do_veiculo').split(' ') %}
+                        {% if 'TANK' not in modelo %}
+                          display: none
+                        {% endif %} !important;
+                      }
                       ha-card {
                         border-width: 0px !important;
                         background: none
@@ -1650,10 +1753,24 @@ views:
       - type: grid
         square: false
         cards:
+          - type: energy-date-selection
+            card_mod:
+              style: |
+                ha-card {
+                  z-index: 1;
+                  position: absolute;
+                  height: 80px !important;
+                  width: 80%;
+                  top: 75px;
+                  right: 10px;
+                  max-width: 450px;
+                  color: white;
+                  background: rgb(0,0,0,0.7);
+                }
           - type: custom:map-card
             history_date_selection: true
             entities:
-              - entity: device_tracker.gwmbrasil_{{chassis}}
+              - entity: device_tracker.gwmbrasil_{chassis}
             card_mod:
               style: |
                 ha-card {
@@ -1662,17 +1779,5 @@ views:
                 ha-card #map {
                   height:calc(100vh - 56px);
                   border-radius:0;
-                }
-          - type: energy-date-selection
-            card_mod:
-              style: |
-                ha-card {
-                      z-index: 1;
-                      position: absolute;
-                      height: 80px !important;
-                      width: 80%;
-                      top: 75px;
-                      right: 10px;
-                      max-width: 450px;
                 }
         columns: 1

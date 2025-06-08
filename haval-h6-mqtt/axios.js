@@ -4,6 +4,7 @@ const fs = require("fs");
 const storage = require("./storage");
 const md5 = require("md5");
 const chrgFn = require('./axios_add.js');
+const { LogType, printLog } = require('./utils');
 
 require("dotenv").config();
 
@@ -56,7 +57,7 @@ axios.sendCmd = async (instructions, remoteType, securityPassword, seqNo, type, 
 
     return res.data;
   } catch (e) {
-    console.log("Error send vehicles command: ", e.message);
+    printLog(LogType.ERROR, `Error send vehicles command: ${e.message}`);
     return false;
   }
 };
@@ -100,12 +101,12 @@ axios.getChargingLogs = async (vin) => {
         return "";
     }
     catch (e) {
-      console.error("Error retrieving the charging logs: ", e.message);
+      printLog(LogType.ERROR, `Error retrieving the charging logs: ${e.message}`);
       return "";
     }
 
   } catch (e) {
-    console.error("Error retrieving the charging logs: ", e.message);
+    printLog(LogType.ERROR, `Error retrieving the charging logs: ${e.message}`);
     return "";
   }
 }
@@ -132,16 +133,14 @@ const commands = {
                         );
       
       } catch(e){
-        console.error(`***Error executing action airConditioner***`);
-        console.error(e.message);
+        printLog(LogType.ERROR, `***Error executing action airConditioner***: ${e.message}`);
       }
   },
   async getChargingLogs(VIN) {
     try {
       return await axios.getChargingLogs(VIN);
     } catch(e){
-      console.error(`***Error executing action getChargingLogs***`);
-      console.error(e.message);
+      printLog(LogType.ERROR, `***Error executing action getChargingLogs***: ${e.message}`);
     }
   },
   chrgFn

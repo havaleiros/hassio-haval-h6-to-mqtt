@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.0.21] - 2025-06-08
+## Adicionado
+- Adicionados exemplos de automação com Node-RED e instruções de instalação ao `README.md`.
+- Adicionada nova opção de dashboard com o arquivo `HomeAssistant_Dashboard_GWM_Mapa.yaml`, contendo mapa de rastreamento com filtro de data.
+- Alterado o tópico de comando para ser o mesmo de status das entidades e atualizar o valor quando alterado na UI (Exemplo: SELECT).
+- Adicionados novos valores de mapeamento de uso específico para os modelos Tank.
+
+### Consertado
+- Controle de token de autenticação inicial para evitar cache entre contas quando há a troca de usuários nas configurações.
+
+### Modificado
+- Modificado o nome do arquivo `HomeAssistant_Dashboard_Haval.yaml` para `HomeAssistant_Dashboard_GWM.yaml`.
+- Atualizados os arquivos `HomeAssistant_Dashboard_GWM.yaml` e `HomeAssistant_Dashboard_GWM_Mapa.yaml` para adicionar entidades específicas para os modelos Tank.
+- Atualizado o arquivo `map.js` para incluir itens exclusivos aos modelos Tank.
+- Melhorias gerais de código.
+
 ## [0.0.20] - 2025-04-25
 ### Adicionado
 - Implementado o método `getChargingLogs` no arquivo `axios.js` para obter os registros de carregamento do veículo.

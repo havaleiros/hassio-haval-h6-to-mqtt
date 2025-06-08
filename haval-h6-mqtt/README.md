@@ -3,6 +3,9 @@
 ## Sobre
 
 Este add-on permite a integração do Home Assistant com os veículos da **GWM Brasil** utilizando MQTT. Com essa integração, é possível monitorar e controlar várias funcionalidades do veículo diretamente pelo Home Assistant.
+
+Apesar do nome da integração ter o `Haval`, ela abarca veículos de todas as marcas GWM, como Tank e Ora, além da própria Haval. Temos que lembrar que Haval foi a primeira marca e não por menos a comunidade que deu origem à esta integração é a `Havaleiros Brasil`.
+
 Você precisa ter uma instância do Home Assistant com o add-on `Mosquitto Broker` instalado e configurado. Caso esteja instalando o `Mosquitto Broker` somente para esta integração, lembre-se de reiniciar sua instância do Home Assistant após a instalação.
 
 [![Add Add-on to Home Assistant](https://my.home-assistant.io/badges/supervisor_add_addon_repository.svg)](https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2Fhavaleiros%2Fhassio-haval-h6-to-mqtt)
@@ -245,16 +248,18 @@ Agora, o repositório estará configurado e pronto para uso no seu Home Assistan
 6. Na nova linha criada com o novo dashboard, clique em _ABRIR_.
 7. No canto superior esquerdo da tela, clique em _Editar dashboard_.
 8. Clique novamente no símbolo com 3 pontos verticais e depois em _Editor de configuração RAW_.
-9. Apague o conteúdo existente que será exibido, copie o conteúdo do arquivo `HomeAssistant_Dashboard_Haval.yaml` fornecido como template e cole nesta tela. [Baixe aqui o arquivo YAML](https://github.com/havaleiros/hassio-haval-h6-to-mqtt/blob/main/haval-h6-mqtt/files/HomeAssistant_Dashboard_Haval.yaml). Consulte sempre a data de atualização do arquivo para identificar se há uma versão mais recente. 
+9. Apague o conteúdo existente que será exibido, copie o conteúdo do arquivo `HomeAssistant_Dashboard_GWM.yaml` fornecido como template e cole nesta tela. [Baixe aqui o arquivo YAML](https://github.com/havaleiros/hassio-haval-h6-to-mqtt/blob/main/haval-h6-mqtt/files/HomeAssistant_Dashboard_GWM.yaml). Consulte sempre a data de atualização do arquivo para identificar se há uma versão mais recente. 
 
 Agora, seu novo dashboard estará configurado para exibir informações detalhadas sobre o seu veículo GWM.
 Você poderá, além de monitorar as informações do veículo, ligar o ar condicionado e interromper o carregamento, para soltar o plugue do carregador antes da finalização da carga.
 
-Nota 1: _Há também a opção `HomeAssistant_Dashboard_Haval_Mapa.yaml` que fornece o mapa de rastreamento com filtro de data._ No entato, esta necessita de uma intervenção manual. Localize o conteúdo `{{chassis}}` e o substitua pelo chassis do veículo que quer monitorar, sempre em letras minúsculas. Esta opção não permite a mudança dinâmica para àqueles que possuam dois ou mais veículos devido à uma incompatibilidade do card `map-card` utilizado para esta exibição quando trabalhando em conjunto com o card `config-template-card`.
+Nota 1: _Há também a opção `HomeAssistant_Dashboard_GWM_Mapa.yaml` que fornece o mapa de rastreamento com filtro de data._ No entato, esta necessita de uma intervenção manual. Localize o conteúdo `{{chassis}}` e o substitua pelo chassis do veículo que quer monitorar, sempre em letras minúsculas. Esta opção não permite a mudança dinâmica para àqueles que possuam dois ou mais veículos devido à uma incompatibilidade do card `map-card` utilizado para esta exibição quando trabalhando em conjunto com o card `config-template-card`.
 
 Nota 2: Caso a pressão dos pneus seja exibida com a unidade de medida `kPa`, toque sobre cada entidade na lista Pneus - do lado direito do dashboard - e toque no ícone de engrenagem, _Configurações_. Altere a unidade de medida para `psi`.
 
 ![Exemplo de painel no Home Assistant](https://raw.githubusercontent.com/havaleiros/hassio-haval-h6-to-mqtt/main/haval-h6-mqtt/images/HomeAssistant_Example.png)
+
+![Exemplo com outros veículos, como o Tank 300](https://raw.githubusercontent.com/havaleiros/hassio-haval-h6-to-mqtt/main/haval-h6-mqtt/images/HomeAssistant_Example_Others.png)
 
 ### Configuração do controle do ar condicionado via Smart Watch no Home Assistant Companion
 
@@ -373,7 +378,7 @@ Agora, o fluxo de automação estará configurado e pronto para uso no NodeRed, 
 Para dúvidas, problemas ou sugestões, abra uma issue.
 
 ## Contato
-A comunidade Havaleiros está no WhatsApp. Você pode solicitar acesso enviando email para havaleiros@gmail.com ou gentefelizclube@gmail.com.
+A comunidade Havaleiros Brasil está no WhatsApp. Para solicitar acesso, envie um e-mail para [havaleiros@gmail.com](mailto:havaleiros@gmail.com) ou [gentefelizclube@gmail.com](mailto:gentefelizclube@gmail.com).
 
 ![Havaleiros Brasil](https://raw.githubusercontent.com/havaleiros/hassio-haval-h6-to-mqtt/main/haval-h6-mqtt/images/Havaleiros_logo_Quadrado.png)
 
