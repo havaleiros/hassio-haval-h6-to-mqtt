@@ -107,7 +107,7 @@ const sensorTopics = {
     unit: "L",
     device_class: "volume",
     entity_type: "sensor",
-    state_class: "measurement",
+    state_class: "total",
   },
   2013005: {
   	description: "Estado de Carga 12V",
