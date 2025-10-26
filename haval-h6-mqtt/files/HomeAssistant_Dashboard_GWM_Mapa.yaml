@@ -978,9 +978,9 @@ views:
             - type: horizontal-stack
               cards:
                 - type: custom:entity-progress-card
-                  entity: sensor.gwmbrasil_${VEICULO.toLowerCase()}_estado_de_carga_soc
+                  entity: >-
+                    sensor.gwmbrasil_${VEICULO.toLowerCase()}_estado_de_carga_soc
                   name: Bateria
-                  icon: mdi:battery
                   card_mod:
                     style: |
                       :host {
@@ -994,22 +994,8 @@ views:
                     sensor.gwmbrasil_${VEICULO.toLowerCase()}_nivel_de_combustivel
                   name: Combustível
                   icon: mdi:gas-station
-                  show:
-                    name: true
-                    percentage: false    
-                    value: true
-                  value_template: >
-                    {{ state_attr('sensor.gwmbrasil_combustivel_percent', 'display_value') }}
-                  severity:
-                    - from: 0
-                      to: 49
-                      color: "#540000"
-                    - from: 50
-                      to: 99
-                      color: "#ffa200"
-                    - from: 100
-                      to: 100
-                      color: "#009c72"
+                  min_value: 0
+                  max_value: 60
                   card_mod:
                     style: |
                       :host {
@@ -1019,22 +1005,9 @@ views:
                         {% endif %} !important;
                       }
                 - type: custom:entity-progress-card
-                  entity: sensor.gwmbrasil_autonomia_ev_percent
+                  entity: sensor.gwmbrasil_${VEICULO.toLowerCase()}_autonomia_ev
                   name: Autonomia EV
                   icon: mdi:ev-station
-                  show:
-                    name: true
-                    percentage: true      
-                  severity:
-                    - from: 0
-                      to: 49
-                      color: "#540000"
-                    - from: 50
-                      to: 99
-                      color: "#ffa200"
-                    - from: 100
-                      to: 100
-                      color: "#009c72"
                   card_mod:
                     style: |
                       :host {
@@ -1044,23 +1017,12 @@ views:
                         {% endif %} !important;
                       }
                 - type: custom:entity-progress-card
-                  entity: sensor.gwmbrasil_autonomia_combustao_percent
+                  entity: >-
+                    sensor.gwmbrasil_${VEICULO.toLowerCase()}_autonomia_combustao
                   name: Autonomia Combustão
                   icon: mdi:car-electric
-                  show:
-                    name: true
-                    percentage: false
-                    value: true
-                  severity:
-                    - from: 0
-                      to: 24
-                      color: "#540000"
-                    - from: 25
-                      to: 84
-                      color: "#ffa200"
-                    - from: 85
-                      to: 100
-                      color: "#009c72"
+                  min_value: 0
+                  max_value: 800
                   card_mod:
                     style: |
                       :host {
