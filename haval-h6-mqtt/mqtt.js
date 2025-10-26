@@ -68,7 +68,6 @@ const mqttModule = {
 
     let payload = {
       unique_id: `${prefix}_${vin.toLowerCase()}_${slugName}`,
-      object_id: `${prefix}_${vin.toLowerCase()}_${slugName}`,
       name: entity_name      
     };
 
@@ -101,7 +100,6 @@ const mqttModule = {
     if (entityType === EntityType.DEVICE_TRACKER) {
       topic = `homeassistant/device_tracker/${prefix}_${vin.toLowerCase()}/config`;      
       payload.unique_id = `${prefix}_${vin.toLowerCase()}`;
-      payload.object_id = `${prefix}_${vin.toLowerCase()}`;
       payload.json_attributes_topic = `homeassistant/device_tracker/${prefix}_${vin.toLowerCase()}/attributes`;
     }
 
@@ -126,7 +124,6 @@ const mqttModule = {
       payload.state_topic = `homeassistant/select/${code.toLowerCase()}/state`;
       payload.options = initial_value;
       payload.unique_id = `${code.toLowerCase()}`;
-      payload.object_id = `${code.toLowerCase()}`;
     }
 
     mqttModule.sendMqtt(topic, JSON.stringify(payload), { retain: true });

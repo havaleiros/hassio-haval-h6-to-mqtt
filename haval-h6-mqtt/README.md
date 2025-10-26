@@ -207,14 +207,14 @@ Os seguintes custom cards são necessários:
 - [mushroom-title-card](https://github.com/piitaya/lovelace-mushroom)
 - [template-entity-row](https://github.com/thomasloven/lovelace-template-entity-row)
 - [card-mod](https://github.com/thomasloven/lovelace-card-mod)
-- [bar-card](https://github.com/custom-cards/bar-card)
+- [entity-progress-card](https://github.com/francois-le-ko4la/lovelace-entity-progress-card)
 - [fold-entity-row](https://github.com/thomasloven/lovelace-fold-entity-row)
 - [config-template-card](https://github.com/iantrich/config-template-card) - _Utilize a versão `1.3.7-beta.1` do `config-template-card`_.
 - [lovelace-collapsable-cards](https://github.com/RossMcMillan92/lovelace-collapsable-cards)
 - [mini-graph-card](https://github.com/kalkih/mini-graph-card)
 - [html-template-card](https://github.com/PiotrMachowski/Home-Assistant-Lovelace-HTML-Jinja2-Template-card)
 - [havaleiros-charging-hist-card](https://github.com/havaleiros/hassio-havaleiros-charging-hist-card) - Nosso card para exibir o histórico de carregamento.
-- [map-card](https://github.com/nathan-gs/ha-map-card) - Para àqueles que forem utilizar a opção de dashboard com mapa de rastreamento fom filtro.
+- [map-card](https://github.com/nathan-gs/ha-map-card) - Para àqueles que forem utilizar a opção de dashboard com mapa de rastreamento com filtro.
 
 ### Passo a Passo para adicionar um novo repositório no HACS
 
@@ -253,7 +253,10 @@ Agora, o repositório estará configurado e pronto para uso no seu Home Assistan
 Agora, seu novo dashboard estará configurado para exibir informações detalhadas sobre o seu veículo GWM.
 Você poderá, além de monitorar as informações do veículo, ligar o ar condicionado e interromper o carregamento, para soltar o plugue do carregador antes da finalização da carga.
 
-Nota 1: _Há também a opção `HomeAssistant_Dashboard_GWM_Mapa.yaml` que fornece o mapa de rastreamento com filtro de data._ No entato, esta necessita de uma intervenção manual. Localize o conteúdo `{{chassis}}` e o substitua pelo chassis do veículo que quer monitorar, sempre em letras minúsculas. Esta opção não permite a mudança dinâmica para àqueles que possuam dois ou mais veículos devido à uma incompatibilidade do card `map-card` utilizado para esta exibição quando trabalhando em conjunto com o card `config-template-card`.
+Nota 1: _Há também a opção `HomeAssistant_Dashboard_GWM_Mapa.yaml` que fornece o mapa de rastreamento com filtro de data._ Para que o mapa dinâmico funcione, você precisa criar uma automação a partir do blueprint abaixo. Assim o mapa sempre mostrará o veículo selecionado no seletor de veículos dinamicamente, sem a necessidade de intervenção manual no código. Clique no botão abaixo para importar. Em seguida, vá para **Configurações** > **Automações & Cenas**, clique em **Criar Automação** e selecione o blueprint `GWM Selected Vehicle Tracker` para criar a automação.
+
+[![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgist.github.com%2Falefantozzi%2Fc0f6e4561c5c4349b01ef6939671ac0d)
+
 
 Nota 2: Caso a pressão dos pneus seja exibida com a unidade de medida `kPa`, toque sobre cada entidade na lista Pneus - do lado direito do dashboard - e toque no ícone de engrenagem, _Configurações_. Altere a unidade de medida para `psi`.
 

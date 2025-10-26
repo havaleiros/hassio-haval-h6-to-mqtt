@@ -79,29 +79,36 @@ const getCarList = async () => {
   try {
     await auth();
     const { data } = await axios.getCarInfo('globalapp/vehicle/acquireVehicles');
-    var carList;
+    var carList = [];
     if(data.data){
-      //carData = data.data.find(car => car.vin === vin);
       carList = data.data;
       const vinArray = data.data.map(car => car.vin);
       storage.setItem('carList', vinArray);
 
-      if (data.data.length > 0) {        
-        const _code = "gwmbrasil_veiculos_registrados";
-        const _name = "Veículos registrados no My GWM";
-        const topic = `homeassistant/select/${_code.toLowerCase()}/state`;
-        register(entityType = EntityType.SELECT, 
-                 vin = VIN,
-                 code = _code, 
-                 entity_name = _name, 
-                 unit = null, 
-                 device_class = null, 
-                 icon = "mdi:car-2-plus", 
-                 actionable = null,
-                 initial_value = vinArray,
-                 state_class = null);
+      const _code = "gwmbrasil_veiculos_registrados";
+      const _name = "Veículos registrados no My GWM";
+      const topic = `homeassistant/select/${_code.toLowerCase()}/state`;
+      register(entityType = EntityType.SELECT, 
+               vin = VIN,
+               code = _code, 
+               entity_name = _name, 
+               unit = null, 
+               device_class = null, 
+               icon = "mdi:car-2-plus", 
+               actionable = null,
+               initial_value = vinArray,
+               state_class = null);
 
+      if (data.data.length > 0) {
         sendMqtt(topic, String(VIN).toUpperCase(), { retain: true }); //Set the default VIN
+
+        const isDeviceTrackerEnabled = Boolean(DEVICE_TRACKER_ENABLED === 'true');
+        if(isDeviceTrackerEnabled){
+          register(EntityType.DEVICE_TRACKER,
+                   vin = "selected_vehicle", 
+                   code = "DeviceTracker", 
+                   entity_name = "GWM Selected Vehicle");
+        }
       }
     }
     return carList;
