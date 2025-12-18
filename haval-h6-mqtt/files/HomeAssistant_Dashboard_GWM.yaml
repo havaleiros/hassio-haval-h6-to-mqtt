@@ -927,30 +927,23 @@ views:
                     background: none !important /*bg*/;
                     border-radius: 6px;
                   }
-            - type: custom:button-card
-              entity: sensor.gwmbrasil_${VEICULO}_status_message
-              show_name: false
-              show_icon: false
-              show_state: true
-              styles:
-                card:
-                  - backdrop-filter: blur(20px)
-                  - border-radius: 6px
-                  - padding: 16px
-                state:
-                  - font-size: 14px
-                  - text-align: center
-                  - white-space: pre-wrap
-              state_display: |
-                [[[
-                  return states['sensor.gwmbrasil_${VEICULO}_status_message'].state.replace(/\|/g, '\n');
-                ]]]
+            - type: markdown
+              content: >
+                {% set msg =
+                states('sensor.gwmbrasil_${VEICULO}_status_message') %} {{
+                msg.replace('|', '\n') }}
               card_mod:
                 style: |
                   ha-card {
-                     display: {% if states('sensor.gwmbrasil_${VEICULO}_status_message') == 'Não há alertas neste momento.' %} none {% else %} block {% endif %} !important;
-                     animation:pulse 2s infinite;
-                   }
+                    background: rgba(30, 35, 45, 0.4);
+                    backdrop-filter: blur(20px);
+                    border-radius: 6px;
+                    padding: 16px;
+                    color: rgba(255,255,255,0.7);
+                    font-size: 14px;
+                    text-align: center;
+                    display: {% if states('sensor.gwmbrasil_${VEICULO}_status_message') == 'Não há alertas neste momento.' %} none {% else %} block {% endif %} !important;
+                  }
             - type: custom:button-card
               name: Controles
               icon: mdi:car-cog
@@ -1795,41 +1788,23 @@ views:
         card:
           type: vertical-stack
           cards:
-            - type: custom:button-card
-              entity: sensor.gwmbrasil_${VEICULO}_status_message
-              show_name: false
-              show_icon: false
-              show_state: true
-              styles:
-                card:
-                  - background: rgba(30, 35, 45, 0.4)
-                  - backdrop-filter: blur(20px)
-                  - border-radius: 6px
-                  - padding: 16px
-                  - transition: all 0.3s ease
-                card:hover:
-                  - box-shadow: 0 0 25px rgba(74, 222, 128, 0.15)
-                grid:
-                  - grid-template-areas: \'"s"\'
-                  - grid-template-columns: 1fr
-                  - grid-template-rows: auto
-                state:
-                  - font-size: 14px
-                  - color: rgba(255,255,255,0.7)
-                  - text-align: center
-                  - white-space: pre-wrap
-                  - justify-self: center
-                  - width: 100%
-              state_display: |
-                [[[
-                  return states['sensor.gwmbrasil_${VEICULO}_status_message'].state.replace(/\|/g, '\n');
-                ]]]
+            - type: markdown
+              content: >
+                {% set msg =
+                states('sensor.gwmbrasil_${VEICULO}_status_message') %} {{
+                msg.replace('|', '\n') }}
               card_mod:
                 style: |
                   ha-card {
-                     display: {% if states('sensor.gwmbrasil_${VEICULO}_status_message') == 'Não há alertas neste momento.' %} none {% else %} block {% endif %} !important;
-                     animation:pulse 2s infinite;             
-                   }
+                    background: rgba(30, 35, 45, 0.4);
+                    backdrop-filter: blur(20px);
+                    border-radius: 6px;
+                    padding: 16px;
+                    color: rgba(255,255,255,0.7);
+                    font-size: 14px;
+                    text-align: center;
+                    display: {% if states('sensor.gwmbrasil_${VEICULO}_status_message') == 'Não há alertas neste momento.' %} none {% else %} block {% endif %} !important;
+                  }
                   :host {
                     padding: 16px;
                   }
