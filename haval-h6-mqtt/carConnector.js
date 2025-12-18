@@ -311,7 +311,6 @@ async function chargingSchedule(enable, vin) {
 
 function apiReturnHandle(returnData, functionName){
     if(returnData && returnData.description === "SUCCESS") {
-        printLog(LogType.INFO, `${formatMessage(UserMessages.COMMAND_SUCCESS, {functionName: functionName.toString()})}`);
         return { result: true, message: formatMessage(UserMessages.COMMAND_SUCCESS, {functionName: functionName.toString()}) };
     }
     else if(returnData) {
