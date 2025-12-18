@@ -2365,14 +2365,30 @@ views:
       - type: grid
         square: false
         cards:
-          - type: custom:mushroom-title-card
-            title: |
-              Veículo: {{ states('select.gwmbrasil_veiculos_registrados') }}
-            card_mod:
-              style: |
-                :host {
-                  display: {% if state_attr('select.gwmbrasil_veiculos_registrados', 'options') | length > 1 %} block {% else %} none {% endif %};
-                }
+          - type: custom:config-template-card
+            entities:
+              - select.gwmbrasil_veiculos_registrados
+              - sensor.gwmbrasil_${VEICULO}_modelo_do_veiculo
+            card:
+              type: custom:mushroom-title-card
+              title: >
+                {% set vin = states('select.gwmbrasil_veiculos_registrados') %}
+                {% set modelo = 
+                states('sensor.gwmbrasil_${VEICULO}_modelo_do_veiculo') %}
+
+                Veículo: {{ [vin, modelo]
+                   | reject('in', ['unknown', 'unavailable', ''])
+                   | join(' - ') }}
+              card_mod:
+                style: |
+                  :host {
+                    display: {% if state_attr('select.gwmbrasil_veiculos_registrados', 'options') | length > 1 %} block {% else %} none {% endif %};
+                  }
+                  ha-card h1 {
+                    font-size: 14px !important;
+                    font-weight: 500;
+                    letter-spacing: 0.5px;
+                  }
           - type: energy-date-selection
             card_mod:
               style: |
