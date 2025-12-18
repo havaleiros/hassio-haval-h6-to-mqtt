@@ -2272,9 +2272,9 @@ views:
                   icon: mdi:weather-sunny
                   tap_action:
                     action: call-service
-                    service: script.turn_on
+                    service: button.press
                     service_data:
-                      entity_id: script.gwm_abrir_tetosolar
+                      entity_id: button.gwmbrasil_${VEICULO}_abrir_teto_solar
                   styles:
                     card:
                       - background: rgba(30, 35, 45, 0.4)

@@ -288,7 +288,7 @@ const ActionableAndLink = {
                   if (action && String(messageValue) === (String(topicsAndActions[key].link_type) === "press" ? 'PRESS' : 'ON')) {
                   try {
                     const data = await action();
-                    if (data && !data.result && !data.running && !data.actualState && !data.lockRequired) {
+                    if (data && !data.result && data.error) {
                       throw new Error(data.message)
                     }
 
