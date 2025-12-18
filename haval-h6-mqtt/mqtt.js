@@ -63,12 +63,12 @@ const mqttModule = {
   },  
   async register(entityType, vin, code, entity_name, unit = null, device_class = "None", icon = null, actionable = false, initial_value = null, state_class = null) {
 
-    const slugName = slugify(entity_name.toLowerCase(), "_");
+    const slugName = slugify(entity_name.toLowerCase().replace("-","_"), "_");
     var topic = `homeassistant/${entityType.toLowerCase()}/${prefix}_${vin.toLowerCase()}_${code.toLowerCase()}/config`;
 
     let payload = {
       unique_id: `${prefix}_${vin.toLowerCase()}_${slugName}`,
-      default_entity_id: `${prefix}_${vin.toLowerCase()}_${slugName}`,
+      default_entity_id: `${entityType.toLowerCase()}.${prefix}_${vin.toLowerCase()}_${slugName}`,
       name: entity_name,
       device: {
         "identifiers": [`${vin.toUpperCase()}`],
@@ -107,7 +107,7 @@ const mqttModule = {
     if (entityType === EntityType.DEVICE_TRACKER) {
       topic = `homeassistant/device_tracker/${prefix}_${vin.toLowerCase()}/config`;      
       payload.unique_id = `${prefix}_${vin.toLowerCase()}`;
-      payload.default_entity_id = `${prefix}_${vin.toLowerCase()}`;
+      payload.default_entity_id = `${entityType.toLowerCase()}.${prefix}_${vin.toLowerCase()}`;
       payload.json_attributes_topic = `homeassistant/device_tracker/${prefix}_${vin.toLowerCase()}/attributes`;
     }
 
@@ -132,7 +132,7 @@ const mqttModule = {
       payload.state_topic = `homeassistant/select/${code.toLowerCase()}/state`;
       payload.options = initial_value;
       payload.unique_id = `${code.toLowerCase()}`;
-      payload.default_entity_id = `${code.toLowerCase()}`;
+      payload.default_entity_id = `${entityType.toLowerCase()}.${code.toLowerCase()}`;
     }
 
     mqttModule.sendMqtt(topic, JSON.stringify(payload), { retain: true });
