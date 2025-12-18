@@ -4,7 +4,7 @@
 
 Este add-on permite a integração do Home Assistant com os veículos da **GWM Brasil** utilizando MQTT. Com essa integração, é possível monitorar e controlar várias funcionalidades do veículo diretamente pelo Home Assistant.
 
-Apesar de o nome da integração ter o `Haval`, ela abarca veículos de todas as marcas GWM, como Ora, Tank, Poer e Wey, além da própria Haval. Temos que lembrar que Haval foi a primeira marca e não à toa que a comunidade que deu origem à esta integração é a `Havaleiros Brasil`.
+Apesar de o nome da integração ter o `Haval`, ela abarca veículos de todas as marcas GWM, como Ora, Tank, Poer e Wey, além da própria Haval. Devemos lembrar que Haval foi a primeira marca e não à toa que a comunidade que deu origem a esta integração é a `Havaleiros Brasil`.
 
 Você precisa ter uma instância do Home Assistant com o add-on `Mosquitto Broker` instalado e configurado. Caso esteja instalando o `Mosquitto Broker` somente para esta integração, lembre-se de reiniciar sua instância do Home Assistant após a instalação.
 
@@ -32,7 +32,7 @@ Se você está começando, recomendamos pesquisar no YouTube por tutoriais sobre
 2. Navegue até **Supervisor** no menu lateral.
 3. Selecione a aba **Add-on Store**.
 4. Clique nos três pontos no canto superior direito e selecione **Repositórios**.
-5. Adicione o URL do repositório do add-on: https://github.com/havaleiros/hassio-haval-h6-to-mqtt
+5. Adicione a URL do repositório do add-on: https://github.com/havaleiros/hassio-haval-h6-to-mqtt
 6. Clique em **Adicionar** e, em seguida, feche a janela de repositórios.
 
 #### 2. Instalando o Add-on
@@ -44,7 +44,7 @@ Se você está começando, recomendamos pesquisar no YouTube por tutoriais sobre
 #### 3. Configurando o Add-on
 
 1. Após a instalação, vá até a aba **Ajustes** do add-on.
-2. Configure os parâmetros necessários como endereço do broker MQTT, credenciais, e outras opções específicas para os veículos GWM.
+2. Configure os parâmetros necessários como endereço do broker MQTT, credenciais e outras opções específicas para os veículos GWM.
 
 ```yaml
 gwm_username: conta_de_email_vinculada_ao_app_MyGWM
@@ -63,7 +63,7 @@ geocode_api_key: Chave da API Google Geocode para geocodificação reversa usand
 
 ![Ajustes dos add-on](https://raw.githubusercontent.com/havaleiros/hassio-haval-h6-to-mqtt/main/haval-h6-mqtt/images/addon_settings.png)
 
-Nota: Caso os campos para configuração do MQTT não esteja, disponíveis na tela, ative a opção _Mostrar opções de configuração opcionais não utilizadas_ ao final da tela.
+Nota: Caso os campos para configuração do MQTT não estejam disponíveis na tela, ative a opção _Mostrar opções de configuração opcionais não utilizadas_ ao final da tela.
 
 3. Salve as configurações.
 4. Iniciando o Add-on
@@ -73,28 +73,28 @@ Nota: Caso os campos para configuração do MQTT não esteja, disponíveis na te
 5. Verificando a Integração
 - Vá para _Configuração_ no menu lateral do Home Assistant.
 - Selecione _Ferramentas de desenvolvedor_.
-- Verifique se as entidades iniciadas com *sensor.gwmbrasil_* estão listados na aba _Estado_.
+- Verifique se as entidades iniciadas com *sensor.gwmbrasil_* estão listadas na aba _Estado_.
 - Agora, você deve ser capaz de monitorar o seu veículo diretamente pelo painel do Home Assistant.
 
 ==========================================================
-### OPCIONAL - Instalações core ou não-supervisionadas ###
+### OPCIONAL - Instalações core ou não supervisionadas ###
 
-Esta sessão é destinada somente para instalações que não possuam o **Home Assistant Supervisor** em suas instâncias locais, necessitando da configuração manual do add-on em um container para execução.
-Pule esta etapa se sua instância conta com o **Home Assistant Supervisor**.
+Esta seção é destinada somente para instalações que não possuam o **Home Assistant Supervisor** em suas instâncias locais, necessitando da configuração manual do add-on em um container para execução.
+Pule esta etapa se sua instância contar com o **Home Assistant Supervisor**.
 
-#### Adicionando o Add-on diretamente via Docker para instalações do Home Assistant não Supervisionadas (Core ou Container)
+#### Adicionando o Add-on diretamente via Docker para instalações do Home Assistant não supervisionadas (Core ou Container)
 
 **Premissas**:
 
 1. Possuir um ambiente Linux (preferencialmente Debian) com o Home Assistant Core ou Container previamente instalado e totalmente funcional via `docker-compose.yaml`
-2. Possuir o serviço `Mosquitto Broker` previamente instalado (nome do container deve ser: `mosquitto`), totalmente funcional e configurado via Integração dentro da Instalação do Home Assistant
+2. Possuir o serviço `Mosquitto Broker` previamente instalado (nome do container deve ser: `mosquitto`), totalmente funcional e configurado via Integração dentro da instalação do Home Assistant
 3. Estar logado com o usuário `root` no Linux
 4. Instalar os pacotes necessários para a instalação
 ```yaml
 sudo apt-get install npm
 ```
 
-#### 1. Criando a estutura do Add-on dentro do servidor Home Assistant
+#### 1. Criando a estrutura do Add-on dentro do servidor Home Assistant
 
 1. Clonar repositório GitHub:
 ```yaml
@@ -105,7 +105,7 @@ git clone https://github.com/havaleiros/hassio-haval-h6-to-mqtt.git
 ```yaml
 sudo nano /opt/hassio-haval-h6-to-mqtt/Dockerfile
 ```
-3. Incluir o Conteúdo abaixo:
+3. Incluir o conteúdo abaixo:
 ```yaml
 FROM node:20-alpine
 
@@ -173,7 +173,7 @@ sudo nano docker-compose.yaml
 ```
 4. `CTRL+O` + `ENTER` para salvar
 5. `CTRL+X` para sair
-6. Subir Container:
+6. Subir o container:
 ```yaml
 docker compose up -d
 ```
@@ -185,7 +185,7 @@ docker compose up -d
 
 ### Configurar um novo Dashboard em seu Home Assistant
 
-Utilizar um novo dashboard evita a edição e impactos em dashboards existentes.
+Utilizar um novo dashboard evita edição e impactos em dashboards existentes.
 
 ==========================================================
 
@@ -194,14 +194,14 @@ Utilizar um novo dashboard evita a edição e impactos em dashboards existentes.
 1. Baixe o arquivo [Baixe aqui o arquivo haval_h6.zip](https://github.com/havaleiros/hassio-haval-h6-to-mqtt/raw/main/haval-h6-mqtt/files/haval_h6.zip).
 2. Descompacte o arquivo e salve as imagens na pasta `www/images/haval_h6` do Home Assistant.
 
-O resultado esperado é que as imagens devem ficar no caminho `www/images/haval_h6/[imagem].png`. Dependendo da ferramenta utilizada o caminho pode ser exibido como `homeassistant/www/images/haval_h6/[imagem].png`.
-Não salve o arquivo `haval_h6.zip` diretamente no diretório do Home Assistant, pois isto não terá efeito no uso das imagens. 
+O resultado esperado é que as imagens fiquem no caminho `www/images/haval_h6/[imagem].png`. Dependendo da ferramenta utilizada, o caminho pode ser exibido como `homeassistant/www/images/haval_h6/[imagem].png`.
+Não salve o arquivo `haval_h6.zip` diretamente no diretório do Home Assistant, pois isto não terá efeito no uso das imagens.
 
 #### Dica
-Recomenda-se o uso do Add-on [Samba share](https://github.com/home-assistant/addons/tree/master/samba) para acesso na pasta `www` de sua instância do Home Assistant.
-Desta forma não haverá necessidde de copiar imagem por imagem para a pasta.
+Recomenda-se o uso do Add-on [Samba share](https://github.com/home-assistant/addons/tree/master/samba) para acesso à pasta `www` de sua instância do Home Assistant.
+Desta forma, não haverá necessidade de copiar imagem por imagem para a pasta.
 
-Caso a pasta `www` não exista em sua estrutura de pastas, você pode criá-la. Utilize o add-on `File Editor` ou o `Studio Code Server` para editar diretamente pelo browser.
+Caso a pasta `www` não exista em sua estrutura de pastas, você pode criá-la. Utilize o add-on `File Editor` ou o `Studio Code Server` para editar diretamente pelo navegador.
 
 #### Instalando Custom Cards
 
@@ -231,7 +231,7 @@ Os seguintes custom cards são necessários:
 2. Acesse a interface web do Home Assistant.
 3. No menu lateral, clique em **HACS**.
 4. No canto superior direito da tela, clique no ícone de três pontos verticais e selecione **Custom repositories** (Repositórios personalizados).
-5. Na janela que abrir, insira o URL do repositório que deseja adicionar no campo **Repository**. Por exemplo:
+5. Na janela que abrir, insira a URL do repositório que deseja adicionar no campo **Repository**. Por exemplo:
   ```
   https://github.com/custom-cards/button-card
   ```
@@ -248,8 +248,8 @@ Agora, o repositório estará configurado e pronto para uso no seu Home Assistan
 
 #### Adicionando um Novo Dashboard
 
-[Clique aqui](https://my.home-assistant.io/redirect/lovelace_dashboards/) para abrir as configurações de dashboard de sua instância do Home Assistant e continue à partir do passo 4 abaixo.
-Caso não funcione como esperado, siga os 3 primeiros passoa abaixo.
+[Clique aqui](https://my.home-assistant.io/redirect/lovelace_dashboards/) para abrir as configurações de dashboard de sua instância do Home Assistant e continue a partir do passo 4 abaixo.
+Caso não funcione como esperado, siga os 3 primeiros passos abaixo.
 
 1. Acesse a interface web do Home Assistant.
 2. Navegue até **Configurações** no menu lateral.
@@ -259,25 +259,25 @@ Caso não funcione como esperado, siga os 3 primeiros passoa abaixo.
 6. Na nova linha criada com o novo dashboard, clique em _ABRIR_.
 7. No canto superior esquerdo da tela, clique em _Editar dashboard_.
 8. Clique novamente no símbolo com 3 pontos verticais e depois em _Editor de configuração RAW_.
-9. Apague o conteúdo existente que será exibido, copie o conteúdo do arquivo `HomeAssistant_Dashboard_GWM.yaml` fornecido como template e cole nesta tela. [Baixe aqui o arquivo YAML](https://github.com/havaleiros/hassio-haval-h6-to-mqtt/blob/main/haval-h6-mqtt/files/HomeAssistant_Dashboard_GWM.yaml). Consulte sempre a data de atualização do arquivo para identificar se há uma versão mais recente. 
+9. Apague o conteúdo existente que será exibido, copie o conteúdo do arquivo `HomeAssistant_Dashboard_GWM.yaml` fornecido como template e cole nesta tela. [Baixe aqui o arquivo YAML](https://github.com/havaleiros/hassio-haval-h6-to-mqtt/blob/main/haval-h6-mqtt/files/HomeAssistant_Dashboard_GWM.yaml). Consulte sempre a data de atualização do arquivo para identificar se há uma versão mais recente.
 
 Agora, seu novo dashboard estará configurado para exibir informações detalhadas sobre o seu veículo GWM.
-Você poderá, além de monitorar as informações do veículo, ligar o ar condicionado e interromper o carregamento, para soltar o plugue do carregador antes da finalização da carga.
+Você poderá, além de monitorar as informações do veículo, ligar o ar-condicionado e interromper o carregamento para soltar o plugue do carregador antes da finalização da carga.
 
 Nota 1: Para o funcionamento do mapa com filtro por data, clique no botão abaixo e importe a automação para sua instância do Home Assistant.
-Você também pode adicionar o link diretamente em sua instância do Home Assistant em `Configurações` > `Automações & Cenas` > `Modelos Blueprints`
+Você também pode adicionar o link diretamente em sua instância do Home Assistant em `Configurações` > `Automações & Cenas` > `Modelos Blueprints`.
 
 [![Clique para configurar a automação necessária em seu Home Assistant.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgist.github.com%2Fhavaleiros%2Fb18d6da97622bb051c17f27de3082cc8)
 
-Nota 2: Caso a pressão dos pneus seja exibida com a unidade de medida `kPa`, toque sobre cada entidade na lista Pneus - do lado direito do dashboard - e toque no ícone de engrenagem, _Configurações_. Altere a unidade de medida para `psi`.
+Nota 2: Caso a pressão dos pneus seja exibida com a unidade de medida `kPa`, toque em cada entidade na lista Pneus do lado direito do dashboard e toque no ícone de engrenagem (_Configurações_). Altere a unidade de medida para `psi`.
 
 ![Exemplo de painel no Home Assistant](https://raw.githubusercontent.com/havaleiros/hassio-haval-h6-to-mqtt/main/haval-h6-mqtt/images/HomeAssistant_Example.png)
 
 ![Exemplo com outros veículos, como o Tank 300](https://raw.githubusercontent.com/havaleiros/hassio-haval-h6-to-mqtt/main/haval-h6-mqtt/images/HomeAssistant_Example_Others.png)
 
-### Configuração do controle do ar condicionado via Smart Watch no Home Assistant Companion
+### Configuração do controle do ar-condicionado via Smart Watch no Home Assistant Companion
 
-A configuração para smart watch funciona tanto para Android, quanto para iOS. No entanto, este guia aborda somente a configuração para iOS.
+A configuração para smart watch funciona tanto para Android quanto para iOS. No entanto, este guia aborda somente a configuração para iOS.
 
 Verifique a documentação do Home Assistant para a configuração de dispositivos Android. Em resumo, basta configurar os botões de acionamento das ações como favoritos e estes serão exibidos no Home Assistant Companion para Android.
 
@@ -312,7 +312,7 @@ ios:
 ```
 
 2. **Configurando os botões em seu aplicativo para Apple Watch:**
-Para integrar os controles de seu veículo em seu Apple Watch, certifique-se de seguir as instruções de instalação deste repositório, e então adicione a automação ou entidade correspondente ao ar-condicionado no seu Home Assistant. Um exemplo de configuração dos botões pode ser visto abaixo e utilizado seguindo os passos.
+Para integrar os controles de seu veículo em seu Apple Watch, certifique-se de seguir as instruções de instalação deste repositório e, em seguida, adicione a automação ou entidade correspondente ao ar-condicionado no seu Home Assistant. Um exemplo de configuração dos botões pode ser visto abaixo e utilizado seguindo os passos.
 
 #### Passo a Passo para adicionar no `automation.yaml`:
 
@@ -347,24 +347,24 @@ Para configuração manual:
      - service: button.press
       target:
         entity_id: button.gwmbrasil_{chassis}_interromper_carregamento
-  ```  
+  ```
 3. Substitua `{chassis}` pelo código de chassis do seu veículo, utilizando letras minúsculas. Remova também as chaves ({}) na substituição.
 4. Salve o arquivo.
 5. Reinicie o Home Assistant para aplicar as alterações.
 
-Agora, os controles estarão configurados e poderá ser acionado diretamente pelos botões no aplicativo Home Assistant Companion em seu smart watch. _Caso tenha problemas em atualizar as opções exibidas no relógio, remova o aplicativo via celular e instale novamente_.
+Agora, os controles estarão configurados e poderão ser acionados diretamente pelos botões no aplicativo Home Assistant Companion em seu smart watch. _Caso tenha problemas em atualizar as opções exibidas no relógio, remova o aplicativo via celular e instale novamente_.
 
 ![Botão no Apple Watch](https://raw.githubusercontent.com/havaleiros/hassio-haval-h6-to-mqtt/main/haval-h6-mqtt/images/HA_Companion_watchOS.png)
 
-### Automações e avisos com NodeRed
+### Automações e avisos com Node-RED
 
-#### O que é o NodeRed?
+#### O que é o Node-RED?
 
-O **NodeRed** é uma ferramenta de desenvolvimento baseada em fluxo que permite criar automações e integrações de forma visual e intuitiva. Ele é amplamente utilizado para conectar dispositivos, APIs e serviços, sendo uma excelente opção para criar automações avançadas no Home Assistant.
+O **Node-RED** é uma ferramenta de desenvolvimento baseada em fluxo que permite criar automações e integrações de forma visual e intuitiva. Ele é amplamente utilizado para conectar dispositivos, APIs e serviços, sendo uma excelente opção para criar automações avançadas no Home Assistant.
 
-Com o NodeRed, você pode criar fluxos personalizados para monitorar e controlar dispositivos, enviar notificações e executar ações com base em eventos específicos.
+Com o Node-RED, você pode criar fluxos personalizados para monitorar e controlar dispositivos, enviar notificações e executar ações com base em eventos específicos.
 
-#### Como instalar o NodeRed no Home Assistant?
+#### Como instalar o Node-RED no Home Assistant?
 
 1. Acesse a interface web do Home Assistant.
 2. Navegue até **Supervisor** no menu lateral.
@@ -373,16 +373,16 @@ Com o NodeRed, você pode criar fluxos personalizados para monitorar e controlar
 5. Clique em **Node-RED** e, em seguida, clique em **Instalar**.
 6. Após a instalação, vá até a aba **Configuração** do add-on e configure as opções desejadas.
 7. Salve as configurações e volte para a aba **Informação**.
-8. Clique em **Iniciar** para inicializar o NodeRed.
-9. Habilite a opção **Iniciar na Inicialização** para que o NodeRed seja iniciado automaticamente junto com o Home Assistant.
+8. Clique em **Iniciar** para inicializar o Node-RED.
+9. Habilite a opção **Iniciar na Inicialização** para que o Node-RED seja iniciado automaticamente junto com o Home Assistant.
 
 #### Como importar o arquivo de exemplo `files/nodered_flow_Haval.json`?
 
-1. Acesse o NodeRed através do menu lateral do Home Assistant.
-2. No canto superior direito da interface do NodeRed, clique no ícone de menu (três linhas horizontais).
+1. Acesse o Node-RED através do menu lateral do Home Assistant.
+2. No canto superior direito da interface do Node-RED, clique no ícone de menu (três linhas horizontais).
 3. Selecione **Importar** no menu suspenso.
 4. Clique em **Selecionar arquivo** e escolha o arquivo `files/nodered_flow_Haval.json` que você baixou do repositório.
-5. Após carregar o arquivo, clique em **Importar** para adicionar o fluxo ao seu ambiente NodeRed.
+5. Após carregar o arquivo, clique em **Importar** para adicionar o fluxo ao seu ambiente Node-RED.
 6. Ajuste as configurações do fluxo, como credenciais e entidades específicas, conforme necessário.
 7. Clique em **Implantar** no canto superior direito para ativar o fluxo.
 
@@ -390,9 +390,9 @@ Com o NodeRed, você pode criar fluxos personalizados para monitorar e controlar
 
 #### Observação importante
 
-Este é apenas um exemplo de fluxo. É necessário editá-lo antes de utilizá-lo, substituindo todas as ocorrências de `{chassis}` pelo número do chassis real do veículo que será monitorado. Além disso, configure os números de telefone que receberão notificações diretamente no NodeRed, ajustando-os conforme sua necessidade.
+Este é apenas um exemplo de fluxo. É necessário editá-lo antes de utilizá-lo, substituindo todas as ocorrências de `{chassis}` pelo número do chassis real do veículo que será monitorado. Além disso, configure os números de telefone que receberão notificações diretamente no Node-RED, ajustando-os conforme sua necessidade.
 
-Agora, o fluxo de automação estará configurado e pronto para uso no NodeRed, permitindo que você aproveite as funcionalidades avançadas para monitorar e controlar seu veículo GWM diretamente no Home Assistant.
+Agora, o fluxo de automação estará configurado e pronto para uso no Node-RED, permitindo que você aproveite as funcionalidades avançadas para monitorar e controlar seu veículo GWM diretamente no Home Assistant.
 
 ## Suporte
 Para dúvidas, problemas ou sugestões, abra uma issue.
@@ -417,7 +417,7 @@ Caso não tenha alguma, considere a entidade Somos do Bem, a qual já ajudamos e
 ## Créditos
 Este projeto foi possível devido ao trabalho executado em https://github.com/ipsBruno/haval-h6-gwm-alexa-chatgpt-mqtt-integration, que por sua vez utilizou o trabalho disponível em https://github.com/zivillian/ora2mqtt.
 
-Contribuições de: 
+Contribuições de:
 - @carvalr
 - @paulovitin
 - @bobaoapae
@@ -428,8 +428,8 @@ Licença MIT
 
 Copyright (c) 2025 Havaleiros Brasil
 
-É concedida permissão, gratuitamente, a qualquer pessoa que obtenha uma cópia deste software e arquivos de documentação associados (o "Software"), para lidar no Software sem restrições, incluindo, sem limitação, os direitos usar, copiar, modificar, mesclar, publicar, distribuir, sublicenciar e/ou vender cópias do Software e permitir que as pessoas a quem o Software é capacitado para fazê-lo, sujeito às seguintes condições:
+É concedida permissão, gratuitamente, a qualquer pessoa que obtenha uma cópia deste software e arquivos de documentação associados (o "Software"), para lidar no Software sem restrições, incluindo, sem limitação, os direitos de usar, copiar, modificar, mesclar, publicar, distribuir, sublicenciar e/ou vender cópias do Software e permitir que as pessoas a quem o Software é fornecido façam o mesmo, sujeito às seguintes condições:
 
-O aviso de direitos autorais acima e este aviso de permissão serão incluídos em todos cópias ou partes substanciais do Software.
+O aviso de direitos autorais acima e este aviso de permissão serão incluídos em todas as cópias ou partes substanciais do Software.
 
-O SOFTWARE É FORNECIDO "COMO ESTÁ", SEM GARANTIA DE QUALQUER TIPO, EXPRESSA OU IMPLÍCITAS, INCLUINDO, MAS NÃO SE LIMITANDO ÀS GARANTIAS DE COMERCIALIZAÇÃO, ADEQUAÇÃO A UM DETERMINADO FIM E NÃO VIOLAÇÃO. EM HIPÓTESE ALGUMA O OS AUTORES OU DETENTORES DE DIREITOS AUTORAIS SERÃO RESPONSÁVEIS POR QUALQUER RECLAMAÇÃO, DANOS OU OUTROS RESPONSABILIDADE, SEJA EM UMA AÇÃO DE CONTRATO, ATO ILÍCITO OU DE OUTRA FORMA, DECORRENTE DE, FORA DE OU EM CONEXÃO COM O SOFTWARE OU O USO OU OUTRAS NEGOCIAÇÕES NO PROGRAMAS.
+O SOFTWARE É FORNECIDO "COMO ESTÁ", SEM GARANTIA DE QUALQUER TIPO, EXPRESSA OU IMPLÍCITA, INCLUINDO, MAS NÃO SE LIMITANDO ÀS GARANTIAS DE COMERCIALIZAÇÃO, ADEQUAÇÃO A UM DETERMINADO FIM E NÃO INFRAÇÃO. EM HIPÓTESE ALGUMA OS AUTORES OU DETENTORES DE DIREITOS AUTORAIS SERÃO RESPONSÁVEIS POR QUALQUER RECLAMAÇÃO, DANOS OU OUTRA RESPONSABILIDADE, SEJA EM UMA AÇÃO DE CONTRATO, ATO ILÍCITO OU DE OUTRA FORMA, DECORRENTE DE, FORA DE OU EM CONEXÃO COM O SOFTWARE OU O USO OU OUTRAS NEGOCIAÇÕES NO SOFTWARE.
