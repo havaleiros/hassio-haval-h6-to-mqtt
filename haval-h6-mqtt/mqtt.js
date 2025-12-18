@@ -1,10 +1,10 @@
 const mqtt = require("mqtt");
 var slugify = require("slugify");
-const { commands } = require("./axios");
+const carConnector = require("./carConnector");
 const storage = require("./storage");
-const prefix = 'gwmbrasil';
 const { LogType, printLog } = require('./utils');
 
+const prefix = 'gwmbrasil';
 require("dotenv").config();
 
 const { MQTT_HOST, MQTT_PASS, MQTT_USER, PIN } = process.env;
@@ -43,7 +43,7 @@ const mqttModule = {
 
     client.on("connect", () => {
       client.publish(topic, payload, options, (err) => {
-          if (err) printLog(LogType.ERRRO, `***MQTT connection error: ${err.message}`);
+          if (err) printLog(LogType.ERROR, `***MQTT connection error: ${err.message}`);
           client.end();
       });
     });
@@ -68,8 +68,14 @@ const mqttModule = {
 
     let payload = {
       unique_id: `${prefix}_${vin.toLowerCase()}_${slugName}`,
-      object_id: `${prefix}_${vin.toLowerCase()}_${slugName}`,
-      name: entity_name      
+      default_entity_id: `${prefix}_${vin.toLowerCase()}_${slugName}`,
+      name: entity_name,
+      device: {
+        "identifiers": [`${vin.toUpperCase()}`],
+        "name": `${vin.toUpperCase()}`,
+        "model": "BR",
+        "manufacturer": "GWM",
+      }
     };
 
     if(entityType === EntityType.IMAGE){
@@ -101,7 +107,7 @@ const mqttModule = {
     if (entityType === EntityType.DEVICE_TRACKER) {
       topic = `homeassistant/device_tracker/${prefix}_${vin.toLowerCase()}/config`;      
       payload.unique_id = `${prefix}_${vin.toLowerCase()}`;
-      payload.object_id = `${prefix}_${vin.toLowerCase()}`;
+      payload.default_entity_id = `${prefix}_${vin.toLowerCase()}`;
       payload.json_attributes_topic = `homeassistant/device_tracker/${prefix}_${vin.toLowerCase()}/attributes`;
     }
 
@@ -126,42 +132,48 @@ const mqttModule = {
       payload.state_topic = `homeassistant/select/${code.toLowerCase()}/state`;
       payload.options = initial_value;
       payload.unique_id = `${code.toLowerCase()}`;
-      payload.object_id = `${code.toLowerCase()}`;
+      payload.default_entity_id = `${code.toLowerCase()}`;
     }
 
     mqttModule.sendMqtt(topic, JSON.stringify(payload), { retain: true });
 
-    if(actionable && PIN){
-      if(actionable.entity_type){
-        let topicToMonitorParent = payload.state_topic ? payload.state_topic : payload.command_topic;
-        topicsToSubscribe[`${entityType}_${vin.toLowerCase()}_${code.toLowerCase()}`] = { topic: topicToMonitorParent };
-        topicsAndActions[`${actionable.entity_type}_${vin.toLowerCase()}_${code.toLowerCase()}_${actionable.action.toLowerCase()}`] = { 
-          action: actionable.action, 
-          topic_to_monitor_parent: topicToMonitorParent, 
-          topic_to_monitor_actionable: "", 
-          parent_attributes: actionable.parent_attributes && actionable.parent_attributes === "Y" ? payload.json_attributes_topic : "",
-          link_type: actionable.link_type,
-          vin: vin };
+    if (!Array.isArray(actionable) && String(actionable) !== "Y") actionable = [actionable];
+    
+    if (String(actionable) !== "Y"){
+      actionable.forEach((actionableItem) => {
+        if(actionableItem && PIN){
+          if(actionableItem.entity_type){
+            let topicToMonitorParent = payload.state_topic ? payload.state_topic : payload.command_topic;
+            topicsToSubscribe[`${entityType}_${vin.toLowerCase()}_${code.toLowerCase()}`] = { topic: topicToMonitorParent };
+            topicsAndActions[`${actionableItem.entity_type}_${vin.toLowerCase()}_${code.toLowerCase()}_${actionableItem.action.toLowerCase()}`] = { 
+              action: actionableItem.action, 
+              topic_to_monitor_parent: topicToMonitorParent, 
+              topic_to_monitor_actionable: "", 
+              parent_attributes: actionableItem.parent_attributes && actionableItem.parent_attributes === "Y" ? payload.json_attributes_topic : "",
+              link_type: actionableItem.link_type,
+              vin: vin };
 
-        mqttModule.register(entityType = EntityType[actionable.entity_type.toUpperCase()], 
-                            vin = vin,
-                            code = `${code.toLowerCase()}_${actionable.action.toLowerCase()}`,
-                            entity_name = actionable.description,
-                            unit = null,
-                            device_class = "None",
-                            icon = actionable.icon,
-                            actionable = "Y",
-                            initial_value = null,
-                            state_class = null);
-      }
-      else if (String(actionable) === "Y"){
-        if(topicsAndActions[`${entityType}_${vin.toLowerCase()}_${code.toLowerCase()}`] && payload.command_topic){
-           topicsToSubscribe[`${entityType}_${vin.toLowerCase()}_${code.toLowerCase()}`] = { topic: payload.command_topic };
-           topicsAndActions[`${entityType}_${vin.toLowerCase()}_${code.toLowerCase()}`].topic_to_monitor_actionable = payload.command_topic;
-           topicsAndActions[`${entityType}_${vin.toLowerCase()}_${code.toLowerCase()}`].topic_to_update = payload.command_topic;
+            mqttModule.register(EntityType[actionableItem.entity_type.toUpperCase()], 
+                                vin,
+                                `${code.toLowerCase()}_${actionableItem.action.toLowerCase()}`,
+                                actionableItem.description,
+                                null,
+                                "None",
+                                actionableItem.icon,
+                                "Y",
+                                null,
+                                null);
+          }      
         }
-      }
+      });
     }
+    else if (String(actionable) === "Y"){
+      if(topicsAndActions[`${entityType}_${vin.toLowerCase()}_${code.toLowerCase()}`] && payload.command_topic){
+          topicsToSubscribe[`${entityType}_${vin.toLowerCase()}_${code.toLowerCase()}`] = { topic: payload.command_topic };
+          topicsAndActions[`${entityType}_${vin.toLowerCase()}_${code.toLowerCase()}`].topic_to_monitor_actionable = payload.command_topic;
+          topicsAndActions[`${entityType}_${vin.toLowerCase()}_${code.toLowerCase()}`].topic_to_update = payload.command_topic;
+      }
+    }    
 
     storage.setItem('topicsAndActions', JSON.stringify(topicsAndActions));
     storage.setItem('topicsToSubscribe', JSON.stringify(topicsToSubscribe));
@@ -208,17 +220,40 @@ const ActionableAndLink = {
 
                 const actions = {
                   airConditioner: async () => {
-                    await commands.airConditioner(PIN, topicsAndActions[key].vin, true);
+                    return await carConnector.carUtil.airConditioner(carConnector.Actions.AirCon.TURN_ON, topicsAndActions[key].vin);
                   },
-                  stopCharging: async () => {
-                    await commands.chrgFn(true, topicsAndActions[key].vin);
-                    setTimeout(async () => { 
-                      await commands.chrgFn(false, topicsAndActions[key].vin);
-                      printLog(LogType.INFO, '>>>Charging stop WA request reverted successfully<<<');
-                    }, 2 * 60 * 1000);                  
+                  engineOn: async () => {
+                    return await carConnector.carUtil.engine(carConnector.Actions.Engine.TURN_ON, topicsAndActions[key].vin);
+                  },
+                  engineOff: async () => {
+                    return await carConnector.carUtil.engine(carConnector.Actions.Engine.TURN_OFF, topicsAndActions[key].vin);
+                  },
+                  trunkOpen: async () => {
+                    return await carConnector.carUtil.trunk(carConnector.Actions.Doors.OPEN, topicsAndActions[key].vin);
+                  },
+                  trunkClose: async () => {
+                    return await carConnector.carUtil.trunk(carConnector.Actions.Doors.CLOSE, topicsAndActions[key].vin);
+                  },
+                  doorsOpen: async () => {
+                    return await carConnector.carUtil.doors(carConnector.Actions.Doors.OPEN, topicsAndActions[key].vin);
+                  },
+                  doorsClose: async () => {
+                    return await carConnector.carUtil.doors(carConnector.Actions.Doors.CLOSE, topicsAndActions[key].vin);
+                  },
+                  windowsOpen: async () => {
+                    return await carConnector.carUtil.windows(carConnector.Actions.Windows.OPEN, topicsAndActions[key].vin);
+                  },
+                  windowsClose: async () => {
+                    return await carConnector.carUtil.windows(carConnector.Actions.Windows.CLOSE, topicsAndActions[key].vin);
+                  },
+                  skyWindowOpen: async () => {
+                    return await carConnector.carUtil.skyWindow(carConnector.Actions.SkyWindow.OPEN, topicsAndActions[key].vin);
+                  },
+                  skyWindowClose: async () => {
+                    return await carConnector.carUtil.skyWindow(carConnector.Actions.SkyWindow.CLOSE, topicsAndActions[key].vin);
                   },
                   chargingLogs: async () => {
-                    const list = await commands.getChargingLogs(topicsAndActions[key].vin);
+                    const list = await carConnector.carData.getChargingLogs(topicsAndActions[key].vin);
                     if(list && list.length > 0 && topicsAndActions[key].parent_attributes){
                       const json_attributes_topic = topicsAndActions[key].parent_attributes;
                       
@@ -232,16 +267,36 @@ const ActionableAndLink = {
                     else{
                       mqttModule.sendMqtt(json_attributes_topic, JSON.stringify({ charging_logs: "", last_update: last_update }), { retain: true });
                     }
-                  }
+                  },
+                  stopCharging: async () => {
+                    return await carConnector.carUtil.stopCharging(topicsAndActions[key].vin);               
+                  },
                 };
 
+                const SendStatusMessage = (vin, data) => {
+                  try {
+                    if(data && data.message){
+                      const formattedMessage = data.message.replace(/(\r\n|\n|\r)/g, " | ");
+                      mqttModule.sendMessage(vin, "status_message", formattedMessage);
+                    }
+                  } catch (e) {
+                    printLog(LogType.ERROR, `***Error formatting status message: ${e.message}`);
+                  }
+                };
+                
                 const action = actions[String(topicsAndActions[key].action)];
                   if (action && String(messageValue) === (String(topicsAndActions[key].link_type) === "press" ? 'PRESS' : 'ON')) {
                   try {
-                    await action();
-                    printLog(LogType.INFO, `>>>Action [${String(topicsAndActions[key].action)}] executed successfully for VIN ${topicsAndActions[key].vin}<<<`);
+                    const data = await action();
+                    if (data && !data.result && !data.running && !data.actualState && !data.lockRequired) {
+                      throw new Error(data.message)
+                    }
+
+                    if(data) SendStatusMessage(topicsAndActions[key].vin, data);
+
                   } catch (e) {
                     printLog(LogType.ERROR, `***Error executing action [${String(topicsAndActions[key].action)}]***: ${e.message}`);
+                    SendStatusMessage(topicsAndActions[key].vin, `Erro executando comando \"${String(topicsAndActions[key].action)}\".`);
                   }
                 }
             }

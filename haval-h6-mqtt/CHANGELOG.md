@@ -1,5 +1,27 @@
 # Changelog
 
+## [1.0.1] - 2025-12-24
+## Adicionado
+- Novos comandos para ligar/desligar o carro, abrir/fechar portas, vidros, teto-solar e porta-malas.
+- Configurações para tokens da OPENAI, GOOGLE GEMINI e GEOCODE API para utilização em textos de alerta gerados pela integração.
+- Blueprint de automações controles para Apple Watch e para criar um controle genérico para habilitar a painel de gestão de energia e o filtro utilizado na aba de mapa.
+- Adicionados controle de estado para os sensores em `map.js`.
+- Custom card `auto-entities`.
+
+## Consertado
+- Ajustada integração MQTT para utilizar `default_entity_id` ao invés de `object_id`.
+
+## Modificado
+- Atualizado o arquivo `README.md` com instruções de configuração revisadas.
+- Todas as entidadades são agora vinculadas à um dispositivo MQTT e agrupadas no Home Assistant.
+- Aba de mapa nativa e dinânica com base no veículo selecionado no arquivo `HomeAssistant_Dashboard_GWM.yaml`.
+- Arquivo `axios.js` substituído por `carConnector.js` para acesso aos serviços com integração revisada e melhorada.
+- Novo banner com todos os veículos GWM.
+- Melhorias gerais de código.
+
+## Removido
+- Opção de dashboard `HomeAssistant_Dashboard_GWM_Mapa.yaml` removida, mantendo somente `HomeAssistant_Dashboard_GWM.yaml`.
+
 ## [0.0.21] - 2025-06-08
 ## Adicionado
 - Adicionados exemplos de automação com Node-RED e instruções de instalação ao `README.md`.

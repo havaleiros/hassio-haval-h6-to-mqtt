@@ -1,6 +1,6 @@
 title: Haval H6 Dashboard
 config_template_card_vars:
-  VEICULO: states['select.gwmbrasil_veiculos_registrados'].state
+  VEICULO: states['select.gwmbrasil_veiculos_registrados'].state.toLowerCase()
 views:
   - type: panel
     path: gwm-dashboard
@@ -9,64 +9,48 @@ views:
     cards:
       - type: custom:config-template-card
         entities:
-          - select.gwmbrasil_veiculos_registados
-          - >-
-            binary_sensor.gwmbrasil_${VEICULO.toLowerCase()}_agendamento_de_carga
-          - binary_sensor.gwmbrasil_${VEICULO.toLowerCase()}_estado_da_trava
-          - >-
-            binary_sensor.gwmbrasil_${VEICULO.toLowerCase()}_estado_do_ar_condicionado
-          - >-
-            binary_sensor.gwmbrasil_${VEICULO.toLowerCase()}_estado_do_controle_de_carga
-          - >-
-            binary_sensor.gwmbrasil_${VEICULO.toLowerCase()}_estado_do_purificador_de_ar
-          - >-
-            binary_sensor.gwmbrasil_${VEICULO.toLowerCase()}_porta_dianteira_direita
-          - >-
-            binary_sensor.gwmbrasil_${VEICULO.toLowerCase()}_porta_dianteira_esquerda
-          - binary_sensor.gwmbrasil_${VEICULO.toLowerCase()}_porta_malas
-          - >-
-            binary_sensor.gwmbrasil_${VEICULO.toLowerCase()}_porta_traseira_direita
-          - >-
-            binary_sensor.gwmbrasil_${VEICULO.toLowerCase()}_porta_traseira_esquerda
-          - device_tracker.gwmbrasil_${VEICULO.toLowerCase()}
-          - sensor.gwmbrasil_${VEICULO.toLowerCase()}_autonomia_combustao
-          - sensor.gwmbrasil_${VEICULO.toLowerCase()}_autonomia_ev
-          - sensor.gwmbrasil_${VEICULO.toLowerCase()}_capacidade_do_tanque
-          - sensor.gwmbrasil_${VEICULO.toLowerCase()}_cor_do_veiculo
-          - sensor.gwmbrasil_${VEICULO.toLowerCase()}_estado_da_carga
-          - sensor.gwmbrasil_${VEICULO.toLowerCase()}_estado_de_carga_12v
-          - sensor.gwmbrasil_${VEICULO.toLowerCase()}_estado_de_carga_soc
-          - sensor.gwmbrasil_${VEICULO.toLowerCase()}_estado_do_motor
-          - sensor.gwmbrasil_${VEICULO.toLowerCase()}_imagem_do_veiculo
-          - sensor.gwmbrasil_${VEICULO.toLowerCase()}_modelo_do_veiculo
-          - sensor.gwmbrasil_${VEICULO.toLowerCase()}_nivel_de_combustivel
-          - sensor.gwmbrasil_${VEICULO.toLowerCase()}_posicao_do_teto_solar
-          - >-
-            sensor.gwmbrasil_${VEICULO.toLowerCase()}_pressao_do_pneu_dianteiro_direito
-          - >-
-            sensor.gwmbrasil_${VEICULO.toLowerCase()}_pressao_do_pneu_dianteiro_esquerdo
-          - >-
-            sensor.gwmbrasil_${VEICULO.toLowerCase()}_pressao_do_pneu_traseiro_direito
-          - >-
-            sensor.gwmbrasil_${VEICULO.toLowerCase()}_pressao_do_pneu_traseiro_esquerdo
-          - sensor.gwmbrasil_${VEICULO.toLowerCase()}_quilometragem_total
-          - >-
-            sensor.gwmbrasil_${VEICULO.toLowerCase()}_temperatura_do_pneu_dianteiro_direito
-          - >-
-            sensor.gwmbrasil_${VEICULO.toLowerCase()}_temperatura_do_pneu_dianteiro_esquerdo
-          - >-
-            sensor.gwmbrasil_${VEICULO.toLowerCase()}_temperatura_do_pneu_traseiro_direito
-          - >-
-            sensor.gwmbrasil_${VEICULO.toLowerCase()}_temperatura_do_pneu_traseiro_esquerdo
-          - sensor.gwmbrasil_${VEICULO.toLowerCase()}_tempo_de_carga
-          - sensor.gwmbrasil_${VEICULO.toLowerCase()}_vidro_dianteiro_direito
-          - sensor.gwmbrasil_${VEICULO.toLowerCase()}_vidro_dianteiro_esquerdo
-          - sensor.gwmbrasil_${VEICULO.toLowerCase()}_vidro_traseiro_direito
-          - sensor.gwmbrasil_${VEICULO.toLowerCase()}_vidro_traseiro_esquerdo
-          - >-
-            button.gwmbrasil_${VEICULO.toLowerCase()}_ativacao_do_ar_condicionado
-          - button.gwmbrasil_${VEICULO.toLowerCase()}_interromper_carregamento
-          - button.gwmbrasil_${VEICULO.toLowerCase()}_historico_de_carregamento
+          - select.gwmbrasil_veiculos_registrados
+          - binary_sensor.gwmbrasil_${VEICULO}_agendamento_de_carga
+          - binary_sensor.gwmbrasil_${VEICULO}_estado_da_trava
+          - binary_sensor.gwmbrasil_${VEICULO}_estado_do_ar_condicionado
+          - binary_sensor.gwmbrasil_${VEICULO}_estado_do_controle_de_carga
+          - binary_sensor.gwmbrasil_${VEICULO}_estado_do_purificador_de_ar
+          - binary_sensor.gwmbrasil_${VEICULO}_porta_dianteira_direita
+          - binary_sensor.gwmbrasil_${VEICULO}_porta_dianteira_esquerda
+          - binary_sensor.gwmbrasil_${VEICULO}_porta_malas
+          - binary_sensor.gwmbrasil_${VEICULO}_porta_traseira_direita
+          - binary_sensor.gwmbrasil_${VEICULO}_porta_traseira_esquerda
+          - device_tracker.gwmbrasil_${VEICULO}
+          - sensor.gwmbrasil_${VEICULO}_autonomia_combustao
+          - sensor.gwmbrasil_${VEICULO}_autonomia_ev
+          - sensor.gwmbrasil_${VEICULO}_capacidade_do_tanque
+          - sensor.gwmbrasil_${VEICULO}_cor_do_veiculo
+          - sensor.gwmbrasil_${VEICULO}_estado_da_carga
+          - sensor.gwmbrasil_${VEICULO}_estado_de_carga_12v
+          - sensor.gwmbrasil_${VEICULO}_estado_de_carga_soc
+          - sensor.gwmbrasil_${VEICULO}_estado_do_motor
+          - sensor.gwmbrasil_${VEICULO}_imagem_do_veiculo
+          - sensor.gwmbrasil_${VEICULO}_modelo_do_veiculo
+          - sensor.gwmbrasil_${VEICULO}_nivel_de_combustivel
+          - sensor.gwmbrasil_${VEICULO}_posicao_do_teto_solar
+          - sensor.gwmbrasil_${VEICULO}_pressao_do_pneu_dianteiro_direito
+          - sensor.gwmbrasil_${VEICULO}_pressao_do_pneu_dianteiro_esquerdo
+          - sensor.gwmbrasil_${VEICULO}_pressao_do_pneu_traseiro_direito
+          - sensor.gwmbrasil_${VEICULO}_pressao_do_pneu_traseiro_esquerdo
+          - sensor.gwmbrasil_${VEICULO}_quilometragem_total
+          - sensor.gwmbrasil_${VEICULO}_temperatura_do_pneu_dianteiro_direito
+          - sensor.gwmbrasil_${VEICULO}_temperatura_do_pneu_dianteiro_esquerdo
+          - sensor.gwmbrasil_${VEICULO}_temperatura_do_pneu_traseiro_direito
+          - sensor.gwmbrasil_${VEICULO}_temperatura_do_pneu_traseiro_esquerdo
+          - sensor.gwmbrasil_${VEICULO}_tempo_de_carga
+          - sensor.gwmbrasil_${VEICULO}_vidro_dianteiro_direito
+          - sensor.gwmbrasil_${VEICULO}_vidro_dianteiro_esquerdo
+          - sensor.gwmbrasil_${VEICULO}_vidro_traseiro_direito
+          - sensor.gwmbrasil_${VEICULO}_vidro_traseiro_esquerdo
+          - button.gwmbrasil_${VEICULO}_ativacao_do_ar_condicionado
+          - button.gwmbrasil_${VEICULO}_interromper_carregamento
+          - button.gwmbrasil_${VEICULO}_historico_de_carregamento
+          - sensor.gwmbrasil_${VEICULO}_status_message
         card:
           type: vertical-stack
           cards:
@@ -81,6 +65,10 @@ views:
                   :host {
                     display: {% if state_attr('select.gwmbrasil_veiculos_registrados', 'options') | length > 1 %} block {% else %} none {% endif %};
                   }
+                  ha-card {
+                    background: none !important /*bg*/;
+                    border-radius: 6px;
+                  }
             - type: custom:stack-in-card
               mode: horizontal
               cards:
@@ -88,7 +76,7 @@ views:
                   name: ' '
                   entity_picture: >
                     [[[ return
-                    states["sensor.gwmbrasil_${VEICULO.toLowerCase()}_imagem_do_veiculo"].state
+                    states["sensor.gwmbrasil_${VEICULO}_imagem_do_veiculo"].state
                     ]]]
                   size: 400px
                   show_entity_picture: true
@@ -129,6 +117,96 @@ views:
                         box-shadow: 0px 0px rgba(0,0,0,0);
                       }
                   cards:
+                    - type: conditional
+                      conditions:
+                        - entity: sensor.gwmbrasil_${VEICULO}_estado_da_carga
+                          state: '1'
+                      card:
+                        type: picture
+                        image: /local/images/haval_h6/carga_carregando.png
+                        tap_action:
+                          action: none
+                        hold_action:
+                          action: none
+                        card_mod:
+                          style: |
+                            :host {
+                              position: absolute;
+                              top: 0;
+                              left: 0;
+                              z-index: 1.1;
+                            }
+                            ha-card {
+                              max-width: 441px;
+                              max-height: 400px;
+                              border: 0px;
+                              background: rgba(0,0,0,0);
+                            }
+                            img {
+                              max-width: 100%;
+                              max-height: 100%;
+                              object-fit: contain;
+                            }
+                    - type: conditional
+                      conditions:
+                        - entity: sensor.gwmbrasil_${VEICULO}_estado_da_carga
+                          state: '5'
+                      card:
+                        type: picture
+                        image: /local/images/haval_h6/carga_aguardando.png
+                        tap_action:
+                          action: none
+                        hold_action:
+                          action: none
+                        card_mod:
+                          style: |
+                            :host {
+                              position: absolute;
+                              top: 0;
+                              left: 0;
+                              z-index: 1.1;
+                            }
+                            ha-card {
+                              max-width: 441px;
+                              max-height: 400px;
+                              border: 0px;
+                              background: rgba(0,0,0,0);
+                            }
+                            img {
+                              max-width: 100%;
+                              max-height: 100%;
+                              object-fit: contain;
+                            }
+                    - type: conditional
+                      conditions:
+                        - entity: sensor.gwmbrasil_${VEICULO}_estado_da_carga
+                          state: '4'
+                      card:
+                        type: picture
+                        image: /local/images/haval_h6/carga_naocarregando.png
+                        tap_action:
+                          action: none
+                        hold_action:
+                          action: none
+                        card_mod:
+                          style: |
+                            :host {
+                              position: absolute;
+                              top: 0;
+                              left: 0;
+                              z-index: 1.1;
+                            }
+                            ha-card {
+                              max-width: 441px;
+                              max-height: 400px;
+                              border: 0px;
+                              background: rgba(0,0,0,0);
+                            }
+                            img {
+                              max-width: 100%;
+                              max-height: 100%;
+                              object-fit: contain;
+                            }
                     - type: picture
                       image: /local/images/haval_h6/h6.png
                       tap_action:
@@ -155,7 +233,7 @@ views:
                     - type: conditional
                       conditions:
                         - entity: >-
-                            binary_sensor.gwmbrasil_${VEICULO.toLowerCase()}_estado_do_ar_condicionado
+                            binary_sensor.gwmbrasil_${VEICULO}_estado_do_ar_condicionado
                           state: 'on'
                       card:
                         type: picture
@@ -186,7 +264,7 @@ views:
                     - type: conditional
                       conditions:
                         - entity: >-
-                            binary_sensor.gwmbrasil_${VEICULO.toLowerCase()}_estado_do_ar_condicionado
+                            binary_sensor.gwmbrasil_${VEICULO}_estado_do_ar_condicionado
                           state: 'on'
                       card:
                         type: picture
@@ -217,7 +295,7 @@ views:
                     - type: conditional
                       conditions:
                         - entity: >-
-                            binary_sensor.gwmbrasil_${VEICULO.toLowerCase()}_porta_dianteira_direita
+                            binary_sensor.gwmbrasil_${VEICULO}_porta_dianteira_direita
                           state: 'on'
                       card:
                         type: picture
@@ -249,7 +327,7 @@ views:
                     - type: conditional
                       conditions:
                         - entity: >-
-                            binary_sensor.gwmbrasil_${VEICULO.toLowerCase()}_porta_dianteira_direita
+                            binary_sensor.gwmbrasil_${VEICULO}_porta_dianteira_direita
                           state: 'off'
                       card:
                         type: picture
@@ -281,7 +359,7 @@ views:
                     - type: conditional
                       conditions:
                         - entity: >-
-                            binary_sensor.gwmbrasil_${VEICULO.toLowerCase()}_porta_dianteira_esquerda
+                            binary_sensor.gwmbrasil_${VEICULO}_porta_dianteira_esquerda
                           state: 'on'
                       card:
                         type: picture
@@ -313,7 +391,7 @@ views:
                     - type: conditional
                       conditions:
                         - entity: >-
-                            binary_sensor.gwmbrasil_${VEICULO.toLowerCase()}_porta_dianteira_esquerda
+                            binary_sensor.gwmbrasil_${VEICULO}_porta_dianteira_esquerda
                           state: 'off'
                       card:
                         type: picture
@@ -344,8 +422,7 @@ views:
                             }
                     - type: conditional
                       conditions:
-                        - entity: >-
-                            binary_sensor.gwmbrasil_${VEICULO.toLowerCase()}_porta_malas
+                        - entity: binary_sensor.gwmbrasil_${VEICULO}_porta_malas
                           state: 'on'
                       card:
                         type: picture
@@ -376,7 +453,7 @@ views:
                     - type: conditional
                       conditions:
                         - entity: >-
-                            binary_sensor.gwmbrasil_${VEICULO.toLowerCase()}_porta_traseira_direita
+                            binary_sensor.gwmbrasil_${VEICULO}_porta_traseira_direita
                           state: 'on'
                       card:
                         type: picture
@@ -408,7 +485,7 @@ views:
                     - type: conditional
                       conditions:
                         - entity: >-
-                            binary_sensor.gwmbrasil_${VEICULO.toLowerCase()}_porta_traseira_direita
+                            binary_sensor.gwmbrasil_${VEICULO}_porta_traseira_direita
                           state: 'off'
                       card:
                         type: picture
@@ -440,7 +517,7 @@ views:
                     - type: conditional
                       conditions:
                         - entity: >-
-                            binary_sensor.gwmbrasil_${VEICULO.toLowerCase()}_porta_traseira_esquerda
+                            binary_sensor.gwmbrasil_${VEICULO}_porta_traseira_esquerda
                           state: 'on'
                       card:
                         type: picture
@@ -472,7 +549,7 @@ views:
                     - type: conditional
                       conditions:
                         - entity: >-
-                            binary_sensor.gwmbrasil_${VEICULO.toLowerCase()}_porta_traseira_esquerda
+                            binary_sensor.gwmbrasil_${VEICULO}_porta_traseira_esquerda
                           state: 'off'
                       card:
                         type: picture
@@ -503,8 +580,7 @@ views:
                             }
                     - type: conditional
                       conditions:
-                        - entity: >-
-                            sensor.gwmbrasil_${VEICULO.toLowerCase()}_posicao_do_teto_solar
+                        - entity: sensor.gwmbrasil_${VEICULO}_posicao_do_teto_solar
                           state_not: '3'
                       card:
                         type: picture
@@ -534,8 +610,7 @@ views:
                             }
                     - type: conditional
                       conditions:
-                        - entity: >-
-                            binary_sensor.gwmbrasil_${VEICULO.toLowerCase()}_estado_da_trava
+                        - entity: binary_sensor.gwmbrasil_${VEICULO}_estado_da_trava
                           state: 'off'
                       card:
                         type: picture
@@ -566,7 +641,7 @@ views:
                     - type: conditional
                       conditions:
                         - entity: >-
-                            binary_sensor.gwmbrasil_${VEICULO.toLowerCase()}_estado_do_ar_condicionado
+                            binary_sensor.gwmbrasil_${VEICULO}_estado_do_ar_condicionado
                           state: 'on'
                       card:
                         type: picture
@@ -596,8 +671,7 @@ views:
                             }
                     - type: conditional
                       conditions:
-                        - entity: >-
-                            sensor.gwmbrasil_${VEICULO.toLowerCase()}_vidro_dianteiro_direito
+                        - entity: sensor.gwmbrasil_${VEICULO}_vidro_dianteiro_direito
                           state: '2'
                       card:
                         type: picture
@@ -628,8 +702,7 @@ views:
                             }
                     - type: conditional
                       conditions:
-                        - entity: >-
-                            sensor.gwmbrasil_${VEICULO.toLowerCase()}_vidro_dianteiro_direito
+                        - entity: sensor.gwmbrasil_${VEICULO}_vidro_dianteiro_direito
                           state: '3'
                       card:
                         type: picture
@@ -660,8 +733,7 @@ views:
                             }
                     - type: conditional
                       conditions:
-                        - entity: >-
-                            sensor.gwmbrasil_${VEICULO.toLowerCase()}_vidro_dianteiro_esquerdo
+                        - entity: sensor.gwmbrasil_${VEICULO}_vidro_dianteiro_esquerdo
                           state: '2'
                       card:
                         type: picture
@@ -692,8 +764,7 @@ views:
                             }
                     - type: conditional
                       conditions:
-                        - entity: >-
-                            sensor.gwmbrasil_${VEICULO.toLowerCase()}_vidro_dianteiro_esquerdo
+                        - entity: sensor.gwmbrasil_${VEICULO}_vidro_dianteiro_esquerdo
                           state: '3'
                       card:
                         type: picture
@@ -724,8 +795,7 @@ views:
                             }
                     - type: conditional
                       conditions:
-                        - entity: >-
-                            sensor.gwmbrasil_${VEICULO.toLowerCase()}_vidro_traseiro_direito
+                        - entity: sensor.gwmbrasil_${VEICULO}_vidro_traseiro_direito
                           state: '2'
                       card:
                         type: picture
@@ -756,8 +826,7 @@ views:
                             }
                     - type: conditional
                       conditions:
-                        - entity: >-
-                            sensor.gwmbrasil_${VEICULO.toLowerCase()}_vidro_traseiro_direito
+                        - entity: sensor.gwmbrasil_${VEICULO}_vidro_traseiro_direito
                           state: '3'
                       card:
                         type: picture
@@ -788,8 +857,7 @@ views:
                             }
                     - type: conditional
                       conditions:
-                        - entity: >-
-                            sensor.gwmbrasil_${VEICULO.toLowerCase()}_vidro_traseiro_esquerdo
+                        - entity: sensor.gwmbrasil_${VEICULO}_vidro_traseiro_esquerdo
                           state: '2'
                       card:
                         type: picture
@@ -820,8 +888,7 @@ views:
                             }
                     - type: conditional
                       conditions:
-                        - entity: >-
-                            sensor.gwmbrasil_${VEICULO.toLowerCase()}_vidro_traseiro_esquerdo
+                        - entity: sensor.gwmbrasil_${VEICULO}_vidro_traseiro_esquerdo
                           state: '3'
                       card:
                         type: picture
@@ -850,99 +917,6 @@ views:
                               max-height: 100%;
                               object-fit: contain;
                             }
-                    - type: conditional
-                      conditions:
-                        - entity: >-
-                            sensor.gwmbrasil_${VEICULO.toLowerCase()}_estado_da_carga
-                          state: '1'
-                      card:
-                        type: picture
-                        image: /local/images/haval_h6/carga_carregando.png
-                        tap_action:
-                          action: none
-                        hold_action:
-                          action: none
-                        card_mod:
-                          style: |
-                            :host {
-                              position: absolute;
-                              top: 0;
-                              left: 0;
-                              z-index: 1;
-                            }
-                            ha-card {
-                              max-width: 441px;
-                              max-height: 400px;
-                              border: 0px;
-                              background: rgba(0,0,0,0);
-                            }
-                            img {
-                              max-width: 100%;
-                              max-height: 100%;
-                              object-fit: contain;
-                            }
-                    - type: conditional
-                      conditions:
-                        - entity: >-
-                            sensor.gwmbrasil_${VEICULO.toLowerCase()}_estado_da_carga
-                          state: '5'
-                      card:
-                        type: picture
-                        image: /local/images/haval_h6/carga_aguardando.png
-                        tap_action:
-                          action: none
-                        hold_action:
-                          action: none
-                        card_mod:
-                          style: |
-                            :host {
-                              position: absolute;
-                              top: 0;
-                              left: 0;
-                              z-index: 1;
-                            }
-                            ha-card {
-                              max-width: 441px;
-                              max-height: 400px;
-                              border: 0px;
-                              background: rgba(0,0,0,0);
-                            }
-                            img {
-                              max-width: 100%;
-                              max-height: 100%;
-                              object-fit: contain;
-                            }
-                    - type: conditional
-                      conditions:
-                        - entity: >-
-                            sensor.gwmbrasil_${VEICULO.toLowerCase()}_estado_da_carga
-                          state: '4'
-                      card:
-                        type: picture
-                        image: /local/images/haval_h6/carga_naocarregando.png
-                        tap_action:
-                          action: none
-                        hold_action:
-                          action: none
-                        card_mod:
-                          style: |
-                            :host {
-                              position: absolute;
-                              top: 0;
-                              left: 0;
-                              z-index: 1;
-                            }
-                            ha-card {
-                              max-width: 441px;
-                              max-height: 400px;
-                              border: 0px;
-                              background: rgba(0,0,0,0);
-                            }
-                            img {
-                              max-width: 100%;
-                              max-height: 100%;
-                              object-fit: contain;
-                            }
               card_mod:
                 style: |
                   ha-card {
@@ -950,19 +924,61 @@ views:
                     border: 0px;
                     justify-content: center;
                     align-items: center;
+                    background: none !important /*bg*/;
+                    border-radius: 6px;
                   }
+            - type: custom:button-card
+              entity: sensor.gwmbrasil_${VEICULO}_status_message
+              show_name: false
+              show_icon: false
+              show_state: true
+              styles:
+                card:
+                  - backdrop-filter: blur(20px)
+                  - border-radius: 6px
+                  - padding: 16px
+                state:
+                  - font-size: 14px
+                  - text-align: center
+                  - white-space: pre-wrap
+              state_display: |
+                [[[
+                  return states['sensor.gwmbrasil_${VEICULO}_status_message'].state.replace(/\|/g, '\n');
+                ]]]
+              card_mod:
+                style: |
+                  ha-card {
+                     display: {% if states('sensor.gwmbrasil_${VEICULO}_status_message') == 'Não há alertas neste momento.' %} none {% else %} block {% endif %} !important;
+                     animation:pulse 2s infinite;
+                   }
+            - type: custom:button-card
+              name: Controles
+              icon: mdi:car-cog
+              show_name: true
+              show_icon: true
+              tap_action:
+                action: navigate
+                navigation_path: /gwm-brasil/controles
+              card_mod:
+                style: |
+                  ha-card {
+                    background: none !important /*bg*/;
+                    border-radius: 6px;
+                    animation:pulse 2s infinite;
+                  }
+              styles:
+                icon:
+                  - width: 28px
+                name:
+                  - font-size: 14px
             - type: custom:stack-in-card
               mode: horizontal
               cards:
                 - type: custom:mushroom-title-card
                   title: >-
-                    {{
-                    states("sensor.gwmbrasil_${VEICULO.toLowerCase()}_modelo_do_veiculo")
+                    {{ states("sensor.gwmbrasil_${VEICULO}_modelo_do_veiculo")
                     }}
-                  subtitle: >-
-                    {{
-                    states("sensor.gwmbrasil_${VEICULO.toLowerCase()}_cor_do_veiculo")
-                    }}
+                  subtitle: '{{ states("sensor.gwmbrasil_${VEICULO}_cor_do_veiculo") }}'
                   title_tap_action:
                     action: none
                   subtitle_tap_action:
@@ -971,9 +987,10 @@ views:
                 style: |
                   ha-card {
                     display: flex;
-                    border: 0px;            
-                    justify-content: center;
-                    align-items: center;
+                    justify-content: center !important;
+                    align-items: center !important;
+                    background: none !important /*bg*/;
+                    border-radius: 6px;
                   }
             - type: horizontal-stack
               cards:
@@ -996,15 +1013,18 @@ views:
                     - value: 100
                       color: '#009c72'
                   entities:
-                    - entity: >-
-                        sensor.gwmbrasil_${VEICULO.toLowerCase()}_estado_de_carga_soc
+                    - entity: sensor.gwmbrasil_${VEICULO}_estado_de_carga_soc
                   card_mod:
                     style: |
                       :host {
-                        {% set modelo = states('sensor.gwmbrasil_${VEICULO.toLowerCase()}_modelo_do_veiculo').split(' ') %}
-                        {% if 'HEV' in modelo  %}
+                        {% set modelo = states('sensor.gwmbrasil_${VEICULO}_modelo_do_veiculo').split(' ') %}
+                        {% if 'HEV' in modelo  or 'TANK' in modelo %}
                           display: none
-                        {% endif %} !important;
+                        {% endif %} !important;                
+                      }
+                      ha-card {
+                        background: none !important /*bg*/;
+                        border-radius: 6px;
                       }
                 - type: custom:bar-card
                   title: Combustível
@@ -1025,15 +1045,82 @@ views:
                     - value: 55
                       color: '#009c72'
                   entities:
-                    - entity: >-
-                        sensor.gwmbrasil_${VEICULO.toLowerCase()}_nivel_de_combustivel
+                    - entity: sensor.gwmbrasil_${VEICULO}_nivel_de_combustivel
                   card_mod:
                     style: |
                       :host {
-                        {% set modelo = states('sensor.gwmbrasil_${VEICULO.toLowerCase()}_modelo_do_veiculo').split(' ') %}
-                        {% if 'ORA' in modelo %}
+                        {% set modelo = states('sensor.gwmbrasil_${VEICULO}_modelo_do_veiculo').split(' ') %}
+                        {% if 'HAVAL' not in modelo %}
                           display: none
                         {% endif %} !important;
+                      }              
+                      ha-card {
+                        background: none !important /*bg*/;
+                        border-radius: 6px;
+                      }
+                - type: custom:bar-card
+                  title: Autonomia EV
+                  positions:
+                    icon: 'off'
+                    name: 'off'
+                  tap_action:
+                    action: more-info
+                  hold_action:
+                    action: none
+                  min: 0
+                  max: 100
+                  severity:
+                    - value: 0
+                      color: '#540000'
+                    - value: 50
+                      color: '#ffa200'
+                    - value: 100
+                      color: '#009c72'
+                  entities:
+                    - entity: sensor.gwmbrasil_${VEICULO}_autonomia_ev
+                  card_mod:
+                    style: |
+                      :host {
+                        {% set modelo = states('sensor.gwmbrasil_${VEICULO}_modelo_do_veiculo').split(' ') %}
+                        {% if 'TANK' not in modelo  %}
+                          display: none
+                        {% endif %} !important;
+                      }
+                      ha-card {
+                        background: none !important /*bg*/;
+                        border-radius: 6px;
+                      }
+                - type: custom:bar-card
+                  title: Autonomia Combustão
+                  positions:
+                    icon: 'off'
+                    name: 'off'
+                  tap_action:
+                    action: more-info
+                  hold_action:
+                    action: none
+                  min: 0
+                  max: 800
+                  severity:
+                    - value: 0
+                      color: '#540000'
+                    - value: 200
+                      color: '#ffa200'
+                    - value: 800
+                      color: '#009c72'
+                  entities:
+                    - entity: sensor.gwmbrasil_${VEICULO}_autonomia_combustao
+                  card_mod:
+                    style: |
+                      :host {
+                        {% set modelo = states('sensor.gwmbrasil_${VEICULO}_modelo_do_veiculo').split(' ') %}
+                        {% if 'TANK' not in modelo %}
+                          display: none
+                        {% endif %} !important;
+                      }
+                      ha-card {
+                        background: none !important /*bg*/;
+                        border-radius: 6px;
                       }
             - type: custom:collapsable-cards
               title: Monitoramento dos pneus
@@ -1046,10 +1133,12 @@ views:
                         - type: custom:mini-graph-card
                           name: Dianteiro Esquerdo
                           entities:
-                            - >-
-                              sensor.gwmbrasil_${VEICULO.toLowerCase()}_pressao_do_pneu_dianteiro_esquerdo
                             - entity: >-
-                                sensor.gwmbrasil_${VEICULO.toLowerCase()}_temperatura_do_pneu_dianteiro_esquerdo
+                                sensor.gwmbrasil_${VEICULO}_pressao_do_pneu_dianteiro_esquerdo
+                              name: Pressão
+                            - entity: >-
+                                sensor.gwmbrasil_${VEICULO}_temperatura_do_pneu_dianteiro_esquerdo
+                              name: Temperatura
                               show_fill: false
                           icon: mdi:arrow-top-left
                           align_icon: left
@@ -1062,13 +1151,21 @@ views:
                             action: none
                           show:
                             fill: true
+                          card_mod:
+                            style: |
+                              ha-card {
+                                background: none !important /*bg*/;
+                                border-radius: 6px;
+                              }
                         - type: custom:mini-graph-card
                           name: Dianteiro Direito
                           entities:
                             - entity: >-
-                                sensor.gwmbrasil_${VEICULO.toLowerCase()}_pressao_do_pneu_dianteiro_direito
+                                sensor.gwmbrasil_${VEICULO}_pressao_do_pneu_dianteiro_direito
+                              name: Pressão
                             - entity: >-
-                                sensor.gwmbrasil_${VEICULO.toLowerCase()}_temperatura_do_pneu_dianteiro_direito
+                                sensor.gwmbrasil_${VEICULO}_temperatura_do_pneu_dianteiro_direito
+                              name: Temperatura
                               show_fill: false
                           icon: mdi:arrow-top-right
                           align_icon: left
@@ -1081,13 +1178,21 @@ views:
                             action: none
                           show:
                             fill: true
+                          card_mod:
+                            style: |
+                              ha-card {
+                                background: none !important /*bg*/;
+                                border-radius: 6px;
+                              }
                         - type: custom:mini-graph-card
                           name: Traseiro Esquerdo
                           entities:
-                            - >-
-                              sensor.gwmbrasil_${VEICULO.toLowerCase()}_pressao_do_pneu_traseiro_esquerdo
                             - entity: >-
-                                sensor.gwmbrasil_${VEICULO.toLowerCase()}_temperatura_do_pneu_traseiro_esquerdo
+                                sensor.gwmbrasil_${VEICULO}_pressao_do_pneu_traseiro_esquerdo
+                              name: Pressão
+                            - entity: >-
+                                sensor.gwmbrasil_${VEICULO}_temperatura_do_pneu_traseiro_esquerdo
+                              name: Temperatura
                               show_fill: false
                           icon: mdi:arrow-bottom-left
                           align_icon: left
@@ -1100,13 +1205,21 @@ views:
                             action: none
                           show:
                             fill: true
+                          card_mod:
+                            style: |
+                              ha-card {
+                                background: none !important /*bg*/;
+                                border-radius: 6px;
+                              }
                         - type: custom:mini-graph-card
                           name: Traseiro Direito
                           entities:
-                            - >-
-                              sensor.gwmbrasil_${VEICULO.toLowerCase()}_pressao_do_pneu_traseiro_direito
                             - entity: >-
-                                sensor.gwmbrasil_${VEICULO.toLowerCase()}_temperatura_do_pneu_traseiro_direito
+                                sensor.gwmbrasil_${VEICULO}_pressao_do_pneu_traseiro_direito
+                              name: Pressão
+                            - entity: >-
+                                sensor.gwmbrasil_${VEICULO}_temperatura_do_pneu_traseiro_direito
+                              name: Temperatura
                               show_fill: false
                           icon: mdi:arrow-bottom-right
                           align_icon: left
@@ -1119,6 +1232,12 @@ views:
                             action: none
                           show:
                             fill: true
+                          card_mod:
+                            style: |
+                              ha-card {
+                                background: none !important /*bg*/;
+                                border-radius: 6px;
+                              }
             - type: custom:collapsable-cards
               title: Autonomia e pneus
               defaultOpen: true
@@ -1130,8 +1249,7 @@ views:
                         - type: entities
                           entities:
                             - type: custom:template-entity-row
-                              entity: >-
-                                sensor.gwmbrasil_${VEICULO.toLowerCase()}_estado_do_motor
+                              entity: sensor.gwmbrasil_${VEICULO}_estado_do_motor
                               name: Estado do motor
                               state: >-
                                 ${
@@ -1139,12 +1257,20 @@ views:
                                 === '0' ? 'Desligado' :
                                 states['sensor.gwmbrasil_'+VEICULO.toLowerCase()+'_estado_do_motor'].state
                                 === '1' ? 'Ligado' : 'Desconhecido'}
-                            - entity: >-
-                                sensor.gwmbrasil_${VEICULO.toLowerCase()}_quilometragem_total
-                            - entity: >-
-                                sensor.gwmbrasil_${VEICULO.toLowerCase()}_estado_de_carga_12v
+                            - entity: sensor.gwmbrasil_${VEICULO}_quilometragem_total
+                              name: Quilometragem total
+                            - entity: sensor.gwmbrasil_${VEICULO}_estado_de_carga_12v
+                              name: Estado de carga 12V
                               secondary_info: last-updated
                               state_color: true
+                              card_mod:
+                                style: |
+                                  :host {
+                                    {% set modelo = states('sensor.gwmbrasil_${VEICULO}_modelo_do_veiculo').split(' ') %}
+                                    {% if 'TANK' in modelo %}
+                                      display: none
+                                    {% endif %} !important;
+                                  }
                             - type: custom:template-entity-row
                               name: Autonomia Total
                               state: |-
@@ -1155,53 +1281,54 @@ views:
                                 }
                               stateq: >-
                                 {{ (
-                                (states('sensor.gwmbrasil_${VEICULO.toLowerCase()}_autonomia_combustao')
+                                (states('sensor.gwmbrasil_${VEICULO}_autonomia_combustao')
                                 | float(0)) +
-                                (states('sensor.gwmbrasil_${VEICULO.toLowerCase()}_autonomia_ev')
+                                (states('sensor.gwmbrasil_${VEICULO}_autonomia_ev')
                                 | float(0)) ) | round(2) }} km
                               icon: mdi:numeric
                               card_mod:
                                 style: |
                                   :host {
-                                    {% set modelo = states('sensor.gwmbrasil_${VEICULO.toLowerCase()}_modelo_do_veiculo').split(' ') %}
+                                    {% set modelo = states('sensor.gwmbrasil_${VEICULO}_modelo_do_veiculo').split(' ') %}
                                     {% if 'PHEV' not in modelo %}
                                       display: none
                                     {% endif %} !important;
                                   }
-                          card_mod:
-                            style: |
-                              ha-card {
-                                border-width: 0px !important;
-                                background: none
-                              }
-                        - type: entities
-                          entities:
-                            - entity: >-
-                                sensor.gwmbrasil_${VEICULO.toLowerCase()}_autonomia_combustao
-                            - entity: >-
-                                sensor.gwmbrasil_${VEICULO.toLowerCase()}_nivel_de_combustivel
-                          card_mod:
-                            style: |
-                              :host {
-                                {% set modelo = states('sensor.gwmbrasil_${VEICULO.toLowerCase()}_modelo_do_veiculo').split(' ') %}
-                                {% if 'ORA' in modelo %}
-                                  display: none
-                                {% endif %} !important;
-                              }
-                              ha-card {
-                                border-width: 0px !important;
-                                background: none
-                              }
-                        - type: entities
-                          entities:
-                            - entity: >-
-                                sensor.gwmbrasil_${VEICULO.toLowerCase()}_autonomia_ev
-                            - entity: >-
-                                sensor.gwmbrasil_${VEICULO.toLowerCase()}_estado_de_carga_soc
+                            - entity: sensor.gwmbrasil_${VEICULO}_autonomia_combustao
+                              name: Autonomia Combustão
+                              card_mod:
+                                style: |
+                                  :host {
+                                    {% set modelo = states('sensor.gwmbrasil_${VEICULO}_modelo_do_veiculo').split(' ') %}
+                                    {% if 'ORA' in modelo %}
+                                      display: none
+                                    {% endif %} !important;
+                                  }
+                                  ha-card {
+                                    border-width: 0px !important;
+                                    background: none
+                                  }
+                            - entity: sensor.gwmbrasil_${VEICULO}_nivel_de_combustivel
+                              name: Nível de combustível
+                              card_mod:
+                                style: |
+                                  :host {
+                                    {% set modelo = states('sensor.gwmbrasil_${VEICULO}_modelo_do_veiculo').split(' ') %}
+                                    {% if 'HAVAL' not in modelo %}
+                                      display: none
+                                    {% endif %} !important;
+                                  }
+                                  ha-card {
+                                    border-width: 0px !important;
+                                    background: none
+                                  }
+                            - entity: sensor.gwmbrasil_${VEICULO}_autonomia_ev
+                              name: Autonomia EV
+                            - entity: sensor.gwmbrasil_${VEICULO}_estado_de_carga_soc
+                              name: Estado de carga (SoC)
                               state_color: true
                             - type: custom:template-entity-row
-                              entity: >-
-                                sensor.gwmbrasil_${VEICULO.toLowerCase()}_estado_da_carga
+                              entity: sensor.gwmbrasil_${VEICULO}_estado_da_carga
                               name: Estado de Carregamento
                               state: >-
                                 ${
@@ -1217,7 +1344,8 @@ views:
                                 === '5' ? 'Aguardando liberação' :
                                 'Desconhecido' }
                             - entity: >-
-                                binary_sensor.gwmbrasil_${VEICULO.toLowerCase()}_agendamento_de_carga
+                                binary_sensor.gwmbrasil_${VEICULO}_agendamento_de_carga
+                              name: Agendamento de carga
                               state: >-
                                 ${
                                 states['binary_sensor.gwmbrasil_'+VEICULO.toLowerCase()+'_agendamento_de_carga'].state
@@ -1228,20 +1356,20 @@ views:
                               card_mod:
                                 style: |
                                   :host {
-                                    display: {% if is_state('sensor.gwmbrasil_${VEICULO.toLowerCase()}_agendamento_de_carga','on') %} block {% else %} none {% endif %};
+                                    display: {% if is_state('sensor.gwmbrasil_${VEICULO}_agendamento_de_carga','on') %} block {% else %} none {% endif %};
                                   }
-                            - entity: >-
-                                sensor.gwmbrasil_${VEICULO.toLowerCase()}_tempo_de_carga
+                            - entity: sensor.gwmbrasil_${VEICULO}_tempo_de_carga
+                              name: Tempo de carga
                               card_mod:
                                 style: |
                                   :host {
-                                    display: {% if is_state('sensor.gwmbrasil_${VEICULO.toLowerCase()}_estado_da_carga','1') %} block {% else %} none {% endif %};
+                                    display: {% if is_state('sensor.gwmbrasil_${VEICULO}_estado_da_carga','1') %} block {% else %} none {% endif %};
                                   }
                             - type: custom:mushroom-template-card
                               primary: Interromper carregamento
                               icon: mdi:ev-plug-type2
                               entity: >-
-                                button.gwmbrasil_${VEICULO.toLowerCase()}_interromper_carregamento
+                                button.gwmbrasil_${VEICULO}_interromper_carregamento
                               hold_action:
                                 action: none
                               tap_action:
@@ -1253,69 +1381,47 @@ views:
                               card_mod:
                                 style: |
                                   :host {
-                                    display: {% if states('sensor.gwmbrasil_${VEICULO.toLowerCase()}_estado_da_carga') in ['1','5'] %} block {% else %} none {% endif %};
+                                    display: {% if states('sensor.gwmbrasil_${VEICULO}_estado_da_carga') in ['1','5'] %} block {% else %} none {% endif %};
                                   }
                           card_mod:
                             style: |
-                              :host {
-                                {% set modelo = states('sensor.gwmbrasil_${VEICULO.toLowerCase()}_modelo_do_veiculo').split(' ') %}
-                                {% if 'HEV' in modelo  %}
-                                  display: none
-                                {% endif %} !important;
-                              }
                               ha-card {
-                                border-width: 0px !important;
-                                background: none
+                                background: none !important /*bg*/;
+                                border-radius: 6px;
                               }
                     - type: vertical-stack
                       cards:
                         - type: entities
                           entities:
                             - entity: >-
-                                sensor.gwmbrasil_${VEICULO.toLowerCase()}_pressao_do_pneu_dianteiro_esquerdo
+                                sensor.gwmbrasil_${VEICULO}_pressao_do_pneu_dianteiro_esquerdo
+                              name: Pressão do Pneu Dianteiro Esquerdo
                             - entity: >-
-                                sensor.gwmbrasil_${VEICULO.toLowerCase()}_temperatura_do_pneu_dianteiro_esquerdo
+                                sensor.gwmbrasil_${VEICULO}_temperatura_do_pneu_dianteiro_esquerdo
+                              name: Temperatura do Pneu Dianteiro Esquerdo
+                            - entity: >-
+                                sensor.gwmbrasil_${VEICULO}_pressao_do_pneu_dianteiro_direito
+                              name: Pressão do Pneu Dianteiro Direito
+                            - entity: >-
+                                sensor.gwmbrasil_${VEICULO}_temperatura_do_pneu_dianteiro_direito
+                              name: Temperatura do Pneu Dianteiro Direito
+                            - entity: >-
+                                sensor.gwmbrasil_${VEICULO}_pressao_do_pneu_traseiro_esquerdo
+                              name: Pressão do Pneu Traseiro Esquerdo
+                            - entity: >-
+                                sensor.gwmbrasil_${VEICULO}_temperatura_do_pneu_traseiro_esquerdo
+                              name: Temperatura do Pneu Traseiro Esquerdo
+                            - entity: >-
+                                sensor.gwmbrasil_${VEICULO}_pressao_do_pneu_traseiro_direito
+                              name: Pressão do Pneu Traseiro Direito
+                            - entity: >-
+                                sensor.gwmbrasil_${VEICULO}_temperatura_do_pneu_traseiro_direito
+                              name: Temperatura do Pneu Traseiro Direito
                           card_mod:
                             style: |
                               ha-card {
-                                border-width: 0px !important;
-                                background: none
-                              }
-                        - type: entities
-                          entities:
-                            - entity: >-
-                                sensor.gwmbrasil_${VEICULO.toLowerCase()}_pressao_do_pneu_dianteiro_direito
-                            - entity: >-
-                                sensor.gwmbrasil_${VEICULO.toLowerCase()}_temperatura_do_pneu_dianteiro_direito
-                          card_mod:
-                            style: |
-                              ha-card {
-                                border-width: 0px !important;
-                                background: none
-                              }
-                        - type: entities
-                          entities:
-                            - entity: >-
-                                sensor.gwmbrasil_${VEICULO.toLowerCase()}_pressao_do_pneu_traseiro_esquerdo
-                            - entity: >-
-                                sensor.gwmbrasil_${VEICULO.toLowerCase()}_temperatura_do_pneu_traseiro_esquerdo
-                          card_mod:
-                            style: |
-                              ha-card {
-                                border-width: 0px !important;
-                                background: none
-                              }
-                        - type: entities
-                          entities:
-                            - entity: >-
-                                sensor.gwmbrasil_${VEICULO.toLowerCase()}_pressao_do_pneu_traseiro_direito
-                            - entity: >-
-                                sensor.gwmbrasil_${VEICULO.toLowerCase()}_temperatura_do_pneu_traseiro_direito
-                          card_mod:
-                            style: |
-                              ha-card {
-                                border-width: 0px !important;
-                                background: none
+                                background: none !important /*bg*/;
+                                border-radius: 6px;
                               }
               card_mod:
                 style: |
@@ -1324,14 +1430,16 @@ views:
                     background: none
                   }
             - type: custom:collapsable-cards
-              title: Ar condicionado
+              title: Climatização
               defaultOpen: true
               cards:
                 - type: entities
                   entities:
+                    - entity: sensor.gwmbrasil_${VEICULO}_temperatura_da_cabine
+                      name: Temperatura da cabine
                     - type: custom:template-entity-row
                       entity: >-
-                        binary_sensor.gwmbrasil_${VEICULO.toLowerCase()}_estado_do_ar_condicionado
+                        binary_sensor.gwmbrasil_${VEICULO}_estado_do_ar_condicionado
                       name: Ar Condicionado
                       state: >-
                         ${
@@ -1343,8 +1451,7 @@ views:
                       primary: Ligar A/C
                       icon: mdi:fan-clock
                       secondary: Acionar por 15 minutos em 18°C
-                      entity: >-
-                        button.gwmbrasil_${VEICULO.toLowerCase()}_ativacao_do_ar_condicionado
+                      entity: button.gwmbrasil_${VEICULO}_ativacao_do_ar_condicionado
                       hold_action:
                         action: none
                       tap_action:
@@ -1372,7 +1479,7 @@ views:
                           === '1' ? 'none' : 'block' }
                     - type: custom:template-entity-row
                       entity: >-
-                        binary_sensor.gwmbrasil_${VEICULO.toLowerCase()}_estado_do_purificador_de_ar
+                        binary_sensor.gwmbrasil_${VEICULO}_estado_do_purificador_de_ar
                       name: Purificador de ar
                       state: >-
                         ${
@@ -1380,11 +1487,44 @@ views:
                         === 'off' ? 'Desligado' :
                         states['binary_sensor.gwmbrasil_'+VEICULO.toLowerCase()+'_estado_do_purificador_de_ar'].state
                         === 'on' ? 'Ligado' : 'Desconhecido'}
+                      card_mod:
+                        style: |
+                          :host {
+                            {% set modelo = states('sensor.gwmbrasil_${VEICULO}_modelo_do_veiculo').split(' ') %}
+                            {% if 'TANK' in modelo %}
+                              display: none
+                            {% endif %} !important;
+                          }              
                   card_mod:
                     style: |
                       ha-card {
-                        border-width: 0px !important;
-                        background: none
+                        background: none !important /*bg*/;
+                        border-radius: 6px;
+                      }
+                - type: entities
+                  entities:
+                    - entity: binary_sensor.gwmbrasil_${VEICULO}_aquecimento_da_cabine
+                      name: Aquecimento da cabine
+                    - entity: >-
+                        binary_sensor.gwmbrasil_${VEICULO}_aquecimento_do_banco_do_motorista
+                      name: Aquecimento do banco do motorista
+                    - entity: >-
+                        binary_sensor.gwmbrasil_${VEICULO}_aquecimento_do_banco_do_passageiro
+                      name: Aquecimento do banco do passageiro
+                    - entity: >-
+                        binary_sensor.gwmbrasil_${VEICULO}_aquecimento_do_volante
+                      name: Aquecimento do banco do volante
+                  card_mod:
+                    style: |
+                      :host {
+                        {% set modelo = states('sensor.gwmbrasil_${VEICULO}_modelo_do_veiculo').split(' ') %}
+                        {% if 'TANK' not in modelo %}
+                          display: none
+                        {% endif %} !important;
+                      }
+                      ha-card {
+                        background: none !important /*bg*/;
+                        border-radius: 6px;
                       }
             - type: custom:collapsable-cards
               title: Portas e vidros
@@ -1395,8 +1535,7 @@ views:
                     - type: entities
                       entities:
                         - type: custom:template-entity-row
-                          entity: >-
-                            binary_sensor.gwmbrasil_${VEICULO.toLowerCase()}_estado_da_trava
+                          entity: binary_sensor.gwmbrasil_${VEICULO}_estado_da_trava
                           name: Trava das portas
                           color: >-
                             ${
@@ -1417,7 +1556,7 @@ views:
                             === 'on' ? 'Destrancada' : 'Desconhecido'}
                         - type: custom:template-entity-row
                           entity: >-
-                            binary_sensor.gwmbrasil_${VEICULO.toLowerCase()}_porta_dianteira_esquerda
+                            binary_sensor.gwmbrasil_${VEICULO}_porta_dianteira_esquerda
                           name: Dianteira esquerda
                           color: >-
                             ${
@@ -1431,7 +1570,7 @@ views:
                             === 'on' ? 'Aberta' : 'Desconhecido'}
                         - type: custom:template-entity-row
                           entity: >-
-                            binary_sensor.gwmbrasil_${VEICULO.toLowerCase()}_porta_dianteira_direita
+                            binary_sensor.gwmbrasil_${VEICULO}_porta_dianteira_direita
                           name: Dianteira direita
                           color: >-
                             ${
@@ -1446,7 +1585,7 @@ views:
                             'Desconhecido'}                
                         - type: custom:template-entity-row
                           entity: >-
-                            binary_sensor.gwmbrasil_${VEICULO.toLowerCase()}_porta_traseira_esquerda
+                            binary_sensor.gwmbrasil_${VEICULO}_porta_traseira_esquerda
                           name: Traseira esquerda
                           color: >-
                             ${
@@ -1460,7 +1599,7 @@ views:
                             === 'on' ? 'Aberta' : 'Desconhecido'}
                         - type: custom:template-entity-row
                           entity: >-
-                            binary_sensor.gwmbrasil_${VEICULO.toLowerCase()}_porta_traseira_direita
+                            binary_sensor.gwmbrasil_${VEICULO}_porta_traseira_direita
                           name: Traseira direita
                           color: >-
                             ${
@@ -1473,8 +1612,7 @@ views:
                             states['binary_sensor.gwmbrasil_'+VEICULO.toLowerCase()+'_porta_traseira_direita'].state
                             === 'on' ? 'Aberta' : 'Desconhecido'}
                         - type: custom:template-entity-row
-                          entity: >-
-                            binary_sensor.gwmbrasil_${VEICULO.toLowerCase()}_porta_malas
+                          entity: binary_sensor.gwmbrasil_${VEICULO}_porta_malas
                           name: Porta malas
                           state: >-
                             ${
@@ -1486,8 +1624,8 @@ views:
                       card_mod:
                         style: |
                           ha-card {
-                            border-width: 0px !important;
-                            background: none
+                            background: none !important /*bg*/;
+                            border-radius: 6px;
                           }
                     - type: vertical-stack
                       cards:
@@ -1495,7 +1633,7 @@ views:
                           entities:
                             - type: custom:template-entity-row
                               entity: >-
-                                sensor.gwmbrasil_${VEICULO.toLowerCase()}_vidro_dianteiro_esquerdo
+                                sensor.gwmbrasil_${VEICULO}_vidro_dianteiro_esquerdo
                               name: Dianteiro esquerdo
                               color: >-
                                 ${
@@ -1511,7 +1649,7 @@ views:
                                 === '3' ? 'Entreaberto' : 'Desconhecido' }
                             - type: custom:template-entity-row
                               entity: >-
-                                sensor.gwmbrasil_${VEICULO.toLowerCase()}_vidro_dianteiro_direito
+                                sensor.gwmbrasil_${VEICULO}_vidro_dianteiro_direito
                               name: Dianteiro direito
                               color: >-
                                 ${
@@ -1527,7 +1665,7 @@ views:
                                 === '3' ? 'Entreaberto' : 'Desconhecido' }
                             - type: custom:template-entity-row
                               entity: >-
-                                sensor.gwmbrasil_${VEICULO.toLowerCase()}_vidro_traseiro_esquerdo
+                                sensor.gwmbrasil_${VEICULO}_vidro_traseiro_esquerdo
                               name: Traseiro esquerdo
                               color: >-
                                 ${
@@ -1543,7 +1681,7 @@ views:
                                 === '3' ? 'Entreaberto' : 'Desconhecido' }
                             - type: custom:template-entity-row
                               entity: >-
-                                sensor.gwmbrasil_${VEICULO.toLowerCase()}_vidro_traseiro_direito
+                                sensor.gwmbrasil_${VEICULO}_vidro_traseiro_direito
                               name: Traseiro direito
                               color: >-
                                 ${
@@ -1560,14 +1698,14 @@ views:
                           card_mod:
                             style: |
                               ha-card {
-                                border-width: 0px !important;
-                                background: none
+                                background: none !important /*bg*/;
+                                border-radius: 6px;
                               }
                         - type: entities
                           entities:
                             - type: custom:template-entity-row
                               entity: >-
-                                sensor.gwmbrasil_${VEICULO.toLowerCase()}_posicao_do_teto_solar
+                                sensor.gwmbrasil_${VEICULO}_posicao_do_teto_solar
                               name: Teto Solar
                               state: >-
                                 ${
@@ -1575,7 +1713,7 @@ views:
                                 === '3' ? 'Fechado' : 'Aberto'}
                             - type: custom:bar-card
                               entity: >-
-                                sensor.gwmbrasil_${VEICULO.toLowerCase()}_posicao_do_teto_solar
+                                sensor.gwmbrasil_${VEICULO}_posicao_do_teto_solar
                               name: Teto Solar
                               tap_action:
                                 action: none
@@ -1594,20 +1732,24 @@ views:
                               card_mod:
                                 style: |
                                   :host {
-                                    display: {% if is_state('sensor.gwmbrasil_${VEICULO.toLowerCase()}_posicao_do_teto_solar','3') %} none {% elif states('sensor.gwmbrasil_${VEICULO.toLowerCase()}_posicao_do_teto_solar') is none %} none {% else %} block {% endif %};
-                                  }              
+                                    display: {% if is_state('sensor.gwmbrasil_${VEICULO}_posicao_do_teto_solar','3') %} none {% elif states('sensor.gwmbrasil_${VEICULO}_posicao_do_teto_solar') is none %} none {% else %} block {% endif %};
+                                  }
+                                  ha-card {
+                                    border-width: 0px !important;
+                                    background: none;
+                                  }
                           card_mod:
                             style: |
                               :host {
-                                {% if is_state('sensor.gwmbrasil_${VEICULO.toLowerCase()}_posicao_do_teto_solar','unknown') %} display: none !important {% endif %};
+                                {% if is_state('sensor.gwmbrasil_${VEICULO}_posicao_do_teto_solar','unknown') %} display: none !important {% endif %};
                               }
                               ha-card {
-                                border-width: 0px !important;
-                                background: none
+                                background: none !important /*bg*/;
+                                border-radius: 6px;
                               }
             - type: conditional
               conditions:
-                - entity: device_tracker.gwmbrasil_${VEICULO.toLowerCase()}
+                - entity: device_tracker.gwmbrasil_${VEICULO}
                   state_not: unavailable
               card:
                 type: custom:collapsable-cards
@@ -1616,33 +1758,678 @@ views:
                 cards:
                   - type: map
                     entities:
-                      - entity: device_tracker.gwmbrasil_${VEICULO.toLowerCase()}
+                      - entity: device_tracker.gwmbrasil_${VEICULO}
                     theme_mode: dark
                     default_zoom: 16
                     hours_to_show: 30
                     auto_fit: true
                     aspect_ratio: '16:9'
+                    card_mod:
+                      style: |
+                        ha-card {                  
+                          border-radius: 6px;
+                        }
+  - type: panel
+    path: controles
+    title: Controles
+    icon: mdi:camera-control
+    cards:
+      - type: custom:config-template-card
+        entities:
+          - select.gwmbrasil_veiculos_registrados
+          - binary_sensor.gwmbrasil_${VEICULO}_estado_da_trava
+          - binary_sensor.gwmbrasil_${VEICULO}_estado_do_ar_condicionado
+          - binary_sensor.gwmbrasil_${VEICULO}_estado_do_purificador_de_ar
+          - binary_sensor.gwmbrasil_${VEICULO}_porta_dianteira_direita
+          - binary_sensor.gwmbrasil_${VEICULO}_porta_dianteira_esquerda
+          - binary_sensor.gwmbrasil_${VEICULO}_porta_malas
+          - binary_sensor.gwmbrasil_${VEICULO}_porta_traseira_direita
+          - binary_sensor.gwmbrasil_${VEICULO}_porta_traseira_esquerda
+          - sensor.gwmbrasil_${VEICULO}_estado_do_motor
+          - sensor.gwmbrasil_${VEICULO}_status_message
+          - sensor.gwmbrasil_${VEICULO}_posicao_do_teto_solar
+          - sensor.gwmbrasil_${VEICULO}_vidro_dianteiro_direito
+          - sensor.gwmbrasil_${VEICULO}_vidro_dianteiro_esquerdo
+          - sensor.gwmbrasil_${VEICULO}_vidro_traseiro_direito
+          - sensor.gwmbrasil_${VEICULO}_vidro_traseiro_esquerdo
+        card:
+          type: vertical-stack
+          cards:
+            - type: custom:button-card
+              entity: sensor.gwmbrasil_${VEICULO}_status_message
+              show_name: false
+              show_icon: false
+              show_state: true
+              styles:
+                card:
+                  - background: rgba(30, 35, 45, 0.4)
+                  - backdrop-filter: blur(20px)
+                  - border-radius: 6px
+                  - padding: 16px
+                  - transition: all 0.3s ease
+                card:hover:
+                  - box-shadow: 0 0 25px rgba(74, 222, 128, 0.15)
+                grid:
+                  - grid-template-areas: \'"s"\'
+                  - grid-template-columns: 1fr
+                  - grid-template-rows: auto
+                state:
+                  - font-size: 14px
+                  - color: rgba(255,255,255,0.7)
+                  - text-align: center
+                  - white-space: pre-wrap
+                  - justify-self: center
+                  - width: 100%
+              state_display: |
+                [[[
+                  return states['sensor.gwmbrasil_${VEICULO}_status_message'].state.replace(/\|/g, '\n');
+                ]]]
+              card_mod:
+                style: |
+                  ha-card {
+                     display: {% if states('sensor.gwmbrasil_${VEICULO}_status_message') == 'Não há alertas neste momento.' %} none {% else %} block {% endif %} !important;
+                     animation:pulse 2s infinite;             
+                   }
+                  :host {
+                    padding: 16px;
+                  }
+            - type: custom:button-card
+              name: MOTOR
+              show_icon: false
+              show_name: true
+              show_state: false
+              entity: sensor.gwmbrasil_${VEICULO}_estado_do_motor
+              styles:
+                card:
+                  - background: transparent
+                  - box-shadow: none
+                  - padding: 8px 8px 0 8px
+                name:
+                  - font-size: 11px
+                  - font-weight: '500'
+                  - letter-spacing: 1px
+                  - color: rgba(255,255,255,0.4)
+                  - justify-self: start
+                grid:
+                  - grid-template-areas: '"n status"'
+                  - grid-template-columns: 1fr auto
+              custom_fields:
+                status: |
+                  [[[            
+                    const status = states[`sensor.gwmbrasil_${VEICULO}_estado_do_motor`].state;
+                    if (status === 'none') return '';
+                    const isOn = status === '1';
+                    const color = isOn ? '#f87171' : '#4ade80';
+                    const text = isOn ? 'Ligado' : 'Desligado';
+                    return `<span style="display:flex;align-items:center;gap:6px;">
+                      <span style="width:6px;height:6px;border-radius:50%;background:${color};animation:pulse 2s infinite;"></span>
+                      <span style="font-size:11px;color:${color};">${text}</span>
+                    </span>`;
+                  ]]]
+            - type: horizontal-stack
+              cards:
+                - type: custom:button-card
+                  entity: button.gwmbrasil_${VEICULO}_ligar_o_motor
+                  name: Ligar
+                  icon: mdi:power
+                  tap_action:
+                    action: call-service
+                    service: button.press
+                    service_data:
+                      entity_id: button.gwmbrasil_${VEICULO}_ligar_o_motor
+                  styles:
+                    card:
+                      - background: rgba(30, 35, 45, 0.4)
+                      - backdrop-filter: blur(10px)
+                      - border: 1px solid rgba(255,255,255,0.08)
+                      - border-radius: 16px
+                      - padding: 20px
+                      - transition: all 0.3s ease
+                    card:hover:
+                      - border-color: rgba(74, 222, 128, 0.4)
+                      - box-shadow: 0 0 30px rgba(74, 222, 128, 0.1)
+                    icon:
+                      - color: rgba(255,255,255,0.5)
+                      - width: 28px
+                      - height: 28px
+                    name:
+                      - font-size: 13px
+                      - color: rgba(255,255,255,0.7)
+                      - margin-top: 8px
+                  card_mod:
+                    style: |
+                      :host {
+                        padding: 0 0 0 8px 
+                      }
+                - type: custom:button-card
+                  entity: button.gwmbrasil_${VEICULO}_desligar_o_motor
+                  name: Desligar
+                  icon: mdi:power-off
+                  tap_action:
+                    action: call-service
+                    service: button.press
+                    service_data:
+                      entity_id: button.gwmbrasil_${VEICULO}_desligar_o_motor
+                  styles:
+                    card:
+                      - background: rgba(30, 35, 45, 0.4)
+                      - backdrop-filter: blur(10px)
+                      - border: 1px solid rgba(255,255,255,0.08)
+                      - border-radius: 16px
+                      - padding: 20px
+                      - transition: all 0.3s ease
+                    card:hover:
+                      - border-color: rgba(248, 113, 113, 0.4)
+                      - box-shadow: 0 0 30px rgba(248, 113, 113, 0.1)
+                    icon:
+                      - color: rgba(255,255,255,0.5)
+                      - width: 28px
+                      - height: 28px
+                    name:
+                      - font-size: 13px
+                      - color: rgba(255,255,255,0.7)
+                      - margin-top: 8px
+                  card_mod:
+                    style: |
+                      :host {
+                        padding: 0 8px 0 0
+                      }
+            - type: custom:button-card
+              name: PORTAS
+              show_icon: false
+              entity: binary_sensor.gwmbrasil_${VEICULO}_estado_da_trava
+              styles:
+                card:
+                  - background: transparent
+                  - box-shadow: none
+                  - padding: 16px 8px 0 8px
+                name:
+                  - font-size: 11px
+                  - font-weight: '500'
+                  - letter-spacing: 1px
+                  - color: rgba(255,255,255,0.4)
+                  - justify-self: start
+                grid:
+                  - grid-template-areas: '"n status"'
+                  - grid-template-columns: 1fr auto
+              custom_fields:
+                status: |
+                  [[[
+                    const status = states[`binary_sensor.gwmbrasil_${VEICULO}_estado_da_trava`].state;
+                    if (status === 'none') return '';
+                    const isOpen = status === 'on';
+                    const color = isOpen ? '#f87171' : '#4ade80';
+                    const text = isOpen ? 'Abertas' : 'Fechadas';
+                    return `<span style="display:flex;align-items:center;gap:6px;">
+                      <span style="width:6px;height:6px;border-radius:50%;background:${color};animation:pulse 2s infinite;"></span>
+                      <span style="font-size:11px;color:${color};">${text}</span>
+                    </span>`;
+                  ]]]
+            - type: horizontal-stack
+              cards:
+                - type: custom:button-card
+                  entity: button.gwmbrasil_${VEICULO}_abrir_as_portas
+                  name: Abrir
+                  icon: mdi:car-door
+                  tap_action:
+                    action: call-service
+                    service: button.press
+                    service_data:
+                      entity_id: button.gwmbrasil_${VEICULO}_abrir_as_portas
+                  styles:
+                    card:
+                      - background: rgba(30, 35, 45, 0.4)
+                      - backdrop-filter: blur(10px)
+                      - border: 1px solid rgba(255,255,255,0.08)
+                      - border-radius: 16px
+                      - padding: 20px
+                      - transition: all 0.3s ease
+                    card:hover:
+                      - border-color: rgba(96, 165, 250, 0.4)
+                      - box-shadow: 0 0 30px rgba(96, 165, 250, 0.1)
+                    icon:
+                      - color: rgba(255,255,255,0.5)
+                      - width: 28px
+                      - height: 28px
+                    name:
+                      - font-size: 13px
+                      - color: rgba(255,255,255,0.7)
+                      - margin-top: 8px
+                  card_mod:
+                    style: |
+                      :host {
+                        padding: 0 0 0 8px
+                      }
+                - type: custom:button-card
+                  entity: button.gwmbrasil_${VEICULO}_fechar_as_portas
+                  name: Fechar
+                  icon: mdi:car-door-lock
+                  tap_action:
+                    action: call-service
+                    service: button.press
+                    service_data:
+                      entity_id: button.gwmbrasil_${VEICULO}_fechar_as_portas
+                  styles:
+                    card:
+                      - background: rgba(30, 35, 45, 0.4)
+                      - backdrop-filter: blur(10px)
+                      - border: 1px solid rgba(255,255,255,0.08)
+                      - border-radius: 16px
+                      - padding: 20px
+                      - transition: all 0.3s ease
+                    card:hover:
+                      - border-color: rgba(248, 113, 113, 0.4)
+                      - box-shadow: 0 0 30px rgba(248, 113, 113, 0.1)
+                    icon:
+                      - color: rgba(255,255,255,0.5)
+                      - width: 28px
+                      - height: 28px
+                    name:
+                      - font-size: 13px
+                      - color: rgba(255,255,255,0.7)
+                      - margin-top: 8px
+                  card_mod:
+                    style: |
+                      :host {
+                        padding: 0 8px 0 0
+                      }
+            - type: custom:button-card
+              name: PORTA-MALAS
+              show_icon: false
+              entity: binary_sensor.gwmbrasil_${VEICULO}_porta_malas
+              styles:
+                card:
+                  - background: transparent
+                  - box-shadow: none
+                  - padding: 16px 8px 0 8px
+                name:
+                  - font-size: 11px
+                  - font-weight: '500'
+                  - letter-spacing: 1px
+                  - color: rgba(255,255,255,0.4)
+                  - justify-self: start
+                grid:
+                  - grid-template-areas: '"n status"'
+                  - grid-template-columns: 1fr auto
+              custom_fields:
+                status: |
+                  [[[
+                    const status = states[`binary_sensor.gwmbrasil_${VEICULO}_porta_malas`].state;
+                    if (status === 'none') return '';
+                    const isOpen = status === 'on';
+                    const color = isOpen ? '#f87171' : '#4ade80';
+                    const text = isOpen ? 'Aberto' : 'Fechado';
+                    return `<span style="display:flex;align-items:center;gap:6px;">
+                      <span style="width:6px;height:6px;border-radius:50%;background:${color};animation:pulse 2s infinite;"></span>
+                      <span style="font-size:11px;color:${color};">${text}</span>
+                    </span>`;
+                  ]]]
+            - type: horizontal-stack
+              cards:
+                - type: custom:button-card
+                  entity: button.gwmbrasil_${VEICULO}_abrir_porta_malas
+                  name: Abrir
+                  icon: mdi:car-outline
+                  tap_action:
+                    action: call-service
+                    service: button.press
+                    service_data:
+                      entity_id: button.gwmbrasil_${VEICULO}_abrir_porta_malas
+                  styles:
+                    card:
+                      - background: rgba(30, 35, 45, 0.4)
+                      - backdrop-filter: blur(10px)
+                      - border: 1px solid rgba(255,255,255,0.08)
+                      - border-radius: 16px
+                      - padding: 20px
+                      - transition: all 0.3s ease
+                    card:hover:
+                      - border-color: rgba(251, 191, 36, 0.4)
+                      - box-shadow: 0 0 30px rgba(251, 191, 36, 0.1)
+                    icon:
+                      - color: rgba(255,255,255,0.5)
+                      - width: 28px
+                      - height: 28px
+                    name:
+                      - font-size: 13px
+                      - color: rgba(255,255,255,0.7)
+                      - margin-top: 8px
+                  card_mod:
+                    style: |
+                      :host {
+                        padding: 0 0 0 8px
+                      }
+                - type: custom:button-card
+                  entity: button.gwmbrasil_${VEICULO}_fechar_porta_malas
+                  name: Fechar
+                  icon: mdi:car-back
+                  tap_action:
+                    action: call-service
+                    service: button.press
+                    service_data:
+                      entity_id: button.gwmbrasil_${VEICULO}_fechar_porta_malas
+                  styles:
+                    card:
+                      - background: rgba(30, 35, 45, 0.4)
+                      - backdrop-filter: blur(10px)
+                      - border: 1px solid rgba(255,255,255,0.08)
+                      - border-radius: 16px
+                      - padding: 20px
+                      - transition: all 0.3s ease
+                    card:hover:
+                      - border-color: rgba(248, 113, 113, 0.4)
+                      - box-shadow: 0 0 30px rgba(248, 113, 113, 0.1)
+                    icon:
+                      - color: rgba(255,255,255,0.5)
+                      - width: 28px
+                      - height: 28px
+                    name:
+                      - font-size: 13px
+                      - color: rgba(255,255,255,0.7)
+                      - margin-top: 8px
+                  card_mod:
+                    style: |
+                      :host {
+                        padding: 0 8px 0 0
+                      }
+            - type: custom:button-card
+              name: VIDROS
+              show_icon: false
+              entity: sensor.gwmbrasil_${VEICULO}_vidro_dianteiro_esquerdo
+              tap_action:
+                action: none
+              hold_action:
+                action: none
+              styles:
+                card:
+                  - background: transparent
+                  - box-shadow: none
+                  - padding: 16px 8px 0 8px
+                name:
+                  - font-size: 11px
+                  - font-weight: '500'
+                  - letter-spacing: 1px
+                  - color: rgba(255,255,255,0.4)
+                  - justify-self: start
+                grid:
+                  - grid-template-areas: '"n status"'
+                  - grid-template-columns: 1fr auto
+              custom_fields:
+                status: |
+                  [[[
+                    const sensors = [
+                      `sensor.gwmbrasil_${VEICULO}_vidro_dianteiro_esquerdo`,
+                      `sensor.gwmbrasil_${VEICULO}_vidro_dianteiro_direito`,
+                      `sensor.gwmbrasil_${VEICULO}_vidro_traseiro_esquerdo`,
+                      `sensor.gwmbrasil_${VEICULO}_vidro_traseiro_direito`
+                    ];
+
+                    const values = sensors
+                      .map(e => states[e]?.state)
+                      .filter(v => v !== undefined && v !== 'none');
+
+                    if (values.length === 0) return '';
+
+                    const anyOpen = values.some(v => v !== '1');
+
+                    const color = anyOpen ? '#f87171' : '#4ade80';
+                    const text  = anyOpen ? 'Abertos' : 'Fechados';
+
+                    return `
+                      <span style="display:flex;align-items:center;gap:6px;">
+                        <span style="
+                          width:6px;
+                          height:6px;
+                          border-radius:50%;
+                          background:${color};
+                          animation:pulse 2s infinite;
+                        "></span>
+                        <span style="font-size:11px;color:${color};">
+                          ${text}
+                        </span>
+                      </span>
+                    `;
+                  ]]]
+            - type: horizontal-stack
+              cards:
+                - type: custom:button-card
+                  entity: button.gwmbrasil_${VEICULO}_abrir_os_vidros
+                  name: Abrir
+                  icon: mdi:car-windshield-outline
+                  tap_action:
+                    action: call-service
+                    service: button.press
+                    service_data:
+                      entity_id: button.gwmbrasil_${VEICULO}_abrir_os_vidros
+                  styles:
+                    card:
+                      - background: rgba(30, 35, 45, 0.4)
+                      - backdrop-filter: blur(10px)
+                      - border: 1px solid rgba(255,255,255,0.08)
+                      - border-radius: 16px
+                      - padding: 20px
+                      - transition: all 0.3s ease
+                    card:hover:
+                      - border-color: rgba(74, 222, 128, 0.4)
+                      - box-shadow: 0 0 30px rgba(74, 222, 128, 0.1)
+                    icon:
+                      - color: rgba(255,255,255,0.5)
+                      - width: 28px
+                      - height: 28px
+                    name:
+                      - font-size: 13px
+                      - color: rgba(255,255,255,0.7)
+                      - margin-top: 8px
+                  card_mod:
+                    style: |
+                      :host {
+                        padding: 0 0 0 8px
+                      }
+                - type: custom:button-card
+                  entity: button.gwmbrasil_${VEICULO}_fechar_os_vidros
+                  name: Fechar
+                  icon: mdi:car-windshield
+                  tap_action:
+                    action: call-service
+                    service: button.press
+                    service_data:
+                      entity_id: button.gwmbrasil_${VEICULO}_fechar_os_vidros
+                  styles:
+                    card:
+                      - background: rgba(30, 35, 45, 0.4)
+                      - backdrop-filter: blur(10px)
+                      - border: 1px solid rgba(255,255,255,0.08)
+                      - border-radius: 16px
+                      - padding: 20px
+                      - transition: all 0.3s ease
+                    card:hover:
+                      - border-color: rgba(248, 113, 113, 0.4)
+                      - box-shadow: 0 0 30px rgba(248, 113, 113, 0.1)
+                    icon:
+                      - color: rgba(255,255,255,0.5)
+                      - width: 28px
+                      - height: 28px
+                    name:
+                      - font-size: 13px
+                      - color: rgba(255,255,255,0.7)
+                      - margin-top: 8px
+                  card_mod:
+                    style: |
+                      :host {
+                        padding: 0 8px 0 0
+                      }
+            - type: custom:button-card
+              name: TETO SOLAR
+              show_icon: false
+              entity: sensor.gwmbrasil_${VEICULO}_posicao_do_teto_solar
+              styles:
+                card:
+                  - background: transparent
+                  - box-shadow: none
+                  - padding: 16px 8px 0 8px
+                name:
+                  - font-size: 11px
+                  - font-weight: '500'
+                  - letter-spacing: 1px
+                  - color: rgba(255,255,255,0.4)
+                  - justify-self: start
+                grid:
+                  - grid-template-areas: '"n status"'
+                  - grid-template-columns: 1fr auto
+              custom_fields:
+                status: |
+                  [[[
+                    const status = states[`sensor.gwmbrasil_${VEICULO}_posicao_do_teto_solar`].state;
+                    if (status === 'none') return '';
+                    const isOpen = status !== '3';
+                    const color = isOpen ? '#f87171' : '#4ade80';
+                    const text = isOpen ? 'Aberto' : 'Fechado';
+                    return `<span style="display:flex;align-items:center;gap:6px;">
+                      <span style="width:6px;height:6px;border-radius:50%;background:${color};animation:pulse 2s infinite;"></span>
+                      <span style="font-size:11px;color:${color};">${text}</span>
+                    </span>`;
+                  ]]]
+            - type: horizontal-stack
+              cards:
+                - type: custom:button-card
+                  entity: button.gwmbrasil_${VEICULO}_abrir_teto_solar
+                  name: Abrir
+                  icon: mdi:weather-sunny
+                  tap_action:
+                    action: call-service
+                    service: script.turn_on
+                    service_data:
+                      entity_id: script.gwm_abrir_tetosolar
+                  styles:
+                    card:
+                      - background: rgba(30, 35, 45, 0.4)
+                      - backdrop-filter: blur(10px)
+                      - border: 1px solid rgba(255,255,255,0.08)
+                      - border-radius: 16px
+                      - padding: 20px
+                      - transition: all 0.3s ease
+                    card:hover:
+                      - border-color: rgba(251, 191, 36, 0.4)
+                      - box-shadow: 0 0 30px rgba(251, 191, 36, 0.1)
+                    icon:
+                      - color: rgba(255,255,255,0.5)
+                      - width: 28px
+                      - height: 28px
+                    name:
+                      - font-size: 13px
+                      - color: rgba(255,255,255,0.7)
+                      - margin-top: 8px
+                  card_mod:
+                    style: |
+                      :host {
+                        padding: 0 0 0 8px
+                      }
+                - type: custom:button-card
+                  entity: button.gwmbrasil_${VEICULO}_fechar_teto_solar
+                  name: Fechar
+                  icon: mdi:weather-night
+                  tap_action:
+                    action: call-service
+                    service: button.press
+                    service_data:
+                      entity_id: button.gwmbrasil_${VEICULO}_fechar_teto_solar
+                  styles:
+                    card:
+                      - background: rgba(30, 35, 45, 0.4)
+                      - backdrop-filter: blur(10px)
+                      - border: 1px solid rgba(255,255,255,0.08)
+                      - border-radius: 16px
+                      - padding: 20px
+                      - transition: all 0.3s ease
+                    card:hover:
+                      - border-color: rgba(96, 165, 250, 0.4)
+                      - box-shadow: 0 0 30px rgba(96, 165, 250, 0.1)
+                    icon:
+                      - color: rgba(255,255,255,0.5)
+                      - width: 28px
+                      - height: 28px
+                    name:
+                      - font-size: 13px
+                      - color: rgba(255,255,255,0.7)
+                      - margin-top: 8px
+                  card_mod:
+                    style: |
+                      :host {
+                        padding: 0 8px 0 0
+                      }
+    subview: true
+    layout: {}
   - type: panel
     path: gwm-charging-history
     cards:
       - type: custom:config-template-card
         entities:
-          - button.gwmbrasil_${VEICULO.toLowerCase()}_historico_de_carregamento
-          - sensor.gwmbrasil_${VEICULO.toLowerCase()}_estado_de_carga_soc
+          - button.gwmbrasil_${VEICULO}_historico_de_carregamento
+          - sensor.gwmbrasil_${VEICULO}_estado_de_carga_soc
         card:
           type: vertical-stack
           cards:
             - type: custom:mushroom-template-card
               primary: Atualizar histórico de carregamento
               icon: mdi:clipboard-clock-outline
-              entity: >-
-                button.gwmbrasil_${VEICULO.toLowerCase()}_historico_de_carregamento
+              entity: button.gwmbrasil_${VEICULO}_historico_de_carregamento
               hold_action:
                 action: none
               tap_action:
                 action: toggle
             - type: custom:gwm-charging-history-card
-              entity: sensor.gwmbrasil_${VEICULO.toLowerCase()}_estado_de_carga_soc
+              entity: sensor.gwmbrasil_${VEICULO}_estado_de_carga_soc
     title: Histórico de carregamento
     icon: mdi:clipboard-text-clock
     subview: false
+  - type: panel
+    path: mapa
+    title: Mapa
+    icon: mdi:map-marker-distance
+    cards:
+      - type: grid
+        square: false
+        cards:
+          - type: custom:mushroom-title-card
+            title: |
+              Veículo: {{ states('select.gwmbrasil_veiculos_registrados') }}
+            card_mod:
+              style: |
+                :host {
+                  display: {% if state_attr('select.gwmbrasil_veiculos_registrados', 'options') | length > 1 %} block {% else %} none {% endif %};
+                }
+          - type: energy-date-selection
+            card_mod:
+              style: |
+                ha-card {
+                  z-index: 1;
+                  position: absolute;
+                  height: 80px !important;
+                  width: 80%;
+                  top: 75px;
+                  right: 10px;
+                  max-width: 450px;
+                  color: white;
+                  background: rgb(0,0,0,0.7);
+                }
+          - type: custom:auto-entities
+            card:
+              type: custom:map-card
+              history_date_selection: true
+              card_mod:
+                style: |
+                  ha-card {
+                    margin-top: -10px;
+                  }
+                  ha-card #map {
+                    height:calc(100vh - 56px);
+                    border-radius:0;
+                  }
+            filter:
+              template: >
+                {% set veiculo = states('select.gwmbrasil_veiculos_registrados')
+                | lower %} {% if veiculo not in ['unknown', 'unavailable', '']
+                %}
+                  {{ 'device_tracker.gwmbrasil_' ~ veiculo }}
+                {% endif %}
+        columns: 1

@@ -14,13 +14,13 @@ const sensorTopics = {
     entity_type: "sensor",
     state_class: "measurement",
     actionable: {
-      action: "chargingLogs",
-      description: "Histórico de carregamento",
-      entity_type: "button",
-      icon: "mdi:clipboard-text-clock",
-      parent_attributes: "Y",
-      link_type: "press", //(sync: sincroniza os status, toggle: invertido, press: acionamento sem sincronização)
-    }
+                  action: "chargingLogs",
+                  description: "Histórico de carregamento",
+                  entity_type: "button",
+                  icon: "mdi:clipboard-text-clock",
+                  parent_attributes: "Y",
+                  link_type: "press", //(sync: sincroniza os status, toggle: invertido, press: acionamento sem sincronização)
+                }
   },
   2011007: {
     description: "Autonomia Combustão",
@@ -43,6 +43,8 @@ const sensorTopics = {
     entity_type: "sensor",
     state_class: "measurement",
     formula: "Math.floor(parseInt(value) * 0.145038)",
+    pressure_threshold_min: 35,
+    pressure_threshold_max: 39,
   },
   2101001: {
     description: "Pressão do Pneu Dianteiro Esquerdo",
@@ -51,6 +53,8 @@ const sensorTopics = {
     entity_type: "sensor",
     state_class: "measurement",
     formula: "Math.floor(parseInt(value) * 0.145038)",
+    pressure_threshold_min: 35,
+    pressure_threshold_max: 39,
   },
   2101004: {
     description: "Pressão do Pneu Traseiro Direito",
@@ -59,6 +63,8 @@ const sensorTopics = {
     entity_type: "sensor",
     state_class: "measurement",
     formula: "Math.floor(parseInt(value) * 0.145038)",
+    pressure_threshold_min: 35,
+    pressure_threshold_max: 39,
   },
   2101003: {
     description: "Pressão do Pneu Traseiro Esquerdo",
@@ -67,6 +73,8 @@ const sensorTopics = {
     entity_type: "sensor",
     state_class: "measurement",
     formula: "Math.floor(parseInt(value) * 0.145038)",
+    pressure_threshold_min: 35,
+    pressure_threshold_max: 39,
   },
   2101006: {
     description: "Temperatura do Pneu Dianteiro Direito",
@@ -116,49 +124,101 @@ const sensorTopics = {
     entity_type: "sensor",
     icon: "mdi:car-battery",
     state_class: "measurement",
+    alert_level: "80",
+    critical_level: "50"
   },
   2041142: {
-    description: "Estado da Carga", //(0:Desconectado 1:Carregando 3:Finalizado 5:Aguardando liberação)
+    description: "Estado da Carga",
     device_class: "None",
     entity_type: "sensor",
     icon: "mdi:ev-station",
+    state_disconnected: "0",
+    state_charging: "1",
+    state_finished: "3",
+    state_waiting: "5",
     actionable: {
-      action: "stopCharging",
-      description: "Interromper carregamento",
-      entity_type: "button",
-      icon: "mdi:ev-plug-type2",
-      link_type: "press", //(sync: sincroniza os status, toggle: invertido, press: acionamento sem sincronização)
-    }
+                  action: "stopCharging",
+                  description: "Interromper carregamento",
+                  entity_type: "button",
+                  icon: "mdi:ev-plug-type2",
+                  link_type: "press", //(sync: sincroniza os status, toggle: invertido, press: acionamento sem sincronização)
+                }
   },
   2210005: {
     description: "Posição do Teto Solar", //(3: Fechado >3 posição do teto solar em %)
     device_class: "None",
     entity_type: "sensor",
     icon: "mdi:shield-sun",
+    state_closed: "3",
+    actionable: [
+                  {
+                    action: "skyWindowOpen",
+                    description: "Abrir teto solar",
+                    entity_type: "button",
+                    icon: "mdi:emoticon-cool-outline",
+                    link_type: "press",
+                  },
+                  {
+                    action: "skyWindowClose",
+                    description: "Fechar teto solar",
+                    entity_type: "button",
+                    icon: "mdi:emoticon-cool",
+                    link_type: "press",
+                  }
+                ]
   },  
   2210001: {
-    description: "Vidro Dianteiro Esquerdo", //(1: Fechado 2: Aberto 3: Entreaberto)
+    description: "Vidro Dianteiro Esquerdo",
     device_class: "None",
     entity_type: "sensor",
     icon: "mdi:car-windshield-outline",
+    state_closed: "1",
+    state_open: "2",
+    state_partially_open: "3",
+    actionable: [
+                  {
+                    action: "windowsOpen",
+                    description: "Abrir os vidros",
+                    entity_type: "button",
+                    icon: "mdi:car-windshield-outline",
+                    link_type: "press"
+                  },
+                  {
+                    action: "windowsClose",
+                    description: "Fechar os vidros",
+                    entity_type: "button",
+                    icon: "mdi:car-windshield",
+                    link_type: "press"
+                  }
+                ]
+
   },
   2210002: {
-    description: "Vidro Dianteiro Direito", //(1: Fechado 2: Aberto 3: Entreaberto)
+    description: "Vidro Dianteiro Direito",
     device_class: "None",
     entity_type: "sensor",
     icon: "mdi:car-windshield-outline",
+    state_closed: "1",
+    state_open: "2",
+    state_partially_open: "3"
   },
   2210003: {
-    description: "Vidro Traseiro Esquerdo", //(1: Fechado 2: Aberto 3: Entreaberto)
+    description: "Vidro Traseiro Esquerdo",
     device_class: "None",
     entity_type: "sensor",
     icon: "mdi:car-windshield-outline",
+    state_closed: "1",
+    state_open: "2",
+    state_partially_open: "3"
   },
   2210004: {
-    description: "Vidro Traseiro Direito", //(1: Fechado 2: Aberto 3: Entreaberto)
+    description: "Vidro Traseiro Direito",
     device_class: "None",
     entity_type: "sensor",
     icon: "mdi:car-windshield-outline",
+    state_closed: "1",
+    state_open: "2",
+    state_partially_open: "3"
   },
   2013023: {
     description: "Agendamento de Carga",
@@ -167,16 +227,20 @@ const sensorTopics = {
     icon: "mdi:calendar-clock",
   },
   2042082: {
-    description: "Estado do Controle de Carga", //(1: Conectado 0: Desconectado)
+    description: "Estado do Controle de Carga",
     device_class: "battery_charging",
     entity_type: "binary_sensor",
     icon: "mdi:ev-plug-ccs2",
+    state_connected: "1",
+    state_disconnected: "0"
   },
   2202001: {
-    description: "Estado do Ar Condicionado", //(1: Ligado 0: Desligado)
+    description: "Estado do Ar Condicionado",
     device_class: "cold",
     entity_type: "binary_sensor",
     icon: "mdi:air-conditioner",
+    state_on: "1",
+    state_off: "0",
     actionable: {
                   action: "airConditioner",
                   description: "Ativação do ar condicionado",
@@ -190,48 +254,96 @@ const sensorTopics = {
     device_class: "None",
     entity_type: "binary_sensor",
     icon: "mdi:air-filter",
+    state_on: "1",
+    state_off: "0",
   },
   2208001: {
-    description: "Estado da Trava", //(1: Destravado 0: Travado)
+    description: "Estado da Trava",
     device_class: "lock",
     entity_type: "binary_sensor",    
     icon: "mdi:car-door-lock",
+    state_open: "1",
+    state_closed: "0",
+    actionable: [
+                  {
+                  action: "doorsOpen",
+                  description: "Abrir as portas",
+                  entity_type: "button",
+                  icon: "mdi:car-door",
+                  link_type: "press"
+                  },
+                  {
+                  action: "doorsClose",
+                  description: "Fechar as portas",
+                  entity_type: "button",
+                  icon: "mdi:car-door-lock",
+                  link_type: "press"
+                  }
+                ]
   },
   2206001: {
-    description: "Porta-Malas", //(1: Aberto 0: Fechado)
+    description: "Porta-Malas",
     device_class: "door",
     entity_type: "binary_sensor",
     icon: "mdi:car-back",
+    state_open: "1",
+    state_closed: "0",
+    actionable: [
+                  {
+                  action: "trunkOpen",
+                  description: "Abrir porta-malas",
+                  entity_type: "button",
+                  icon: "mdi:car-door",
+                  link_type: "press"
+                  },
+                  {
+                  action: "trunkClose",
+                  description: "Fechar porta-malas",
+                  entity_type: "button",
+                  icon: "mdi:car-door-lock",
+                  link_type: "press"
+                  }
+                ]
   },
   2206002: {
-    description: "Porta Dianteira Esquerda", //(1: Aberta 0: Fechada)
+    description: "Porta Dianteira Esquerda",
     device_class: "door",
     entity_type: "binary_sensor",
     icon: "mdi:car-door",
+    state_open: "1",
+    state_closed: "0",
   },
   2206003: {
-    description: "Porta Traseira Esquerda", //(1: Aberta 0: Fechada)
+    description: "Porta Traseira Esquerda",
     device_class: "door",
     entity_type: "binary_sensor",
     icon: "mdi:car-door",
+    state_open: "1",
+    state_closed: "0",
   },
   2206004: {
-    description: "Porta Dianteira Direita", //(1: Aberta 0: Fechada)
+    description: "Porta Dianteira Direita",
     device_class: "door",
     entity_type: "binary_sensor",
     icon: "mdi:car-door",
+    state_open: "1",
+    state_closed: "0",
   },
   2206005: {
-    description: "Porta Traseira Direita", //(1: Aberta 0: Fechada)
+    description: "Porta Traseira Direita",
     device_class: "door",
     entity_type: "binary_sensor",
     icon: "mdi:car-door",
+    state_open: "1",
+    state_closed: "0",
   },
   2078020: {
-    description: "Filtragem do Ar do Cockpit", //(1: Ligado 0: Desligado)
+    description: "Filtragem do Ar do Cockpit",
     device_class: "None",
     entity_type: "binary_sensor",
     icon: "mdi:air-filter",
+    state_on: "1",
+    state_off: "0",
   },
   2222001: {
    	description: "Estado do Desembaçador Dianteiro", //Tank

@@ -9,5 +9,8 @@ module.exports = yup.object({
   PASSWORD: yup.string().required('Password from "My GWM" app'),
   VIN: yup.string().required('Vehicle identification number.'),
   PIN: yup.string('PIN code from "My GWM" application'),
+  OPENAI_TOKEN: yup.string('OpenAI API token for advanced features'),
+  GEMINI_TOKEN: yup.string('Gemini API token for advanced features'),
+  GEOCODE_API_KEY: yup.string('Google Geocode API key for reverse geocoding (latitude/longitude to address)'),
   DEVICE_TRACKER_ENABLED: yup.boolean()
 });

@@ -4,11 +4,9 @@
 
 Este add-on permite a integração do Home Assistant com os veículos da **GWM Brasil** utilizando MQTT. Com essa integração, é possível monitorar e controlar várias funcionalidades do veículo diretamente pelo Home Assistant.
 
-Apesar do nome da integração ter o `Haval`, ela abarca veículos de todas as marcas GWM, como Tank e Ora, além da própria Haval. Temos que lembrar que Haval foi a primeira marca e não por menos a comunidade que deu origem à esta integração é a `Havaleiros Brasil`.
+Apesar de o nome da integração ter o `Haval`, ela abarca veículos de todas as marcas GWM, como Ora, Tank, Poer e Wey, além da própria Haval. Temos que lembrar que Haval foi a primeira marca e não à toa que a comunidade que deu origem à esta integração é a `Havaleiros Brasil`.
 
 Você precisa ter uma instância do Home Assistant com o add-on `Mosquitto Broker` instalado e configurado. Caso esteja instalando o `Mosquitto Broker` somente para esta integração, lembre-se de reiniciar sua instância do Home Assistant após a instalação.
-
-[![Add Add-on to Home Assistant](https://my.home-assistant.io/badges/supervisor_add_addon_repository.svg)](https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2Fhavaleiros%2Fhassio-haval-h6-to-mqtt)
 
 ## O que é o Home Assistant?
 
@@ -26,7 +24,9 @@ Se você está começando, recomendamos pesquisar no YouTube por tutoriais sobre
 
 ### Passo a Passo para adicionar o add-on ao Home Assistant
 
-#### 1. Adicionando o Repositório do Add-on
+#### 1. Adicionando o Repositório do Add-on manualmente
+
+[![Adicionar este add-on ao Home Assistant](https://my.home-assistant.io/badges/supervisor_add_addon_repository.svg)](https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2Fhavaleiros%2Fhassio-haval-h6-to-mqtt)
 
 1. Acesse a interface web do Home Assistant.
 2. Navegue até **Supervisor** no menu lateral.
@@ -45,6 +45,7 @@ Se você está começando, recomendamos pesquisar no YouTube por tutoriais sobre
 
 1. Após a instalação, vá até a aba **Ajustes** do add-on.
 2. Configure os parâmetros necessários como endereço do broker MQTT, credenciais, e outras opções específicas para os veículos GWM.
+
 ```yaml
 gwm_username: conta_de_email_vinculada_ao_app_MyGWM
 gwm_password: senha_do_app_MyGWM
@@ -55,6 +56,9 @@ mqtt_user: nome_de_usuario_do_mqtt
 mqtt_pass: senha_do_mqtt
 refresh_time: tempo_em_segundos (mínimo de 5 segundos)
 device_tracker_enabled: true [ou] false
+openai_token: Token da API OpenAI para respostas inteligentes (opcional)
+gemini_token: Token da API Gemini para respostas inteligentes (opcional)
+geocode_api_key: Chave da API Google Geocode para geocodificação reversa usando latitude/longitude para endereço (opcional)
 ```
 
 ![Ajustes dos add-on](https://raw.githubusercontent.com/havaleiros/hassio-haval-h6-to-mqtt/main/haval-h6-mqtt/images/addon_settings.png)
@@ -120,11 +124,11 @@ CMD ["node", "index.js"]
 
 #### 2. Configurando as credenciais de acesso dentro das variáveis de ambiente
 
-1. Editar o ENV File:
+1. Editar o arquivo ENV:
 ```yaml
 sudo nano /opt/hassio-haval-h6-to-mqtt/haval-h6.env
 ```
-2. Incluir o Conteúdo abaixo, editando os dados pessoais:
+2. Incluir o conteúdo abaixo, editando os dados pessoais:
 ```yaml
 USERNAME=XXXX
 PASSWORD=XXXX
@@ -135,6 +139,9 @@ DEVICE_TRACKER_ENABLED=true
 MQTT_USER=XXXX
 MQTT_PASS=XXXX
 MQTT_HOST=mqtt://IP_DO_SERVER_MQTT:1883
+OPENAI_TOKEN=XXXX
+GEMINI_TOKEN=XXXX
+GEOCODE_API_KEY=XXXX
 ```
 3. `CTRL+O` + `ENTER` para salvar
 4. `CTRL+X` para sair
@@ -214,7 +221,8 @@ Os seguintes custom cards são necessários:
 - [mini-graph-card](https://github.com/kalkih/mini-graph-card)
 - [html-template-card](https://github.com/PiotrMachowski/Home-Assistant-Lovelace-HTML-Jinja2-Template-card)
 - [havaleiros-charging-hist-card](https://github.com/havaleiros/hassio-havaleiros-charging-hist-card) - Nosso card para exibir o histórico de carregamento.
-- [map-card](https://github.com/nathan-gs/ha-map-card) - Para àqueles que forem utilizar a opção de dashboard com mapa de rastreamento fom filtro.
+- [map-card](https://github.com/nathan-gs/ha-map-card) - Mapa de rastreamento com filtro.
+- [auto-entities](https://github.com/thomasloven/lovelace-auto-entities)
 
 ### Passo a Passo para adicionar um novo repositório no HACS
 
@@ -240,6 +248,9 @@ Agora, o repositório estará configurado e pronto para uso no seu Home Assistan
 
 #### Adicionando um Novo Dashboard
 
+[Clique aqui](https://my.home-assistant.io/redirect/lovelace_dashboards/) para abrir as configurações de dashboard de sua instância do Home Assistant e continue à partir do passo 4 abaixo.
+Caso não funcione como esperado, siga os 3 primeiros passoa abaixo.
+
 1. Acesse a interface web do Home Assistant.
 2. Navegue até **Configurações** no menu lateral.
 3. Selecione **Dashboards**.
@@ -253,7 +264,10 @@ Agora, o repositório estará configurado e pronto para uso no seu Home Assistan
 Agora, seu novo dashboard estará configurado para exibir informações detalhadas sobre o seu veículo GWM.
 Você poderá, além de monitorar as informações do veículo, ligar o ar condicionado e interromper o carregamento, para soltar o plugue do carregador antes da finalização da carga.
 
-Nota 1: _Há também a opção `HomeAssistant_Dashboard_GWM_Mapa.yaml` que fornece o mapa de rastreamento com filtro de data._ No entato, esta necessita de uma intervenção manual. Localize o conteúdo `{{chassis}}` e o substitua pelo chassis do veículo que quer monitorar, sempre em letras minúsculas. Esta opção não permite a mudança dinâmica para àqueles que possuam dois ou mais veículos devido à uma incompatibilidade do card `map-card` utilizado para esta exibição quando trabalhando em conjunto com o card `config-template-card`.
+Nota 1: Para o funcionamento do mapa com filtro por data, clique no botão abaixo e importe a automação para sua instância do Home Assistant.
+Você também pode adicionar o link diretamente em sua instância do Home Assistant em `Configurações` > `Automações & Cenas` > `Modelos Blueprints`
+
+[![Clique para configurar a automação necessária em seu Home Assistant.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgist.github.com%2Fhavaleiros%2Fb18d6da97622bb051c17f27de3082cc8)
 
 Nota 2: Caso a pressão dos pneus seja exibida com a unidade de medida `kPa`, toque sobre cada entidade na lista Pneus - do lado direito do dashboard - e toque no ícone de engrenagem, _Configurações_. Altere a unidade de medida para `psi`.
 
@@ -264,7 +278,8 @@ Nota 2: Caso a pressão dos pneus seja exibida com a unidade de medida `kPa`, to
 ### Configuração do controle do ar condicionado via Smart Watch no Home Assistant Companion
 
 A configuração para smart watch funciona tanto para Android, quanto para iOS. No entanto, este guia aborda somente a configuração para iOS.
-Verifique a documentação do Home Assistant para a configuração para dispositivos Android.
+
+Verifique a documentação do Home Assistant para a configuração de dispositivos Android. Em resumo, basta configurar os botões de acionamento das ações como favoritos e estes serão exibidos no Home Assistant Companion para Android.
 
 #### Adicionando "ios" e as configurações de botões no `configuration.yaml`
 
@@ -296,11 +311,16 @@ ios:
         color: "#FFFFFF"
 ```
 
-2. **Configurando os botões em seu aplicativo para Smart Watch:**
-Para integrar os controles de seu veículo em seu smart watch, certifique-se de seguir as instruções de instalação deste repositório, e então adicione a automação ou entidade correspondente ao ar-condicionado no seu Home Assistant. Um exemplo de configuração dos botões pode ser visto abaixo e utilizado seguindo os passos.
+2. **Configurando os botões em seu aplicativo para Apple Watch:**
+Para integrar os controles de seu veículo em seu Apple Watch, certifique-se de seguir as instruções de instalação deste repositório, e então adicione a automação ou entidade correspondente ao ar-condicionado no seu Home Assistant. Um exemplo de configuração dos botões pode ser visto abaixo e utilizado seguindo os passos.
 
 #### Passo a Passo para adicionar no `automation.yaml`:
 
+[![Clique para configurar a automação necessária em seu Home Assistant.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgist.github.com%2Fhavaleiros%2F8ec9ebd57d2d6e3adede854352c7764f)
+
+Caso o botão acima não funcione, você pode importar o blueprint diretamente de [https://gist.github.com/havaleiros/8ec9ebd57d2d6e3adede854352c7764f](https://gist.github.com/havaleiros/8ec9ebd57d2d6e3adede854352c7764f).
+
+Para configuração manual:
 1. Acesse o arquivo `automation.yaml` da sua instalação do Home Assistant.
 2. Adicione a seguinte automação ao final do arquivo ou em uma seção apropriada:
   ```yaml
@@ -380,15 +400,21 @@ Para dúvidas, problemas ou sugestões, abra uma issue.
 ## Contato
 A comunidade Havaleiros Brasil está no WhatsApp. Para solicitar acesso, envie um e-mail para [havaleiros@gmail.com](mailto:havaleiros@gmail.com) ou [gentefelizclube@gmail.com](mailto:gentefelizclube@gmail.com).
 
+[Nosso site](https://havaleirosbrasil.com)
+
 ![Havaleiros Brasil](https://raw.githubusercontent.com/havaleiros/hassio-haval-h6-to-mqtt/main/haval-h6-mqtt/images/Havaleiros_logo_Quadrado.png)
 
-## Contribuições
-Contribuições são bem-vindas! Sinta-se à vontade para abrir pull requests ou issues no repositório do GitHub.
+## Participação
+Participações são bem-vindas! Sinta-se à vontade para abrir pull requests ou issues no repositório do GitHub.
 
 Obrigado por utilizar o add-on `GWM Brasil com MQTT` para Home Assistant. Aproveite a integração!
 
-## Créditos
+## Contribuições
+Faça uma doação para uma entidade assistencial.
+Caso não tenha alguma, considere a entidade Somos do Bem, a qual já ajudamos em nosso 4º Encontro dos `Havaleiros Brasil` em Indaiatuba.
+[Doe agora para a Somos do Bem](somosdobem.org.br/doe-agora/)
 
+## Créditos
 Este projeto foi possível devido ao trabalho executado em https://github.com/ipsBruno/haval-h6-gwm-alexa-chatgpt-mqtt-integration, que por sua vez utilizou o trabalho disponível em https://github.com/zivillian/ora2mqtt.
 
 Contribuições de: 
@@ -400,7 +426,7 @@ Contribuições de:
 ## Licença
 Licença MIT
 
-Copyright (c) 2025 Havaleiros
+Copyright (c) 2025 Havaleiros Brasil
 
 É concedida permissão, gratuitamente, a qualquer pessoa que obtenha uma cópia deste software e arquivos de documentação associados (o "Software"), para lidar no Software sem restrições, incluindo, sem limitação, os direitos usar, copiar, modificar, mesclar, publicar, distribuir, sublicenciar e/ou vender cópias do Software e permitir que as pessoas a quem o Software é capacitado para fazê-lo, sujeito às seguintes condições:
 

@@ -1,14 +1,5 @@
 const storage = require("./storage");
 
-const LogType = {
-  INFO: "info",
-  ERROR: "error",
-  WARNING: "warning",
-  DEBUG: "debug",
-  CRITICAL: "critical",
-  FATAL: "fatal",
-};
-
 function getCurrentDateTime() {
   const now = new Date();
   const year = now.getFullYear();
@@ -21,6 +12,10 @@ function getCurrentDateTime() {
   return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
 };
 
+function formatMessage(template, variables) {
+    return template.replace(/{{(.*?)}}/g, (_, key) => variables[key.trim()] || '');
+}
+
 function isTokenExpired(token) {
   const [, payloadBase64] = token.split('.');
   const decodedJson = Buffer.from(payloadBase64, 'base64').toString();
@@ -30,7 +25,16 @@ function isTokenExpired(token) {
   return expired
 };
 
-function printLog(logType, message){
+const LogType = {
+  INFO: "info",
+  ERROR: "error",
+  WARNING: "warning",
+  DEBUG: "debug",
+  CRITICAL: "critical",
+  FATAL: "fatal",
+};
+
+function printLog(logType, message, ...optionalParams){
 
   if (logType && logType === LogType.ERROR) {
     let errorControl = parseInt(storage.getItem("errorControl") || "0", 10);
@@ -46,7 +50,7 @@ function printLog(logType, message){
         let errorSequence = parseInt(storage.getItem("ErrorSequence") || "0", 10);
         if (errorSequence === 0) {
           storage.setItem("ErrorSequence", "1");
-            console.error(getCurrentDateTime() + " | !!! Sequential errors. Holding back messages. Please review the messages and restart the integration if required !!!");
+            console.error(getCurrentDateTime() + " | !!! Sequential errors. Holding back messages. Please review the messages and restart the integration if required !!!", ...optionalParams);
         }
         else {
           errorSequence++;
@@ -82,24 +86,24 @@ function printLog(logType, message){
   var _message = " | " + message;
   switch(logType){
     case "info":
-      console.info(getCurrentDateTime() + _message);
+      console.info(getCurrentDateTime() + _message, ...optionalParams);
       break;
     case "error":
-      console.error(getCurrentDateTime() + _message);
+      console.error(getCurrentDateTime() + _message, ...optionalParams);
       break;
     case "warning":
-      console.warn(getCurrentDateTime() + _message);
+      console.warn(getCurrentDateTime() + _message, ...optionalParams);
       break;
     case "debug":
-      console.debug(getCurrentDateTime() + _message);
+      console.debug(getCurrentDateTime() + _message, ...optionalParams);
       break;
     case "critical":
-      console.critical(getCurrentDateTime() + _message);
+      console.critical(getCurrentDateTime() + _message, ...optionalParams);
       break;
     case "fatal":
-      console.fatal(getCurrentDateTime() + _message);
+      console.fatal(getCurrentDateTime() + _message, ...optionalParams);
       break;
     }
 };
 
-module.exports = {isTokenExpired, getCurrentDateTime, LogType, printLog };
+module.exports = {isTokenExpired, getCurrentDateTime, LogType, printLog, formatMessage };

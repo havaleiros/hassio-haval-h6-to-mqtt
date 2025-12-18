@@ -1,92 +1,29 @@
-const md5 = require("md5");
-const { axios } = require("./axios");
-const fs = require("fs");
-
 const storage = require("./storage");
+const validationSchema = require('./schema')
+const { LogType, printLog } = require('./utils');
+const carConnector = require("./carConnector");
 const { sensorTopics, attributeTopics } = require("./map");
 const { mqttModule, EntityType, ActionableAndLink } = require('./mqtt');
 const { checkConnection, register, remove, sendDeviceTrackerUpdate, sendMessage, sendMqtt } = mqttModule;
 
-const validationSchema = require('./schema')
-const { isTokenExpired, LogType, printLog } = require('./utils');
-
 require("dotenv").config();
-const { USERNAME, PASSWORD, REFRESH_TIME, DEVICE_TRACKER_ENABLED, VIN } = process.env;
+const { REFRESH_TIME, DEVICE_TRACKER_ENABLED, VIN } = process.env;
 
 if (REFRESH_TIME < 5) {
   printLog(LogType.ERROR, "The param `refresh_time` cannot be lower than 5.");
   return;
 }
 
-const deviceid = storage.getItem("deviceid") ? storage.getItem("deviceid") : md5(Math.random().toString());
-
-storage.setItem("deviceid", deviceid);
-
-const userHeaders = {
-  appid: "6",
-  brand: "6",
-  brandid: "CCZ001",
-  country: "BR",
-  devicetype: "0",
-  enterpriseid: "CC01",
-  gwid: "",
-  language: "pt_BR",
-  rs: "5",
-  terminal: "GW_PC_GWM",
-};
-
-storage.removeItem("TokenCheck");
-const auth = async () => {
-  const params = {
-    deviceid,
-    password: md5(PASSWORD),
-    account: USERNAME,
-  };
-
-  const TokenCheck = storage.getItem("TokenCheck");  
-  if(TokenCheck){    
-    const accessToken = storage.getItem("accessToken");
-    if (accessToken && !isTokenExpired(accessToken)) {
-      return;
-    }
-  }
-
-  try {
-    const { data } = await axios.post(
-      "https://br-front-service.gwmcloud.com/br-official-commerce/br-official-gateway/pc-api/api/v1.0/userAuth/loginAccount",
-      params,
-      {
-        headers: userHeaders,
-      }
-    );
-
-    if (data.description === "SUCCESS") {
-      Object.keys(data.data).forEach((key) => {
-        storage.setItem(key, data.data[key]);
-      });
-      storage.setItem("TokenCheck", "true");
-      return data;
-    }
-    
-    throw data;
-  } catch (e) {
-    printLog(LogType.ERROR, "Error on authentication: " + e.message);
-    process.exit(0);
-  }
-};
-
 const getCarList = async () => {
   try {
-    await auth();
-    const { data } = await axios.getCarInfo('globalapp/vehicle/acquireVehicles');
+    const { data } = await carConnector.carData.getCarList();
     var carList;
-    if(data.data){
-      //carData = data.data.find(car => car.vin === vin);
+    if(data){
       carList = data.data;
-      const vinArray = data.data.map(car => car.vin);
+      const vinArray = carList.map(car => car.vin);
       storage.setItem('carList', vinArray);
 
-      if (data.data.length > 0) {        
+      if (data.length > 0) {        
         const _code = "gwmbrasil_veiculos_registrados";
         const _name = "Veículos registrados no My GWM";
         const topic = `homeassistant/select/${_code.toLowerCase()}/state`;
@@ -104,28 +41,25 @@ const getCarList = async () => {
         sendMqtt(topic, String(VIN).toUpperCase(), { retain: true }); //Set the default VIN
       }
     }
+    
     return carList;
   } catch(e) {
-    printLog(LogType.ERROR, "***Error retrieving car data: " + e.message);
+    printLog(LogType.ERROR, "***Error retrieving car data: ", e.message);
   }
 }
 
 const GetCarLastStatus = async (vin) => {
   try {
-    await auth();
-    const { data } = await axios.getCarInfo("vehicle/getLastStatus", vin.toUpperCase());
-    return data.data;
+    return await carConnector.carData.getCarInfo(vin.toUpperCase());
   } catch (e) {
-    printLog(LogType.ERROR, "Error retrieving car info: " + e.message);
+    printLog(LogType.ERROR, "***Error retrieving car info: ", e.message);
   }
 };
 
 storage.setItem('Startup', "true");
-
 printLog(LogType.INFO, "***STARTUP PROCESS INITIATED***");
-
 printLog(LogType.INFO, "Flight check:");
-
+const fs = require("fs");
 if (!fs.existsSync("./certs/gwm_general.cer")) printLog(LogType.ERROR, "¡¡¡GWM general certicate not found!!!");
 if (!fs.existsSync("./certs/gwm_general.key")) printLog(LogType.ERROR, "¡¡¡GWM general certificate key not found!!!");
 if (!fs.existsSync("./certs/gwm_root.cer"))    printLog(LogType.ERROR, "¡¡¡GWM root certificate not found!!!");
@@ -135,9 +69,9 @@ validationSchema.validate(process.env)
     printLog(LogType.INFO, "  MQTT parameters validated");
     return checkConnection();
   })
-  .then(() => {
+  .then(async () => {
     printLog(LogType.INFO, "  Retrieving car list");
-    return getCarList();
+    return await getCarList();
   })
   .then(async (data)=> {
     var carList = data;
@@ -180,6 +114,15 @@ validationSchema.validate(process.env)
 
         if(carList[key].staticImageUrl){
           printLog(LogType.INFO, "    Registering static entities");
+          
+          const powerType = String(carList[key].powerType || "").trim();
+          const seriesName = String(carList[key].appShowSeriesName || "").trim();
+          const modelValue = powerType === ""
+            ? seriesName
+            : seriesName.toLowerCase().includes(powerType.toLowerCase())
+              ? seriesName
+              : `${seriesName} ${powerType}`;
+
           const staticEntities = {
             image: {
               description: "Imagem do veículo",
@@ -190,7 +133,7 @@ validationSchema.validate(process.env)
             model: {
               description: "Modelo do veículo",
               entity_type: EntityType.SENSOR,
-              value: `${carList[key].appShowSeriesName} ${carList[key].powerType}`,
+              value: modelValue,
               icon: "mdi:car-estate",
             },
             color: {
@@ -228,7 +171,7 @@ validationSchema.validate(process.env)
           if(isDeviceTrackerEnabled){
             storage.setItem('imsi-' + _vin, carList[key].imsi);
 
-            var desc = `${carList[key].appShowSeriesName} ${carList[key].powerType} - ${carList[key].color}`;
+            var desc = `${modelValue} - ${carList[key].color}`;
             register(EntityType.DEVICE_TRACKER,
                      vin = _vin, 
                      code = "DeviceTracker", 
@@ -250,15 +193,15 @@ validationSchema.validate(process.env)
             var { description, unit, device_class, entity_type, icon, actionable, state_class } = sensorTopics[code];
   
             register(entityType = EntityType[entity_type.toUpperCase()],
-                    vin = _vin,
-                    code = code, 
-                    entity_name = description, 
-                    unit = unit, 
-                    device_class = device_class, 
-                    icon = icon, 
-                    actionable = actionable, 
-                    initial_value = null, 
-                    state_class = state_class);
+                     vin = _vin,
+                     code = code, 
+                     entity_name = description, 
+                     unit = unit, 
+                     device_class = device_class, 
+                     icon = icon, 
+                     actionable = actionable, 
+                     initial_value = null, 
+                     state_class = state_class);
           });
 
           data.items.forEach(({ code, value }) => {
@@ -275,6 +218,22 @@ validationSchema.validate(process.env)
             entity_type: EntityType.SENSOR,
             value: `${data.hyEngSts ? data.hyEngSts : '0'}`,
             icon: "mdi:engine",
+            actionable: [
+                          {
+                            action: "engineOn",
+                            description: "Ligar o motor",
+                            entity_type: "button",
+                            icon: "mdi:engine",
+                            link_type: "press"
+                          },
+                          {
+                            action: "engineOff",
+                            description: "Desligar o motor",
+                            entity_type: "button",
+                            icon: "mdi:engine-outline",
+                            link_type: "press"
+                          }
+                        ]
           };
           
           register(entityType = EntityType[engineStatus.entity_type.toUpperCase()], 
@@ -284,7 +243,7 @@ validationSchema.validate(process.env)
                    unit = null, 
                    device_class = null, 
                    icon = engineStatus.icon, 
-                   actionable = null, 
+                   actionable = engineStatus.actionable, 
                    initial_value = null, 
                    state_class = null);
   
@@ -292,13 +251,31 @@ validationSchema.validate(process.env)
             sendMessage(_vin, engineStatus.code, engineStatus.value);
           }
   
+          printLog(LogType.INFO, "    Registering status message entity");
+          register(entityType = EntityType.SENSOR, 
+                   vin = _vin, 
+                   code = 'status_message',
+                   entity_name = 'Status Message', 
+                   unit = null, 
+                   device_class = null, 
+                   icon = 'mdi:message-text', 
+                   actionable = null,
+                   initial_value = null, 
+                   state_class = null);
+
+          const carStatus = await carConnector.carData.getStatus(vin);
+          let message = carConnector.carTextUtil.getVehicleStatusHardAnalysis(JSON.stringify(carStatus));
+          if(message) {
+            const formattedMessage = message.replace(/(\r\n|\n|\r)/g, " | ");
+            sendMessage(vin, "status_message", formattedMessage);
+          }
+
           printLog(LogType.INFO, "    Activating actionables and linked entities");
           ActionableAndLink.execute();
         }
         else{
           printLog(LogType.ERROR, "   ¡¡¡No data found. Check your configuration!!!");
         }
-        //
       }
     }
   })
@@ -307,7 +284,7 @@ validationSchema.validate(process.env)
     storage.setItem('Startup', "false");
   })
   .catch((e) => {
-    printLog(LogType.ERROR, `***Error on startup process: ${e.message}`);
+    printLog(LogType.ERROR, '***Error on startup process: ', e.message);
     process.exit(0);
   });
 
@@ -347,6 +324,13 @@ validationSchema.validate(process.env)
             if(data.hasOwnProperty("hyEngSts")){
               sendMessage(vin, "hyEngSts", data.hyEngSts);
             }
+
+            const carStatus = await carConnector.carData.getStatus(vin);
+            let message = carConnector.carTextUtil.getVehicleStatusHardAnalysis(JSON.stringify(carStatus));
+            if(message) {
+              const formattedMessage = message.replace(/(\r\n|\n|\r)/g, " | ");
+              sendMessage(vin, "status_message", formattedMessage);
+            }
           }
           else
             printLog(LogType.ERROR, "***Failed to update status");
@@ -357,4 +341,4 @@ validationSchema.validate(process.env)
   }
 };
 
-setInterval(async () => updateState(), (REFRESH_TIME || 1) * 1000);
+setInterval(async () => updateState(), (REFRESH_TIME || 5) * 1000);
