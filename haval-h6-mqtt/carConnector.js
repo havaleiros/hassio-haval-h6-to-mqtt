@@ -520,9 +520,9 @@ const carUtil = {
         }        
 
         if(windowsOption === Options.Windows.SKYWINDOW){
-            if(actualStatus && actualStatus["teto_solar"]){
-                if ((action === Actions.SkyWindow.CLOSE && actualStatus["teto_solar"].value === States.SkyWindow.CLOSED)
-                  ||(action === Actions.SkyWindow.OPEN  && actualStatus["teto_solar"].value !== States.SkyWindow.CLOSED)){
+            if(actualStatus && actualStatus["posicao_do_teto_solar"]){
+                if ((action === Actions.SkyWindow.CLOSE && actualStatus["posicao_do_teto_solar"].value === States.SkyWindow.CLOSED)
+                  ||(action === Actions.SkyWindow.OPEN  && actualStatus["posicao_do_teto_solar"].value !== States.SkyWindow.CLOSED)){
                     return { result: false, message: formatMessage(UserMessages.COMMAND_NOT_EXECUTED, {functionName: "teto solar"})};
                 }
                 skyWindowAction = action;
