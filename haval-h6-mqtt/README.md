@@ -269,6 +269,8 @@ Nota 2: Caso a pressão dos pneus seja exibida com a unidade de medida `kPa`, to
 
 ![Exemplo com outros veículos, como o Tank 300](https://raw.githubusercontent.com/havaleiros/hassio-haval-h6-to-mqtt/main/haval-h6-mqtt/images/HomeAssistant_Example_Others.png)
 
+![Funções de controle remoto, histórico de carga e mapa com histórico](https://raw.githubusercontent.com/havaleiros/hassio-haval-h6-to-mqtt/main/haval-h6-mqtt/images/HomeAssistant_Example_Functions.png)
+
 ### Configuração do controle do ar-condicionado via Smart Watch no Home Assistant Companion
 
 A configuração para smart watch funciona tanto para Android quanto para iOS. No entanto, este guia aborda somente a configuração para iOS.
