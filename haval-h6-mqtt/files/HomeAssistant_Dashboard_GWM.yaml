@@ -74,32 +74,63 @@ views:
               cards:
                 - type: custom:button-card
                   name: ' '
-                  entity_picture: >
-                    [[[ return
-                    states["sensor.gwmbrasil_${VEICULO}_imagem_do_veiculo"].state
+                  entity_picture: |
+                    [[[
+                      return states["sensor.gwmbrasil_${VEICULO}_imagem_do_veiculo"].state;
                     ]]]
-                  size: 400px
                   show_entity_picture: true
                   tap_action:
                     action: none
                   hold_action:
                     action: none
+                  size: 400px
+                  styles:
+                    card:
+                      - background: rgba(0,0,0,0)
+                      - border: 0
+                      - box-shadow: none
+                      - position: absolute
                   card_mod:
                     style: |
+                      /* === CONTÊINER PRINCIPAL === */
                       ha-card {
-                        background: rgba(0,0,0,0.0);
-                        border: 0px;
-                        box-shadow: 0px 0px rgba(0,0,0,0);
                         display: flex;
                         justify-content: center;
                         align-items: center;
-                        position: absolute;
-                        top: 25%;
+                        width: 100%;
+                        height: 100%;
+                        transform: translateZ(0);
+                        isolation: isolate;
                       }
-                      img {
+
+                      #img-cell {
+                        display: flex !important;
+                        justify-content: center !important;
+                        align-items: center !important;
+                        width: 100%;
+                        height: 100%;
+                        position: relative;
+                      }
+
+                      #img-cell img {
                         max-width: 100%;
-                        height: auto;
+                        max-height: 100%;
                         object-fit: contain;
+                        margin: auto;
+                        display: block;
+                      }
+
+                      @supports (-webkit-touch-callout: none) {
+                        #img-cell img {
+                          display: none;
+                        }
+
+                        #img-cell {
+                          background-image: url("{{ states('sensor.gwmbrasil_${VEICULO}_imagem_do_veiculo') }}");
+                          background-repeat: no-repeat;
+                          background-position: center;
+                          background-size: contain;
+                        }
                       }
                 - type: custom:stack-in-card
                   mode: vertical

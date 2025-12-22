@@ -56,9 +56,6 @@ mqtt_user: nome_de_usuario_do_mqtt
 mqtt_pass: senha_do_mqtt
 refresh_time: tempo_em_segundos (mínimo de 5 segundos)
 device_tracker_enabled: true [ou] false
-openai_token: Token da API OpenAI para respostas inteligentes (opcional)
-gemini_token: Token da API Gemini para respostas inteligentes (opcional)
-geocode_api_key: Chave da API Google Geocode para geocodificação reversa usando latitude/longitude para endereço (opcional)
 ```
 
 ![Ajustes dos add-on](https://raw.githubusercontent.com/havaleiros/hassio-haval-h6-to-mqtt/main/haval-h6-mqtt/images/addon_settings.png)
@@ -139,9 +136,6 @@ DEVICE_TRACKER_ENABLED=true
 MQTT_USER=XXXX
 MQTT_PASS=XXXX
 MQTT_HOST=mqtt://IP_DO_SERVER_MQTT:1883
-OPENAI_TOKEN=XXXX
-GEMINI_TOKEN=XXXX
-GEOCODE_API_KEY=XXXX
 ```
 3. `CTRL+O` + `ENTER` para salvar
 4. `CTRL+X` para sair

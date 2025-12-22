@@ -19,177 +19,204 @@ Considere alertar só e somente só se um dos critérios abaixo for atendido. N�
     REPHRASE: 'Reescreva o texto de forma a ser mais coeso e resumido, agregado e inteligível. Não utilize emojis e foque somente em saídas de texto.'
 }
 
+const UserMessages = {
+    NO_ALERTS: "Não há alertas neste momento.",
+    REVIEW_PREFIX: "Seu veículo está dentro do limite padrão de quilometragem para agendar a revisão.",
+    ERROR_OPENAI_CALL: "---Erro ao chamar o assistente OpenAI---",
+    ERROR_GEMINI_CALL: "---Erro ao chamar o assistente Gemini---",
+    ERROR_FORMATTING_ADDRESS: "Erro ao formatar endereço.",
+    ERROR_GENERATE_RESPONSE: "Desculpe, houve um erro ao gerar a resposta.",
+    ALERT_HIGH_VOLTAGE_DISCONNECT: "A bateria de alta tensão do veículo já está totalmente carregada e o carregador deve ser desconectado.",
+    VEHICLE_CHARGING_TIME: (mins) => `O veículo está carregando e o tempo aproximado para carga total é de ${mins} minutos.`,
+    WINDOW_OPEN: (desc) => `O ${desc} está aberto.`,
+    SUNROOF_OPEN: "O teto solar está aberto.",
+    DOOR_OPEN: (desc) => `A ${desc} está aberta.`,
+    TRUNK_OPEN: (desc) => `O ${desc} está aberto.`,
+    BATTERY_12V_CRITICAL: (val) => `Alerta: A carga da bateria de 12 volts está em ${val}%. Nível crítico! Ligue o motor o quanto antes para evitar a imobilização do veículo!`,
+    BATTERY_12V_ALERT: (val) => `Atenção: A carga da bateria de 12 volts está em ${val}%. Nível de alerta.`,
+    UNLOCKED: "A trava das portas não está acionada e o veículo pode ser aberto.",
+    ENGINE_ON_AND_UNLOCKED: "O motor do carro está ligado e a trava das portas não está acionada. Verifique se o veículo não foi esquecido ligado.",
+    FUEL_LOW: "Nível de combustível abaixo de 15 litros. Recomenda-se abastecer.",
+    AC_ON_WITH_ENGINE_OFF: "O ar-condicionado ou a ventilação do veículo estão ligados. Verifique. O veículo não está ligado, isto pode drenar a bateria de 12 volts.",
+    TIRE_PRESSURE: (desc, psi, tempValue, tempUnit, min, max) =>
+        `A ${desc} está em ${psi} psi com temperatura de ${tempValue}${tempUnit}. A pressão dos pneus recomendada pela montadora é entre ${min} e ${max} psi.`,
+    REVIEW_WITH_TOLERANCE: (tolerance) =>
+        `Seu veículo está dentro do limite padrão de quilometragem para agendar a revisão. Você ainda tem ${tolerance} quilômetros de tolerância antes da perda da garantia caso ainda não tenha feito a revisão programada.`
+};
+
 async function getChatGPTResponse(agentProfile, request) {
 
-    if(!OPENAI_TOKEN || request === "Não há alertas neste momento." || request.startsWith("Seu veículo está dentro do limite padrão de quilometragem para agendar a revisão."))
-        return request;
+        if(!OPENAI_TOKEN || request === UserMessages.NO_ALERTS || request.startsWith(UserMessages.REVIEW_PREFIX))
+                return request;
+        
+        try {
+            const token = OPENAI_TOKEN;
+            const response = await axios.post(
+                'https://api.openai.com/v1/chat/completions',
+                {
+                    model: 'gpt-3.5-turbo',
+                    messages: [
+                        { role: 'system', content: agentProfile},
+                        { role: 'user', content: request }
+                    ],
+                    max_tokens: 150
+                },
+                {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    }
+                }
+            );
     
-    try {
-      const token = OPENAI_TOKEN;
-      const response = await axios.post(
-        'https://api.openai.com/v1/chat/completions',
-        {
-          model: 'gpt-3.5-turbo',
-          messages: [
-            { role: 'system', content: agentProfile},
-            { role: 'user', content: request }
-          ],
-          max_tokens: 150
-        },
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          }
+            return response.data.choices[0].message.content;
+        } catch (error) {
+            printLog(LogType.ERROR, UserMessages.ERROR_OPENAI_CALL, error);
+            return UserMessages.ERROR_GENERATE_RESPONSE;
         }
-      );
-  
-      return response.data.choices[0].message.content;
-    } catch (error) {
-      printLog(LogType.ERROR, '---Erro ao chamar o assistente OpenAI---', error);
-      return 'Desculpe, houve um erro ao gerar a resposta.';
-    }
 }
 
 async function getGeminiResponse(agentProfile, request) {
 
-    if(!GEMINI_TOKEN || request === "Não há alertas neste momento." || request.startsWith("Seu veículo está dentro do limite padrão de quilometragem para agendar a revisão."))
-        return request;
+        if(!GEMINI_TOKEN || request === UserMessages.NO_ALERTS || request.startsWith(UserMessages.REVIEW_PREFIX))
+                return request;
 
-    const token = GEMINI_TOKEN;
-    try {
-        const prompt = `${agentProfile}
+        const token = GEMINI_TOKEN;
+        try {
+                const prompt = `${agentProfile}
 
-                        ${request}`;
+                                                ${request}`;
 
-        const result = await axios.post(
-            `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${token}`,
-            {
-                contents: [
-                { parts: [
-                    {text: prompt}
-                ]}
-                ]
-            },
-            {
-                headers: {
-                'Content-Type': 'application/json'
-                }
-            }
-            );
+                const result = await axios.post(
+                        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${token}`,
+                        {
+                                contents: [
+                                { parts: [
+                                        {text: prompt}
+                                ] }
+                                ]
+                        },
+                        {
+                                headers: {
+                                'Content-Type': 'application/json'
+                                }
+                        }
+                        );
 
-        return result.data.candidates[0].content.parts[0].text;
-    } catch (error) {
-        printLog(LogType.ERROR, '---Erro ao chamar o assistente Gemini---', error);
-        return 'Desculpe, houve um erro ao gerar a resposta.';
-    }
+                return result.data.candidates[0].content.parts[0].text;
+        } catch (error) {
+                printLog(LogType.ERROR, UserMessages.ERROR_GEMINI_CALL, error);
+                return UserMessages.ERROR_GENERATE_RESPONSE;
+        }
 }
 
 function getVehicleStatusHardAnalysis(content){
-    let statusMessage = [];
-    const status = JSON.parse(content);
+        let statusMessage = [];
+        const status = JSON.parse(content);
 
-    if(status && status.vidro_dianteiro_esquerdo){
-        if(status.estado_de_carga_soc){
-            if(status.estado_de_carga_soc.value === 100 && status.estado_da_carga.value !== status.estado_da_carga.state_disconnected)
-                statusMessage.push("A bateria de alta tensão do veículo já está totalmente carregada e o carregador deve ser desconectado.");
-            
-            if(status.estado_da_carga.value === status.estado_da_carga.state_charging && status.tempo_de_carga.value !== '1022')
-                statusMessage.push(`O veículo está carregando e o tempo aproximado para carga total é de ${status.tempo_de_carga.value} minutos.`);
+        if(status && status.vidro_dianteiro_esquerdo){
+                if(status.estado_de_carga_soc){
+                        if(status.estado_de_carga_soc.value === 100 && status.estado_da_carga.value !== status.estado_da_carga.state_disconnected)
+                                statusMessage.push(UserMessages.ALERT_HIGH_VOLTAGE_DISCONNECT);
+                        
+                        if(status.estado_da_carga.value === status.estado_da_carga.state_charging && status.tempo_de_carga.value !== '1022')
+                                statusMessage.push(UserMessages.VEHICLE_CHARGING_TIME(status.tempo_de_carga.value));
+                }
+
+                const checkWindowStatus = (windowStatus) => {
+                        if (windowStatus.value !== windowStatus.state_closed) {
+                                statusMessage.push(UserMessages.WINDOW_OPEN(windowStatus.description));
+                        }
+                };
+
+                checkWindowStatus(status.vidro_dianteiro_esquerdo);
+                checkWindowStatus(status.vidro_dianteiro_direito);
+                checkWindowStatus(status.vidro_traseiro_esquerdo);
+                checkWindowStatus(status.vidro_traseiro_direito);
+                
+                if(status.posicao_do_teto_solar && status.posicao_do_teto_solar.value !== status.posicao_do_teto_solar.state_closed)
+                        statusMessage.push(UserMessages.SUNROOF_OPEN);
+
+
+                const checkDoorStatus = (doorStatus) => {
+                        if (doorStatus.value !== doorStatus.state_closed) {
+                                statusMessage.push(UserMessages.DOOR_OPEN(doorStatus.description));
+                        }
+                };
+
+                checkDoorStatus(status.porta_dianteira_direita);
+                checkDoorStatus(status.porta_dianteira_esquerda);
+                checkDoorStatus(status.porta_traseira_direita);
+                checkDoorStatus(status.porta_traseira_esquerda);
+
+                if(status.portamalas.value !== status.portamalas.state_closed)
+                        statusMessage.push(UserMessages.TRUNK_OPEN(status.portamalas.description));
+
+                if(status.estado_de_carga_12v){
+                        const carga12vValue = parseInt(status.estado_de_carga_12v.value, 10);
+                        if (carga12vValue < parseInt(status.estado_de_carga_12v.critical_level, 10)) {
+                                statusMessage.push(UserMessages.BATTERY_12V_CRITICAL(carga12vValue));
+                        } else if (carga12vValue < parseInt(status.estado_de_carga_12v.alert_level, 10)) {
+                                statusMessage.push(UserMessages.BATTERY_12V_ALERT(carga12vValue));
+                        }
+                }
+
+                if(status.estado_da_trava && status.estado_da_trava.value === status.estado_da_trava.state_open)
+                        statusMessage.push(UserMessages.UNLOCKED);
+
+                if(status.estado_da_trava && status.estado_da_trava.value === status.estado_da_trava.state_open && status.estado_do_motor.value === status.estado_do_motor.state_on)
+                        statusMessage.push(UserMessages.ENGINE_ON_AND_UNLOCKED);
+
+                if(status.nivel_de_combustivel && parseInt(status.nivel_de_combustivel.value,10) <= 15)
+                        statusMessage.push(UserMessages.FUEL_LOW);
+                
+                if(status.estado_do_ar_condicionado && status.estado_do_ar_condicionado.value === status.estado_do_ar_condicionado.state_on && status.estado_do_motor.value === status.estado_do_motor.state_off)
+                        statusMessage.push(UserMessages.AC_ON_WITH_ENGINE_OFF);
+
+                const checkTirePressure = (tirePressure, tireTemperature) => {
+                        const psiPressure = Math.floor(parseInt(tirePressure.value) * 0.145038);
+                        if (psiPressure < tirePressure.pressure_threshold_min || psiPressure > tirePressure.pressure_threshold_max) {
+                                statusMessage.push(UserMessages.TIRE_PRESSURE(tirePressure.description, psiPressure, tireTemperature.value, tireTemperature.unit, tirePressure.pressure_threshold_min, tirePressure.pressure_threshold_max));
+                        }
+                };
+
+                checkTirePressure(status.pressao_do_pneu_dianteiro_direito, status.temperatura_do_pneu_dianteiro_direito);
+                checkTirePressure(status.pressao_do_pneu_dianteiro_esquerdo, status.temperatura_do_pneu_dianteiro_esquerdo);
+                checkTirePressure(status.pressao_do_pneu_traseiro_esquerdo, status.temperatura_do_pneu_traseiro_esquerdo);
+                checkTirePressure(status.pressao_do_pneu_traseiro_direito, status.temperatura_do_pneu_traseiro_direito);
+
+                if(status.quilometragem_total){
+                        let km = status.quilometragem_total.value;
+                        if((km % 12000 >= 11000) || (km % 12000 > 0 && km % 12000 < 1000)) {
+                                const tolerance = km % 12000 >= 1000 ? 13000 - km % 12000 : 1000 - km % 12000;
+                                statusMessage.push(UserMessages.REVIEW_WITH_TOLERANCE(tolerance));
+                        }
+                }
         }
 
-        const checkWindowStatus = (windowStatus) => {
-            if (windowStatus.value !== windowStatus.state_closed) {
-                statusMessage.push(`O ${windowStatus.description} está aberto.`);
-            }
-        };
+        if (statusMessage.length === 0)
+                statusMessage.push(UserMessages.NO_ALERTS);
 
-        checkWindowStatus(status.vidro_dianteiro_esquerdo);
-        checkWindowStatus(status.vidro_dianteiro_direito);
-        checkWindowStatus(status.vidro_traseiro_esquerdo);
-        checkWindowStatus(status.vidro_traseiro_direito);
-        
-        if(status.posicao_do_teto_solar && status.posicao_do_teto_solar.value !== status.posicao_do_teto_solar.state_closed)
-            statusMessage.push(`O teto solar está aberto.`);
-
-
-        const checkDoorStatus = (doorStatus) => {
-            if (doorStatus.value !== doorStatus.state_closed) {
-                statusMessage.push(`A ${doorStatus.description} está aberta.`);
-            }
-        };
-
-        checkDoorStatus(status.porta_dianteira_direita);
-        checkDoorStatus(status.porta_dianteira_esquerda);
-        checkDoorStatus(status.porta_traseira_direita);
-        checkDoorStatus(status.porta_traseira_esquerda);
-
-        if(status.portamalas.value !== status.portamalas.state_closed)
-            statusMessage.push(`O ${status.portamalas.description} está aberto.`);
-
-        if(status.estado_de_carga_12v){
-            const carga12vValue = parseInt(status.estado_de_carga_12v.value, 10);
-            if (carga12vValue < parseInt(status.estado_de_carga_12v.critical_level, 10)) {
-                statusMessage.push(`Alerta: A carga da bateria de 12 de volts está em ${carga12vValue}%. Nível crítico! Ligue o motor o quanto antes para evitar a imobilização do veículo!`);
-            } else if (carga12vValue < parseInt(status.estado_de_carga_12v.alert_level, 10)) {
-                statusMessage.push(`Atenção: A carga da bateria de 12 de volts está em ${carga12vValue}%. Nível de alerta.`);
-            }
-        }
-
-        if(status.estado_da_trava && status.estado_da_trava.value === status.estado_da_trava.state_open)
-            statusMessage.push(`A trava das portas não está acionada e o veículo pode ser aberto.`);
-
-        if(status.estado_da_trava && status.estado_da_trava.value === status.estado_da_trava.state_open && status.estado_do_motor.value === status.estado_do_motor.state_on)
-            statusMessage.push(`O motor do carro está ligado e a trava das portas não está acionada. Verifique se o veículo não foi esquecido ligado.`);
-
-        if(status.nivel_de_combustivel && parseInt(status.nivel_de_combustivel.value,10) <= 15)
-            statusMessage.push(`Nível de combustível abaixo de 15 litros. Recomenda-se abastecer.`);
-        
-        if(status.estado_do_ar_condicionado && status.estado_do_ar_condicionado.value === status.estado_do_ar_condicionado.state_on && status.estado_do_motor.value === status.estado_do_motor.state_off)
-            statusMessage.push(`O ar-condicionado ou a ventilação do veículo estão ligados. Verifique. O veículo não está ligado, isto pode drenar a bateria de 12 volts.`);
-
-        const checkTirePressure = (tirePressure, tireTemperature) => {
-            const psiPressure = Math.floor(parseInt(tirePressure.value) * 0.145038);
-            if (psiPressure < tirePressure.pressure_threshold_min || psiPressure > tirePressure.pressure_threshold_max) {
-                statusMessage.push(`A ${tirePressure.description} está em ${psiPressure} psi com temperatura de ${tireTemperature.value}${tireTemperature.unit}. A pressão dos pneus recomendada pela montadora é entre ${tirePressure.pressure_threshold_min} e ${tirePressure.pressure_threshold_max} psi.`);
-            }
-        };
-
-        checkTirePressure(status.pressao_do_pneu_dianteiro_direito, status.temperatura_do_pneu_dianteiro_direito);
-        checkTirePressure(status.pressao_do_pneu_dianteiro_esquerdo, status.temperatura_do_pneu_dianteiro_esquerdo);
-        checkTirePressure(status.pressao_do_pneu_traseiro_esquerdo, status.temperatura_do_pneu_traseiro_esquerdo);
-        checkTirePressure(status.pressao_do_pneu_traseiro_direito, status.temperatura_do_pneu_traseiro_direito);
-
-        if(status.quilometragem_total){
-            let km = status.quilometragem_total.value;
-            if((km % 12000 >= 11000) || (km % 12000 > 0 && km % 12000 < 1000))
-                statusMessage.push(`Seu veículo está dentro do limite padrão de quilometragem para agendar a revisão. Você ainda tem ${km % 12000 >= 1000 ? 13000 - km % 12000 : 1000 - km % 12000} quilômetros de tolerância antes da perda da garantia caso ainda não tenha feito a revisão programada.`);
-        }
-    }
-
-    if (statusMessage.length === 0)
-        statusMessage.push("Não há alertas neste momento.");
-
-    return statusMessage.join("\n");
+        return statusMessage.join("\n");
 }
 
 async function getformattedAddress(latitude, longitude) {
-    let formatted_address = '';
-    if(GEOCODE_API_KEY){
-        const geocodeData = await axios.get(`https://maps.googleapis.com/maps/api/geocode/json?language=pt-BR&location_type=ROOFTOP&latlng=${latitude},${longitude}&key=${GEOCODE_API_KEY}`);
-        
-        try{
-            if(geocodeData){
-                formatted_address = geocodeData.data.results[0].formatted_address.toString().replace(', Brasil','');
-            }
+        let formatted_address = '';
+        if(GEOCODE_API_KEY){
+                const geocodeData = await axios.get(`https://maps.googleapis.com/maps/api/geocode/json?language=pt-BR&location_type=ROOFTOP&latlng=${latitude},${longitude}&key=${GEOCODE_API_KEY}`);
+                
+                try{
+                        if(geocodeData){
+                                formatted_address = geocodeData.data.results[0].formatted_address.toString().replace(', Brasil','');
+                        }
+                }
+                catch{
+                        printLog(LogType.ERROR, UserMessages.ERROR_FORMATTING_ADDRESS);
+                        if(geocodeData && geocodeData.data && geocodeData.data.error_message)
+                                printLog(LogType.ERROR, geocodeData.data.error_message);
+                }
         }
-        catch{
-            printLog(LogType.ERROR, UserMessages.ERROR_FORMATTING_ADDRESS);
-            if(geocodeData.data.error_message)
-                printLog(LogType.ERROR, geocodeData.data.error_message);
-        }
-    }
-    return formatted_address;
+        return formatted_address;
 }
 
-module.exports = { getChatGPTResponse, getGeminiResponse, getVehicleStatusHardAnalysis, GptProfile, getformattedAddress };
+module.exports = { getChatGPTResponse, getGeminiResponse, getVehicleStatusHardAnalysis, GptProfile, getformattedAddress, UserMessages };

@@ -3,7 +3,6 @@
 ## [1.0.1] - 2025-12-24
 ## Adicionado
 - Novos comandos para ligar/desligar o carro, abrir/fechar portas, vidros, teto-solar e porta-malas.
-- Configurações para tokens da OPENAI, GOOGLE GEMINI e GEOCODE API para utilização em textos de alerta gerados pela integração.
 - Blueprint de automações controles para Apple Watch e para criar um controle genérico para habilitar a painel de gestão de energia e o filtro utilizado na aba de mapa.
 - Adicionados controle de estado para os sensores em `map.js`.
 - Custom card `auto-entities`.
