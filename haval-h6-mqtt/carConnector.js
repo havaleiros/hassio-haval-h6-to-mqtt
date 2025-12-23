@@ -204,7 +204,7 @@ async function getLastCommandResult(seqNo, vin) {
 
 async function sendCmd (instructions, vin) {
     try {
-        if(PIN === undefined)
+        if(PIN === undefined || PIN === "")
             return { code:"9999", description: UserMessages.PIN_NOT_CONFIGURED }
 
         const currentTime = Date.now();
