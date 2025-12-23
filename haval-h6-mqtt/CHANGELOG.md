@@ -1,11 +1,11 @@
 # Changelog
 
-## [1.0.1] - 2025-12-24
+## [1.0.1] - 2025-12-22
 ## Adicionado
 - Novos comandos para ligar/desligar o carro, abrir/fechar portas, vidros, teto-solar e porta-malas.
 - Blueprint de automações controles para Apple Watch e para criar um controle genérico para habilitar a painel de gestão de energia e o filtro utilizado na aba de mapa.
 - Adicionados controle de estado para os sensores em `map.js`.
-- Custom card `auto-entities`.
+- Custom card `auto-entities` necessário para exibição do mapa de rastreamento.
 
 ## Consertado
 - Ajustada integração MQTT para utilizar `default_entity_id` ao invés de `object_id`.

@@ -215,8 +215,8 @@ Os seguintes custom cards são necessários:
 - [mini-graph-card](https://github.com/kalkih/mini-graph-card)
 - [html-template-card](https://github.com/PiotrMachowski/Home-Assistant-Lovelace-HTML-Jinja2-Template-card)
 - [havaleiros-charging-hist-card](https://github.com/havaleiros/hassio-havaleiros-charging-hist-card) - Nosso card para exibir o histórico de carregamento.
-- [map-card](https://github.com/nathan-gs/ha-map-card) - Mapa de rastreamento com filtro.
-- [auto-entities](https://github.com/thomasloven/lovelace-auto-entities)
+- [ha-map-card](https://github.com/nathan-gs/ha-map-card) - Mapa de rastreamento com filtro.
+- [auto-entities](https://github.com/thomasloven/lovelace-auto-entities) - Para funcionamento do mapa de rastreamento.
 
 ### Passo a Passo para adicionar um novo repositório no HACS
 
@@ -258,7 +258,10 @@ Caso não funcione como esperado, siga os 3 primeiros passos abaixo.
 Agora, seu novo dashboard estará configurado para exibir informações detalhadas sobre o seu veículo GWM.
 Você poderá, além de monitorar as informações do veículo, ligar o ar-condicionado e interromper o carregamento para soltar o plugue do carregador antes da finalização da carga.
 
-Nota 1: Para o funcionamento do mapa com filtro por data, clique no botão abaixo e importe a automação para sua instância do Home Assistant.
+Nota 1: Para o funcionamento do mapa com filtro por data, clique no botão abaixo e importe a automação para sua instância do Home Assistant. Isto vai criar a entidade `sensor.energia_dummy`, que deve ser utilizada para ativar o dashboard de Energia do Home Assistant.
+Sem isto, o filtro para o mapa de rastreamento não será ativado.
+[Clique aqui](https://my.home-assistant.io/redirect/config_energy) para configurar seu painel de energia e adicionar o `sensor.energia_dummy` em _Rede elétrica_ > _Consumo de rede_. Isto irá ativar o painel de energia no Home Assistant.
+
 Você também pode adicionar o link diretamente em sua instância do Home Assistant em `Configurações` > `Automações & Cenas` > `Modelos Blueprints`.
 
 [![Clique para configurar a automação necessária em seu Home Assistant.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgist.github.com%2Fhavaleiros%2Fb18d6da97622bb051c17f27de3082cc8)
