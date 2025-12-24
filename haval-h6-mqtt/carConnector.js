@@ -5,7 +5,7 @@ const md5 = require("md5");
 const slugify = require("slugify");
 const storage = require("./storage");
 const carTextUtil = require("./carTextUtil");
-const { isTokenExpired, LogType, printLog, formatMessage } = require('./utils');
+const { isTokenExpired, LogType, printLog } = require('./utils');
 const { sensorTopics } = require("./map");
 const { error } = require("console");
 
@@ -40,16 +40,16 @@ const Endpoints = {
 
 const UserMessages = {
     PIN_NOT_CONFIGURED: "PIN para comandos remotos não configurado. Não é possível executar comandos sem o PIN configurado no aplicativo MY GWM.",
-    COMMAND_ALREADY_EXECUTING: "O comando remoto \"{{description}}\" ainda está em execução. Por favor, aguarde seu término antes de solicitar um novo comando.",
-    COMMAND_SUCCESS: "Comando remoto para {{functionName}} enviado com sucesso.",
-    COMMAND_FAILED: "Falha no acionamento do comando remoto para {{functionName}}. Por favor, tente novamente ou reporte o erro na comunidade.",
+    COMMAND_ALREADY_EXECUTING: (description) => `O comando remoto \"${description}\" ainda está em execução. Por favor, aguarde seu término antes de solicitar um novo comando.`,
+    COMMAND_SUCCESS: (functionName) => `Comando remoto para ${functionName} enviado com sucesso.`,
+    COMMAND_FAILED: (functionName) => `Falha no acionamento do comando remoto para ${functionName}. Por favor, tente novamente ou reporte o erro na comunidade.`,
     SYSTEM_BUSY: "Já há um comando remoto em execução e o sistema está ocupado. Aguarde e tente novamente em breve.",
-    COMMAND_NOT_EXECUTED: "Comando remoto para {{functionName}} não executado. Já é o estado atual e não há como executar novamente.",
-    VEHICLE_LOCKED_REQUIRED: "O comando de {{functionName}} somente pode ser executado se o veículo estiver trancado. Por favor, tranque-o antes de executar este comando.",    
+    COMMAND_NOT_EXECUTED: (functionName) => `Comando remoto para ${functionName} não executado. Já é o estado atual e não há como executar novamente.`,
+    VEHICLE_LOCKED_REQUIRED: (functionName) => `O comando de ${functionName} somente pode ser executado se o veículo estiver trancado. Por favor, tranque-o antes de executar este comando.`,
     CHARGING_SCHEDULE_REVERSAL: "Reversão da solução de contorno para paralizar o carregamento solicitado com sucesso.",
     ERROR_SENDING_COMMAND: "Ocorreu um erro ao enviar o comando para o veículo.",
     ERROR_RETRIEVING_CAR_DATA: "Erro ao obter as informações do veículo",
-    ERROR_EXECUTING_COMMAND: "Ocorreu um erro no acionamento {{preposition}} {{functionName}}.",
+    ERROR_EXECUTING_COMMAND: (preposition, functionName) => `Ocorreu um erro no acionamento ${preposition} ${functionName}.`,
     ERROR_STOPPING_CHARGING: "Erro ao parar o carregamento do veículo.",
     ERROR_SETTING_CHARGING: "Erro ao criar um agendamento de carregamento.",
     ERROR_AUTHENTICATION: "Erro de autenticação. Por favor, verifique suas credenciais.",
@@ -205,7 +205,7 @@ async function getLastCommandResult(seqNo, vin) {
 async function sendCmd (instructions, vin) {
     try {
         if(PIN === undefined || PIN === "")
-            return { code:"9999", description: UserMessages.PIN_NOT_CONFIGURED }
+            return { code:"9999", message: UserMessages.PIN_NOT_CONFIGURED }
 
         const currentTime = Date.now();
         const _timeout = 60000;
@@ -231,7 +231,7 @@ async function sendCmd (instructions, vin) {
                     const description = service ? service.description : UserMessages.UNKNOWN_COMMAND;
                     return {
                         result: false,
-                        message: formatMessage(UserMessages.COMMAND_ALREADY_EXECUTING, {description}),
+                        message: `${UserMessages.COMMAND_ALREADY_EXECUTING(description)} - (${lastResult.resultCode})`,
                         running: true
                     };
                 }
@@ -274,8 +274,8 @@ async function sendCmd (instructions, vin) {
 
 async function chargingSchedule(enable, vin) {
     try {
-        if(PIN === undefined)
-            return { code:"9999", description: UserMessages.PIN_NOT_CONFIGURED }
+        if(PIN === undefined || PIN === "")
+            return { code:"9999", message: UserMessages.PIN_NOT_CONFIGURED }
     
         const seqNo = require('crypto').randomUUID().replaceAll('-', '') + '1234';  
         const startTimeAdd = 5 * 60 * 1000;
@@ -311,17 +311,17 @@ async function chargingSchedule(enable, vin) {
 
 function apiReturnHandle(returnData, functionName){
     if(returnData && returnData.description === "SUCCESS") {
-        return { result: true, message: formatMessage(UserMessages.COMMAND_SUCCESS, {functionName: functionName.toString()}) };
+        return { result: true, message: UserMessages.COMMAND_SUCCESS(functionName.toString()) };
     }
     else if(returnData) {
-        if(returnData.running === true){
+        if(returnData.running === true || (returnData.code && returnData.code === "9999"))
             return { result: false, message: returnData.message};
-        }
-        if(returnData.code && returnData.code === "REMOTE250502"){
+        
+        if(returnData.code && returnData.code === "REMOTE250502")
             return { result: false, message: UserMessages.SYSTEM_BUSY};
-        }
+        
         if(returnData.result === false){
-            printLog(LogType.ERROR, `---${formatMessage(UserMessages.ERROR_EXECUTING_COMMAND, {preposition: "de", functionName: functionName.toString()})}--- `, returnData);
+            printLog(LogType.ERROR, `---${UserMessages.ERROR_EXECUTING_COMMAND("de", functionName.toString())}--- `, returnData);
             return { result: false, message: returnData.message, error: true};
         }
     }
@@ -329,8 +329,8 @@ function apiReturnHandle(returnData, functionName){
         let errorCode = "";
         if(returnData.code)
             errorCode = returnData.code;
-        printLog(LogType.INFO, `---${formatMessage(UserMessages.ERROR_EXECUTING_COMMAND, {preposition: "de", functionName: functionName.toString()})}---`, errorCode);
-        return { result: false, message: formatMessage(UserMessages.COMMAND_FAILED, {preposition: "de", functionName: functionName.toString()}), error: true};
+        printLog(LogType.INFO, `---${UserMessages.ERROR_EXECUTING_COMMAND("de", functionName.toString())}---`, errorCode);
+        return { result: false, message: UserMessages.COMMAND_FAILED(functionName.toString()), error: true};
     }
 }
 
@@ -437,10 +437,10 @@ const carUtil = {
         if(actualStatus && actualStatus["estado_do_ar_condicionado"]){
             if((action === Actions.AirCon.TURN_OFF && actualStatus["estado_do_ar_condicionado"].value === States.AirCon.OFF)
              ||(action === Actions.AirCon.TURN_ON  && actualStatus["estado_do_ar_condicionado"].value === States.AirCon.ON)){
-                return { result: false, message: formatMessage(UserMessages.COMMAND_NOT_EXECUTED, {functionName: "ar-condicionado"})};
+                return { result: false, message: UserMessages.COMMAND_NOT_EXECUTED("ar-condicionado")};
             }
             if(actualStatus["estado_da_trava"].value !== States.Doors.CLOSED) {
-                return { result: false, message: formatMessage(UserMessages.VEHICLE_LOCKED_REQUIRED, {functionName: "ar-condicionado"})};
+                return { result: false, message: UserMessages.VEHICLE_LOCKED_REQUIRED("ar-condicionado")};
             }
             airConAction = action;
         }
@@ -460,19 +460,19 @@ const carUtil = {
 
             return apiReturnHandle(acData, "ar-condicionado");
         }catch(e){
-            printLog(LogType.ERROR, formatMessage(UserMessages.ERROR_EXECUTING_COMMAND, {preposition: "do",  functionName: "ar-condicionado" }), e);
-            return { result: false, message: formatMessage(UserMessages.ERROR_EXECUTING_COMMAND, {preposition: "do",  functionName: "ar-condicionado" }) };
+            printLog(LogType.ERROR, UserMessages.ERROR_EXECUTING_COMMAND({preposition: "do",  functionName: "ar-condicionado" }), e);
+            return { result: false, message: UserMessages.ERROR_EXECUTING_COMMAND({preposition: "do",  functionName: "ar-condicionado" }) };
         }
     },
     async engine(action, vin) {
         const actualStatus = await carData.getStatus(vin);
         if(actualStatus["estado_da_trava"].value !== States.Doors.CLOSED) {
-            return { result: false, message: formatMessage(UserMessages.VEHICLE_LOCKED_REQUIRED, {functionName: "motor"})};
+            return { result: false, message: UserMessages.VEHICLE_LOCKED_REQUIRED("motor")};
         }
 
         if((action === Actions.Engine.TURN_OFF && actualStatus["estado_do_motor"].value === States.Engine.OFF)
          ||(action === Actions.Engine.TURN_ON  && actualStatus["estado_do_motor"].value === States.Engine.ON)){
-            return { result: false, message: formatMessage(UserMessages.COMMAND_NOT_EXECUTED, {functionName: "motor"})};
+            return { result: false, message: UserMessages.COMMAND_NOT_EXECUTED("motor")};
         }
 
         try{
@@ -485,8 +485,8 @@ const carUtil = {
 
             return apiReturnHandle(engineData, "motor");
         }catch(e){
-            printLog(LogType.ERROR, formatMessage(UserMessages.ERROR_EXECUTING_COMMAND, {preposition: "do",  functionName: "motor" }), e);
-            return { result: false, message: formatMessage(UserMessages.ERROR_EXECUTING_COMMAND, {preposition: "do",  functionName: "motor" }), error: true };
+            printLog(LogType.ERROR, UserMessages.ERROR_EXECUTING_COMMAND({preposition: "do",  functionName: "motor" }), e);
+            return { result: false, message: UserMessages.ERROR_EXECUTING_COMMAND({preposition: "do",  functionName: "motor" }), error: true };
         }
     },
     async windows_skyWindow(action, windowsOption, vin) {
@@ -508,7 +508,7 @@ const carUtil = {
 
                 if ((action === Actions.Windows.CLOSE && !actualWindowsState.includes(States.Windows.OPEN) && !actualWindowsState.includes(States.Windows.PARTIALLY_OPEN))
                   ||(action === Actions.Windows.OPEN  && actualWindowsState.includes(States.Windows.CLOSED))){
-                    return { result: false, message: formatMessage(UserMessages.COMMAND_NOT_EXECUTED, {functionName: "janelas"})};
+                    return { result: false, message: UserMessages.COMMAND_NOT_EXECUTED("janelas")};
                 }
 
                 windowsAction = action;
@@ -523,7 +523,7 @@ const carUtil = {
             if(actualStatus && actualStatus["posicao_do_teto_solar"]){
                 if ((action === Actions.SkyWindow.CLOSE && actualStatus["posicao_do_teto_solar"].value === States.SkyWindow.CLOSED)
                   ||(action === Actions.SkyWindow.OPEN  && actualStatus["posicao_do_teto_solar"].value !== States.SkyWindow.CLOSED)){
-                    return { result: false, message: formatMessage(UserMessages.COMMAND_NOT_EXECUTED, {functionName: "teto solar"})};
+                    return { result: false, message: UserMessages.COMMAND_NOT_EXECUTED("teto solar")};
                 }
                 skyWindowAction = action;
             }
@@ -547,8 +547,8 @@ const carUtil = {
             
             return apiReturnHandle(windowData, windowsOption === Options.Windows.SKYWINDOW ? "teto solar" : "janelas");
         }catch(e){
-            printLog(LogType.ERROR, `---${formatMessage(UserMessages.ERROR_EXECUTING_COMMAND, {preposition: "das",  functionName: Options.Windows.SKYWINDOW ? "teto solar" : "janelas" })}---`, e);
-            return { result: false, message: formatMessage(UserMessages.ERROR_EXECUTING_COMMAND, {preposition: "das",  functionName: Options.Windows.SKYWINDOW ? "teto solar" : "janelas" }), error: true};
+            printLog(LogType.ERROR, `---${UserMessages.ERROR_EXECUTING_COMMAND({preposition: "das",  functionName: Options.Windows.SKYWINDOW ? "teto solar" : "janelas" })}---`, e);
+            return { result: false, message: UserMessages.ERROR_EXECUTING_COMMAND({preposition: "das",  functionName: Options.Windows.SKYWINDOW ? "teto solar" : "janelas" }), error: true};
         }
     },
     async windows(action, vin) {
@@ -568,7 +568,7 @@ const carUtil = {
             if (lockState) {
             if ((action === Actions.Doors.CLOSE && lockState.value === States.Doors.CLOSED)
              || (action === Actions.Doors.OPEN  && lockState.value === States.Doors.OPEN)) {
-                return { result: false, message: formatMessage(UserMessages.COMMAND_NOT_EXECUTED, {functionName: doorsOption === Options.Doors.TRUNK ? "porta-malas" : "portas"})};
+                return { result: false, message: UserMessages.COMMAND_NOT_EXECUTED(doorsOption === Options.Doors.TRUNK ? "porta-malas" : "portas")};
             }
             doorsAction = action;
             } else {
@@ -588,8 +588,8 @@ const carUtil = {
 
             return apiReturnHandle(doorData, doorsOption === Options.Doors.TRUNK ? "porta-malas" : "portas");
         } catch (e) {
-            printLog(LogType.ERROR, `---${formatMessage(UserMessages.ERROR_EXECUTING_COMMAND, {preposition: doorsOption === Options.Doors.TRUNK ? "do" : "das",  functionName: doorsOption === Options.Doors.TRUNK ? "porta-malas" : "portas" })}---`, e);
-            return { result: false, message: formatMessage(UserMessages.ERROR_EXECUTING_COMMAND, {preposition: doorsOption === Options.Doors.TRUNK ? "do" : "das",  functionName: doorsOption === Options.Doors.TRUNK ? "porta-malas" : "portas" }), error: true };
+            printLog(LogType.ERROR, `---${UserMessages.ERROR_EXECUTING_COMMAND({preposition: doorsOption === Options.Doors.TRUNK ? "do" : "das",  functionName: doorsOption === Options.Doors.TRUNK ? "porta-malas" : "portas" })}---`, e);
+            return { result: false, message: UserMessages.ERROR_EXECUTING_COMMAND({preposition: doorsOption === Options.Doors.TRUNK ? "do" : "das",  functionName: doorsOption === Options.Doors.TRUNK ? "porta-malas" : "portas" }), error: true };
         }
     },
     async doors(action, vin) {

@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.0.2] - 2025-12-24
+## Consertado
+- Arquivo `HomeAssistant_Dashboard_GWM.yaml` ajustado para arrumar o link para a aba de controles e exibição da mensagem de status. Esta atualização é manual e o dashboard não é atualizado automaticamente.
+- Mensagem de status poderia gerar erro ao ler valores inexistentes.
+- Ajustada a lógica para exibição da mensagem de PIN não configurado para comandos remotos.
+
+## Modificado
+- Mensagem de tempo de carregamento exibe tempo em horas e não mais somente em minutos.
+
 ## [1.0.1] - 2025-12-22
 ## Adicionado
 - Novos comandos para ligar/desligar o carro, abrir/fechar portas, vidros, teto-solar e porta-malas.

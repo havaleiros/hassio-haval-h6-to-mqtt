@@ -20,28 +20,38 @@ Considere alertar só e somente só se um dos critérios abaixo for atendido. N�
 }
 
 const UserMessages = {
-    NO_ALERTS: "Não há alertas neste momento.",
-    REVIEW_PREFIX: "Seu veículo está dentro do limite padrão de quilometragem para agendar a revisão.",
-    ERROR_OPENAI_CALL: "---Erro ao chamar o assistente OpenAI---",
-    ERROR_GEMINI_CALL: "---Erro ao chamar o assistente Gemini---",
-    ERROR_FORMATTING_ADDRESS: "Erro ao formatar endereço.",
-    ERROR_GENERATE_RESPONSE: "Desculpe, houve um erro ao gerar a resposta.",
-    ALERT_HIGH_VOLTAGE_DISCONNECT: "A bateria de alta tensão do veículo já está totalmente carregada e o carregador deve ser desconectado.",
-    VEHICLE_CHARGING_TIME: (mins) => `O veículo está carregando e o tempo aproximado para carga total é de ${mins} minutos.`,
-    WINDOW_OPEN: (desc) => `O ${desc} está aberto.`,
-    SUNROOF_OPEN: "O teto solar está aberto.",
-    DOOR_OPEN: (desc) => `A ${desc} está aberta.`,
-    TRUNK_OPEN: (desc) => `O ${desc} está aberto.`,
-    BATTERY_12V_CRITICAL: (val) => `Alerta: A carga da bateria de 12 volts está em ${val}%. Nível crítico! Ligue o motor o quanto antes para evitar a imobilização do veículo!`,
-    BATTERY_12V_ALERT: (val) => `Atenção: A carga da bateria de 12 volts está em ${val}%. Nível de alerta.`,
-    UNLOCKED: "A trava das portas não está acionada e o veículo pode ser aberto.",
-    ENGINE_ON_AND_UNLOCKED: "O motor do carro está ligado e a trava das portas não está acionada. Verifique se o veículo não foi esquecido ligado.",
-    FUEL_LOW: "Nível de combustível abaixo de 15 litros. Recomenda-se abastecer.",
-    AC_ON_WITH_ENGINE_OFF: "O ar-condicionado ou a ventilação do veículo estão ligados. Verifique. O veículo não está ligado, isto pode drenar a bateria de 12 volts.",
-    TIRE_PRESSURE: (desc, psi, tempValue, tempUnit, min, max) =>
-        `A ${desc} está em ${psi} psi com temperatura de ${tempValue}${tempUnit}. A pressão dos pneus recomendada pela montadora é entre ${min} e ${max} psi.`,
-    REVIEW_WITH_TOLERANCE: (tolerance) =>
-        `Seu veículo está dentro do limite padrão de quilometragem para agendar a revisão. Você ainda tem ${tolerance} quilômetros de tolerância antes da perda da garantia caso ainda não tenha feito a revisão programada.`
+        NO_ALERTS: "Não há alertas neste momento.",
+        REVIEW_PREFIX: "Seu veículo está dentro do limite padrão de quilometragem para agendar a revisão.",
+        ERROR_OPENAI_CALL: "---Erro ao chamar o assistente OpenAI---",
+        ERROR_GEMINI_CALL: "---Erro ao chamar o assistente Gemini---",
+        ERROR_FORMATTING_ADDRESS: "Erro ao formatar endereço.",
+        ERROR_GENERATE_RESPONSE: "Desculpe, houve um erro ao gerar a resposta.",
+        ALERT_HIGH_VOLTAGE_DISCONNECT: "A bateria de alta tensão do veículo já está totalmente carregada e o carregador deve ser desconectado.",
+        VEHICLE_CHARGING_TIME: (mins) => {
+                const minValue = parseInt(mins, 10);
+                const startString  = "O veículo está carregando e o tempo aproximado para carga total é de ";
+                if (minValue < 60) {
+                        return `${startString}${minValue} minutos.`;
+                } else {
+                        const hours = Math.floor(minValue / 60);
+                        const minutes = minValue % 60;
+                        return `${startString}${hours}h${minutes > 0 ? ` e ${minutes}min` : ''}.`;
+                }
+        },
+        WINDOW_OPEN: (desc) => `O ${desc} está aberto.`,
+        SUNROOF_OPEN: "O teto solar está aberto.",
+        DOOR_OPEN: (desc) => `A ${desc} está aberta.`,
+        TRUNK_OPEN: (desc) => `O ${desc} está aberto.`,
+        BATTERY_12V_CRITICAL: (val) => `Alerta: A carga da bateria de 12 volts está em ${val}%. Nível crítico! Ligue o motor o quanto antes para evitar a imobilização do veículo!`,
+        BATTERY_12V_ALERT: (val) => `Atenção: A carga da bateria de 12 volts está em ${val}%. Nível de alerta.`,
+        UNLOCKED: "A trava das portas não está acionada e o veículo pode ser aberto.",
+        ENGINE_ON_AND_UNLOCKED: "O motor do carro está ligado e a trava das portas não está acionada. Verifique se o veículo não foi esquecido ligado.",
+        FUEL_LOW: "Nível de combustível abaixo de 15 litros. Recomenda-se abastecer.",
+        AC_ON_WITH_ENGINE_OFF: "O ar-condicionado ou a ventilação do veículo estão ligados. Verifique. O veículo não está ligado, isto pode drenar a bateria de 12 volts.",
+        TIRE_PRESSURE: (desc, psi, tempValue, tempUnit, min, max) =>
+                `A ${desc} está em ${psi} psi com temperatura de ${tempValue}${tempUnit}. A pressão dos pneus recomendada pela montadora é entre ${min} e ${max} psi.`,
+        REVIEW_WITH_TOLERANCE: (tolerance) =>
+                `Seu veículo está dentro do limite padrão de quilometragem para agendar a revisão. Você ainda tem ${tolerance} quilômetros de tolerância antes da perda da garantia caso ainda não tenha feito a revisão programada.`
 };
 
 async function getChatGPTResponse(agentProfile, request) {
@@ -119,7 +129,7 @@ function getVehicleStatusHardAnalysis(content){
                         if(status.estado_de_carga_soc.value === 100 && status.estado_da_carga.value !== status.estado_da_carga.state_disconnected)
                                 statusMessage.push(UserMessages.ALERT_HIGH_VOLTAGE_DISCONNECT);
                         
-                        if(status.estado_da_carga.value === status.estado_da_carga.state_charging && status.tempo_de_carga.value !== '1022')
+                        if(status.estado_da_carga && status.estado_da_carga.value === status.estado_da_carga.state_charging && status.tempo_de_carga.value !== '1022')
                                 statusMessage.push(UserMessages.VEHICLE_CHARGING_TIME(status.tempo_de_carga.value));
                 }
 
@@ -149,7 +159,7 @@ function getVehicleStatusHardAnalysis(content){
                 checkDoorStatus(status.porta_traseira_direita);
                 checkDoorStatus(status.porta_traseira_esquerda);
 
-                if(status.portamalas.value !== status.portamalas.state_closed)
+                if(status.portamalas && status.portamalas.value !== status.portamalas.state_closed)
                         statusMessage.push(UserMessages.TRUNK_OPEN(status.portamalas.description));
 
                 if(status.estado_de_carga_12v){

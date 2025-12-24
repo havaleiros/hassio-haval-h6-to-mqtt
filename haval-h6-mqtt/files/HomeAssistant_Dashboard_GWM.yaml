@@ -973,7 +973,12 @@ views:
                     color: rgba(255,255,255,0.7);
                     font-size: 14px;
                     text-align: center;
-                    display: {% if states('sensor.gwmbrasil_${VEICULO}_status_message') == 'Não há alertas neste momento.' %} none {% else %} block {% endif %} !important;
+                    display: {% if states('sensor.gwmbrasil_${VEICULO}_status_message') in
+                      ['Não há alertas neste momento.', 'unknown', 'unavailable', ''] %}
+                      none
+                    {% else %}
+                      block
+                    {% endif %} !important;
                   }
             - type: custom:button-card
               name: Controles
@@ -1834,7 +1839,12 @@ views:
                     color: rgba(255,255,255,0.7);
                     font-size: 14px;
                     text-align: center;
-                    display: {% if states('sensor.gwmbrasil_${VEICULO}_status_message') == 'Não há alertas neste momento.' %} none {% else %} block {% endif %} !important;
+                    display: {% if states('sensor.gwmbrasil_${VEICULO}_status_message') in
+                      ['Não há alertas neste momento.', 'unknown', 'unavailable', ''] %}
+                      none
+                    {% else %}
+                      block
+                    {% endif %} !important;
                   }
                   :host {
                     padding: 16px;
