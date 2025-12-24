@@ -2,15 +2,15 @@ ARG BUILD_FROM
 FROM $BUILD_FROM
 
 ENV LANG C.UTF-8
-SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
-RUN apk add --no-cache \
-    nodejs \
-    npm
+WORKDIR /app
 
-COPY . /
-RUN cd / && npm install --unsafe-perm
+RUN apk add --no-cache nodejs
 
-RUN chmod a+x /run.sh
+COPY . /app
+
+RUN npm install --omit=dev
+
+RUN chmod +x /run.sh
 
 CMD [ "/run.sh" ]
