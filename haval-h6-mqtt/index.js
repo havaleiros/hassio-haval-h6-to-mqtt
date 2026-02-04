@@ -23,10 +23,11 @@ const getCarList = async () => {
       const vinArray = carList.map(car => car.vin);
       storage.setItem('carList', vinArray);
 
-      if (data.length > 0) {        
+      if (data.length > 0) {
         const _code = "gwmbrasil_veiculos_registrados";
         const _name = "Veículos registrados no My GWM";
         const topic = `homeassistant/select/${_code.toLowerCase()}/state`;
+        printLog(LogType.INFO, "    Registering entity");
         register(entityType = EntityType.SELECT, 
                  vin = VIN,
                  code = _code, 
@@ -40,6 +41,9 @@ const getCarList = async () => {
 
         sendMqtt(topic, String(VIN).toUpperCase(), { retain: true }); //Set the default VIN
       }
+    }
+    else {
+      printLog(LogType.WARNING, "***Empty car list");
     }
     
     return carList;

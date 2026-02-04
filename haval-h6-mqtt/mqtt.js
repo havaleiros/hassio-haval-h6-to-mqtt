@@ -135,7 +135,7 @@ const mqttModule = {
       payload.default_entity_id = `${entityType.toLowerCase()}.${code.toLowerCase()}`;
     }
 
-    mqttModule.sendMqtt(topic, JSON.stringify(payload), { retain: true });
+    mqttModule.sendMqtt(topic, JSON.stringify(payload), { retain: false });
 
     if (!Array.isArray(actionable) && String(actionable) !== "Y") actionable = [actionable];
     
@@ -188,12 +188,12 @@ const mqttModule = {
 
     const attributesPayload = Object.assign({}, gpsData, attributes);
 
-    mqttModule.sendMqtt(json_attributes_topic, JSON.stringify(attributesPayload), { retain: true });
+    mqttModule.sendMqtt(json_attributes_topic, JSON.stringify(attributesPayload), { retain: false });
   },
   sendMessage(vin, code, value) {
     const topic = `${prefix}_${vin.toLowerCase()}/${code.toLowerCase()}/state`;
 
-    mqttModule.sendMqtt(topic, String(value), { retain: true });
+    mqttModule.sendMqtt(topic, String(value), { retain: false });
   },
 };
 
@@ -262,10 +262,10 @@ const ActionableAndLink = {
                         charging_logs: list,
                         last_update: last_update
                       };
-                      mqttModule.sendMqtt(json_attributes_topic, JSON.stringify(attributesPayload), { retain: true });
+                      mqttModule.sendMqtt(json_attributes_topic, JSON.stringify(attributesPayload), { retain: false });
                     }
                     else{
-                      mqttModule.sendMqtt(json_attributes_topic, JSON.stringify({ charging_logs: "", last_update: last_update }), { retain: true });
+                      mqttModule.sendMqtt(json_attributes_topic, JSON.stringify({ charging_logs: "", last_update: last_update }), { retain: false });
                     }
                   },
                   stopCharging: async () => {
