@@ -18,34 +18,9 @@ const getCarList = async () => {
   try {
     const { data } = await carConnector.carData.getCarList();
     var carList;
-    if(data){
+    if(data)
       carList = data.data;
-      const vinArray = carList.map(car => car.vin);
-      storage.setItem('carList', vinArray);
 
-      if (data.length > 0) {
-        const _code = "gwmbrasil_veiculos_registrados";
-        const _name = "Veículos registrados no My GWM";
-        const topic = `homeassistant/select/${_code.toLowerCase()}/state`;
-        printLog(LogType.INFO, "    Registering entity");
-        register(entityType = EntityType.SELECT, 
-                 vin = VIN,
-                 code = _code, 
-                 entity_name = _name, 
-                 unit = null, 
-                 device_class = null, 
-                 icon = "mdi:car-2-plus", 
-                 actionable = null,
-                 initial_value = vinArray,
-                 state_class = null);
-
-        sendMqtt(topic, String(VIN).toUpperCase(), { retain: true }); //Set the default VIN
-      }
-    }
-    else {
-      printLog(LogType.WARNING, "***Empty car list");
-    }
-    
     return carList;
   } catch(e) {
     printLog(LogType.ERROR, "***Error retrieving car data: ", e.message);
@@ -80,6 +55,29 @@ validationSchema.validate(process.env)
   .then(async (data)=> {
     var carList = data;
     if(carList.length > 0){
+
+      printLog(LogType.INFO, "  Registering car list");
+      const vinArray = carList.map(car => car.vin);
+      storage.setItem('carList', vinArray);
+
+      if (data.length > 0) {
+        const _code = "gwmbrasil_veiculos_registrados";
+        const _name = "Veículos registrados no My GWM";
+        const topic = `homeassistant/select/${_code.toLowerCase()}/state`;
+        register(entityType = EntityType.SELECT, 
+                 vin = VIN,
+                 code = _code, 
+                 entity_name = _name, 
+                 unit = null, 
+                 device_class = null, 
+                 icon = "mdi:car-2-plus", 
+                 actionable = null,
+                 initial_value = vinArray,
+                 state_class = null);
+
+        sendMqtt(topic, String(VIN).toUpperCase(), { retain: true }); //Set the default VIN
+      }
+
       printLog(LogType.INFO, "  Retrieving car data");
       for (const key of Object.keys(carList)) {
         printLog(LogType.INFO, `  Registering car: ${carList[key].vin}`);      
