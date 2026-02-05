@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.3] - 2026-02-04
+## Consertado
+- Correção para criar a entidade `select.gwmbrasil_veiculos_registrados` na inicialização do add-on.
+
+## Modificado
+- Alterada retenção de mensagens para evitar entidades que não devam ser mantidas.
+
 ## [1.0.2] - 2025-12-24
 ## Consertado
 - Arquivo `HomeAssistant_Dashboard_GWM.yaml` ajustado para arrumar o link para a aba de controles e exibição da mensagem de status. Esta atualização é manual e o dashboard não é atualizado automaticamente.
