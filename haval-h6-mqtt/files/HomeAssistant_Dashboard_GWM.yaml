@@ -51,6 +51,7 @@ views:
           - button.gwmbrasil_${VEICULO}_interromper_carregamento
           - button.gwmbrasil_${VEICULO}_historico_de_carregamento
           - sensor.gwmbrasil_${VEICULO}_status_message
+          - sensor.gwmbrasil_${VEICULO}_endereco_atual
         card:
           type: vertical-stack
           cards:
@@ -960,9 +961,55 @@ views:
                   }
             - type: markdown
               content: >
-                {% set msg =
-                states('sensor.gwmbrasil_${VEICULO}_status_message') %} {{
-                msg.replace('|', '\n') }}
+                {% set raw =
+                states('sensor.gwmbrasil_${VEICULO}_status_message') %}         
+                {% if raw in ['unknown','unavailable','', None] %}
+                  {% set mensagens = [] %}
+                {% else %}
+                  {% set mensagens = raw.split('|') %}
+                {% endif %}
+
+                {% set textos = {
+                  "NO_ALERTS": "Não há alertas neste momento.",
+                  "ERR_FORMATTING_ADDRESS": "Erro ao formatar endereço.",
+                  "ERR_GENERATE_RESPONSE": "Desculpe, houve um erro ao gerar a resposta.",
+                  "ALERT_HIGH_VOLTAGE_DISCONNECT": "A bateria de alta tensão já está totalmente carregada. O carregador deve ser desconectado.",
+                  "SUNROOF_OPEN": "O teto solar está aberto.",
+                  "UNLOCKED": "A trava das portas não está acionada e o veículo pode ser aberto.",
+                  "ENGINE_ON_AND_UNLOCKED": "O motor está ligado e o veículo está destravado. Verifique se não foi esquecido ligado.",
+                  "FUEL_LOW": "Nível de combustível abaixo de 15 litros. Recomenda-se abastecer.",
+                  "AC_ON_WITH_ENGINE_OFF": "O ar-condicionado está ligado com o veículo desligado. Isso pode drenar a bateria de 12V.",
+                  "REVIEW_PREFIX": "Seu veículo está dentro do limite padrão de quilometragem para agendar a revisão."
+                } %}
+
+                {% for item in mensagens %}
+                  {% set partes = item.split('@') %}
+                  {% set codigo = partes[0] | trim %}
+                  {% if codigo in textos %}
+                  • {{ textos.get(codigo) }}
+                  {% elif codigo == 'VEHICLE_CHARGING_TIME' and partes|length >= 2 %}
+                  • O veículo está carregando. Tempo aproximado para carga total: {{ partes[1] }}.
+                  {% elif codigo == 'WINDOW_OPEN' and partes|length >= 2 %}
+                  • O {{ partes[1] }} está aberto.
+                  {% elif codigo == 'DOOR_OPEN' and partes|length >= 2 %}
+                  • A {{ partes[1] }} está aberta.
+                  {% elif codigo == 'TRUNK_OPEN' and partes|length >= 2 %}
+                  • O {{ partes[1] }} está aberto.
+                  {% elif codigo == 'BATTERY_12V_CRITICAL' and partes|length >= 2 %}
+                  • 🔴 Alerta crítico: bateria 12V em {{ partes[1] }}%. Ligue o motor o quanto antes.
+                  {% elif codigo == 'BATTERY_12V_ALERT' and partes|length >= 2 %}
+                  • 🟠 Atenção: bateria 12V em {{ partes[1] }}%.
+                  {% elif codigo == 'TIRE_PRESSURE' and partes|length >= 4 %}
+                  • A {{ partes[1] }} está em {{ partes[2] }} psi com temperatura de {{ partes[3] }}.
+                  {% elif codigo == 'TIRE_PRESSURE_DEFAULTS' and partes|length >= 3 %}
+                  • A pressão recomendada pela montadora é entre {{ partes[1] }} e {{ partes[2] }} psi.
+                  {% elif codigo == 'SERVICE_WITH_TOLERANCE' and partes|length >= 2 %}
+                  • Veículo no limite para revisão. Restam {{ partes[1] }} km antes da perda da garantia.
+                  {% else %}
+                  • {{ item }}
+                  {% endif %}
+
+                {% endfor %}
               card_mod:
                 style: |
                   ha-card {
@@ -974,7 +1021,7 @@ views:
                     font-size: 14px;
                     text-align: center;
                     display: {% if states('sensor.gwmbrasil_${VEICULO}_status_message') in
-                      ['Não há alertas neste momento.', 'unknown', 'unavailable', ''] %}
+                      ['NO_ALERTS','Não há alertas neste momento.','unknown','unavailable',''] %}
                       none
                     {% else %}
                       block
@@ -1295,10 +1342,7 @@ views:
                               card_mod:
                                 style: |
                                   :host {
-                                    {% set modelo = states('sensor.gwmbrasil_${VEICULO}_modelo_do_veiculo').split(' ') %}
-                                    {% if 'TANK' in modelo %}
-                                      display: none
-                                    {% endif %} !important;
+                                    {% if is_state('sensor.gwmbrasil_${VEICULO}_estado_de_carga_12v','unknown') %} display: none !important {% endif %};
                                   }
                             - type: custom:template-entity-row
                               name: Autonomia Total
@@ -1785,6 +1829,9 @@ views:
                 title: Mapa
                 defaultOpen: true
                 cards:
+                  - type: custom:mushroom-entity-card
+                    entity: sensor.gwmbrasil_${VEICULO}_endereco_atual
+                    name: ' '
                   - type: map
                     entities:
                       - entity: device_tracker.gwmbrasil_${VEICULO}
@@ -1826,9 +1873,55 @@ views:
           cards:
             - type: markdown
               content: >
-                {% set msg =
-                states('sensor.gwmbrasil_${VEICULO}_status_message') %} {{
-                msg.replace('|', '\n') }}
+                {% set raw =
+                states('sensor.gwmbrasil_${VEICULO}_status_message') %}         
+                {% if raw in ['unknown','unavailable','', None] %}
+                  {% set mensagens = [] %}
+                {% else %}
+                  {% set mensagens = raw.split('|') %}
+                {% endif %}
+
+                {% set textos = {
+                  "NO_ALERTS": "Não há alertas neste momento.",
+                  "ERR_FORMATTING_ADDRESS": "Erro ao formatar endereço.",
+                  "ERR_GENERATE_RESPONSE": "Desculpe, houve um erro ao gerar a resposta.",
+                  "ALERT_HIGH_VOLTAGE_DISCONNECT": "A bateria de alta tensão já está totalmente carregada. O carregador deve ser desconectado.",
+                  "SUNROOF_OPEN": "O teto solar está aberto.",
+                  "UNLOCKED": "A trava das portas não está acionada e o veículo pode ser aberto.",
+                  "ENGINE_ON_AND_UNLOCKED": "O motor está ligado e o veículo está destravado. Verifique se não foi esquecido ligado.",
+                  "FUEL_LOW": "Nível de combustível abaixo de 15 litros. Recomenda-se abastecer.",
+                  "AC_ON_WITH_ENGINE_OFF": "O ar-condicionado está ligado com o veículo desligado. Isso pode drenar a bateria de 12V.",
+                  "REVIEW_PREFIX": "Seu veículo está dentro do limite padrão de quilometragem para agendar a revisão."
+                } %}
+
+                {% for item in mensagens %}
+                  {% set partes = item.split('@') %}
+                  {% set codigo = partes[0] | trim %}
+                  {% if codigo in textos %}
+                  • {{ textos.get(codigo) }}
+                  {% elif codigo == 'VEHICLE_CHARGING_TIME' and partes|length >= 2 %}
+                  • O veículo está carregando. Tempo aproximado para carga total: {{ partes[1] }}.
+                  {% elif codigo == 'WINDOW_OPEN' and partes|length >= 2 %}
+                  • O {{ partes[1] }} está aberto.
+                  {% elif codigo == 'DOOR_OPEN' and partes|length >= 2 %}
+                  • A {{ partes[1] }} está aberta.
+                  {% elif codigo == 'TRUNK_OPEN' and partes|length >= 2 %}
+                  • O {{ partes[1] }} está aberto.
+                  {% elif codigo == 'BATTERY_12V_CRITICAL' and partes|length >= 2 %}
+                  • 🔴 Alerta crítico: bateria 12V em {{ partes[1] }}%. Ligue o motor o quanto antes.
+                  {% elif codigo == 'BATTERY_12V_ALERT' and partes|length >= 2 %}
+                  • 🟠 Atenção: bateria 12V em {{ partes[1] }}%.
+                  {% elif codigo == 'TIRE_PRESSURE' and partes|length >= 4 %}
+                  • A {{ partes[1] }} está em {{ partes[2] }} psi com temperatura de {{ partes[3] }}.
+                  {% elif codigo == 'TIRE_PRESSURE_DEFAULTS' and partes|length >= 3 %}
+                  • A pressão recomendada pela montadora é entre {{ partes[1] }} e {{ partes[2] }} psi.
+                  {% elif codigo == 'SERVICE_WITH_TOLERANCE' and partes|length >= 2 %}
+                  • Veículo no limite para revisão. Restam {{ partes[1] }} km antes da perda da garantia.
+                  {% else %}
+                  • {{ item }}
+                  {% endif %}
+
+                {% endfor %}
               card_mod:
                 style: |
                   ha-card {
@@ -1840,14 +1933,11 @@ views:
                     font-size: 14px;
                     text-align: center;
                     display: {% if states('sensor.gwmbrasil_${VEICULO}_status_message') in
-                      ['Não há alertas neste momento.', 'unknown', 'unavailable', ''] %}
+                      ['NO_ALERTS','Não há alertas neste momento.','unknown','unavailable',''] %}
                       none
                     {% else %}
                       block
                     {% endif %} !important;
-                  }
-                  :host {
-                    padding: 16px;
                   }
             - type: custom:button-card
               name: MOTOR
@@ -2444,6 +2534,14 @@ views:
                   color: white;
                   background: rgb(0,0,0,0.7);
                 }
+          - type: custom:config-template-card
+            entities:
+              - select.gwmbrasil_veiculos_registrados
+              - sensor.gwmbrasil_${VEICULO}_endereco_atual
+            card:
+              type: custom:mushroom-entity-card
+              entity: sensor.gwmbrasil_${VEICULO}_endereco_atual
+              name: ' '
           - type: custom:auto-entities
             card:
               type: custom:map-card
@@ -2465,3 +2563,45 @@ views:
                   {{ 'device_tracker.gwmbrasil_' ~ veiculo }}
                 {% endif %}
         columns: 1
+  - type: panel
+    path: gwm-3d
+    title: gwm-3d
+    icon: mdi:video-3d
+    cards:
+      - type: custom:config-template-card
+        entities:
+          - sensor.gwmbrasil_${VEICULO}_modelo_do_veiculo
+          - sensor.gwmbrasil_${VEICULO}_tipo_de_motor
+        card:
+          type: iframe
+          aspect_ratio: 100%
+          url: >-
+            ${ (function () {
+
+            const modelo =
+            states[`sensor.gwmbrasil_${VEICULO}_modelo_do_veiculo`]?.state;
+            const motor  =
+            states[`sensor.gwmbrasil_${VEICULO}_tipo_de_motor`]?.state;
+
+            let name = "WEY07";
+
+            if (modelo === "HAVAL H6 HEV" && motor === "GW4B15M") name =
+            "NOVOH6HEV2"; else if (modelo === "HAVAL H6 HEV") name = "H6HEV2";
+            else if (modelo === "HAVAL H6 PHEV" && motor === "GW4B15M") name =
+            "NOVOH6PHEV35"; else if (modelo === "HAVAL H6 PHEV") name =
+            "H6PHEV"; else if (modelo === "HAVAL H6 PHEV (FWD)" && motor ===
+            "GW4B15M") name = "NOVOH6PHEV19"; else if (modelo === "HAVAL H6 PHEV
+            (FWD)") name = "H6PHEVFWD"; else if (modelo === "HAVAL H6 GT PHEV"
+            && motor === "GW4B15M") name = "NOVOH6GT"; else if (modelo ===
+            "HAVAL H6 GT PHEV") name = "H6GT"; else if (modelo === "ORA 03 Skin
+            (BEV48)") name = "ES11"; else if (modelo === "ORA 03 (BEV58)") name
+            = "ES11THA"; else if (modelo === "ORA 03 GT") name = "ES11GT"; else
+            if (modelo === "Tank 300") name = "TANK300"; else if (modelo ===
+            "Poer P30") name = "POER_Mid"; else if (modelo === "Poer P30
+            Exclusive") name = "POER_High"; else if (modelo === "HAVAL H9") name
+            = "H9";
+
+            return "https://br-h5-abroad-community.gwmcloud.com/br-vr/?name=" +
+            name;
+
+            })() }

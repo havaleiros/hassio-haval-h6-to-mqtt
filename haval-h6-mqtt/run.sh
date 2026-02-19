@@ -9,9 +9,6 @@ export PIN=$(bashio::config 'gwm_pin')
 export MQTT_HOST=$(bashio::config 'mqtt_server')
 export MQTT_USER=$(bashio::config 'mqtt_user')
 export MQTT_PASS=$(bashio::config 'mqtt_pass')
-export OPENAI_TOKEN=$(bashio::config 'openai_token')
-export GEMINI_TOKEN=$(bashio::config 'gemini_token')
-export GEOCODE_API_KEY=$(bashio::config 'geocode_api_key')
 export DEVICE_TRACKER_ENABLED=$(bashio::config 'device_tracker_enabled')
 bashio::log.info "Username: ${USERNAME}."
 bashio::log.info "VIN: ${VIN}."

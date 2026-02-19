@@ -410,8 +410,8 @@ Obrigado por utilizar o add-on `GWM Brasil com MQTT` para Home Assistant. Aprove
 
 ## Contribuições
 Faça uma doação para uma entidade assistencial.
-Caso não tenha alguma, considere a entidade Somos do Bem, a qual já ajudamos em nosso 4º Encontro dos `Havaleiros Brasil` em Indaiatuba.
-[Doe agora para a Somos do Bem](somosdobem.org.br/doe-agora/)
+Caso não tenha alguma, considere a entidade Somos do Bem (anterior APAE), a qual já ajudamos em nosso 4º Encontro dos `Havaleiros Brasil` em Indaiatuba.
+[Doe agora para a Somos do Bem](https://www.somosdobem.org.br/doe-agora/)
 
 ## Créditos
 Este projeto foi possível devido ao trabalho executado em https://github.com/ipsBruno/haval-h6-gwm-alexa-chatgpt-mqtt-integration, que por sua vez utilizou o trabalho disponível em https://github.com/zivillian/ora2mqtt.
@@ -425,7 +425,7 @@ Contribuições de:
 ## Licença
 Licença MIT
 
-Copyright (c) 2025 Havaleiros Brasil
+Copyright (c) 2026 Havaleiros Brasil
 
 É concedida permissão, gratuitamente, a qualquer pessoa que obtenha uma cópia deste software e arquivos de documentação associados (o "Software"), para lidar no Software sem restrições, incluindo, sem limitação, os direitos de usar, copiar, modificar, mesclar, publicar, distribuir, sublicenciar e/ou vender cópias do Software e permitir que as pessoas a quem o Software é fornecido façam o mesmo, sujeito às seguintes condições:
 

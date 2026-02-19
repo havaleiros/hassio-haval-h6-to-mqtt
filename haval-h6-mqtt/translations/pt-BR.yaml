@@ -25,12 +25,3 @@ configuration:
   device_tracker_enabled:
     name: "Ativar o device tracker"
     description: "Registrará o posicionamento do veículo com rastreamento com base no intervalo configurado. Utilizado para exibição no mapa."
-  openai_token:
-    name: "Token da API OpenAI"
-    description: "Token da API OpenAI para recursos avançados, como respostas inteligentes."
-  gemini_token:
-    name: "Token da API Gemini"
-    description: "Token da API Gemini para recursos avançados, como respostas inteligentes."
-  geocode_api_key:
-    name: "Chave da API Google Geocode"
-    description: "Chave da API Google Geocode para geocodificação reversa (latitude/longitude para endereço)."

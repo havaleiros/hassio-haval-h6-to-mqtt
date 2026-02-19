@@ -1,5 +1,24 @@
 # Changelog
 
+## [1.0.4] - 2026-02-19
+## Adicionado
+- Nova entidade `sensor.gwmbrasil_{chassis}_endereco_atual` com o endereço aproximado com base na latitude/longitude.
+- Adicionada informação de endereço com a nova entidade `sensor.gwmbrasil_{chassis}_endereco_atual`.
+- Adicionada informação de tipo de motor com a nova entidade `sensor.gwmbrasil_{chassis}_tipo_de_motor`.
+- Adicionada visualização em 3D do veículo no arquivo `HomeAssistant_Dashboard_GWM.yaml`, tal qual disponível no site da GWM Brasil.
+
+## Consertado
+- Dockerfile ajustado.
+
+## Modificado
+- Alterada a lógica para as mensagens de status usadas pela entidade `sensor.gwmbrasil_{chassis}_status_message`. Motivo: mensagens acima de 255 caracteres não podem ser tratadas pelo MQTT.
+- 🚨⚠ BREAKING CHANGE: Dashboard modificado o tratamento para mensagens de status diretamente em `HomeAssistant_Dashboard_GWM.yaml` para exibição.
+- Arquivo `HomeAssistant_Dashboard_GWM.yaml` ajustado para não exibir informação da bateria de 12v para modelos Haval H6 ano 2026 em diante.
+- Removidas configurações não utilizadas.
+
+### Segurança
+- Atualizada a versão do Axios.
+
 ## [1.0.3] - 2026-02-04
 ## Consertado
 - Correção para criar a entidade `select.gwmbrasil_veiculos_registrados` na inicialização do add-on.
