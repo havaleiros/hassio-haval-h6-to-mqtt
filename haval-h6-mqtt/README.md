@@ -258,7 +258,9 @@ Caso não funcione como esperado, siga os 3 primeiros passos abaixo.
 Agora, seu novo dashboard estará configurado para exibir informações detalhadas sobre o seu veículo GWM.
 Você poderá, além de monitorar as informações do veículo, ligar o ar-condicionado e interromper o carregamento para soltar o plugue do carregador antes da finalização da carga.
 
-Nota 1: Para o funcionamento do mapa com filtro por data, clique no botão abaixo e importe a automação para sua instância do Home Assistant. Isto vai criar a entidade `sensor.energia_dummy`, que deve ser utilizada para ativar o dashboard de Energia do Home Assistant.
+Nota 1: Para o funcionamento do mapa com filtro por data, clique no botão abaixo e importe a automação para sua instância do Home Assistant. 
+Acesse `Configurações` > `Automações & Cenas` > `Modelos Blueprints`, escolha a opção `Criar Sensor de Energia Dummy (fixo) no Startup` e clique em `Salvar`. Ao retornar para a tela anterior haverá o indicador na coluna `Em uso` com o número 1 caso a automação tenha sido criada.
+A automação criará a entidade `sensor.energia_dummy`, utilizada para ativar o dashboard de Energia do Home Assistant. Reinicie seu Home Assistant para que tenha efeito.
 Sem isto, o filtro para o mapa de rastreamento não será ativado.
 [Clique aqui](https://my.home-assistant.io/redirect/config_energy) para configurar seu painel de energia e adicionar o `sensor.energia_dummy` em _Rede elétrica_ > _Consumo de rede_. Isto irá ativar o painel de energia no Home Assistant.
 
