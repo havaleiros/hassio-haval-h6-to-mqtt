@@ -77,7 +77,7 @@ Nota: Caso os campos para configuração do MQTT não estejam disponíveis na te
 ### OPCIONAL - Instalações core ou não supervisionadas ###
 
 Esta seção é destinada somente para instalações que não possuam o **Home Assistant Supervisor** em suas instâncias locais, necessitando da configuração manual do add-on em um container para execução.
-Pule esta etapa se sua instância contar com o **Home Assistant Supervisor**.
+Pule esta etapa se sua instância contar com o **Home Assistant Supervisor** (Home Assistant OS).
 
 #### Adicionando o Add-on diretamente via Docker para instalações do Home Assistant não supervisionadas (Core ou Container)
 
@@ -91,41 +91,17 @@ Pule esta etapa se sua instância contar com o **Home Assistant Supervisor**.
 sudo apt-get install npm
 ```
 
-#### 1. Criando a estrutura do Add-on dentro do servidor Home Assistant
+#### 1. Criando a estrutura de diretórios e Configurando as credenciais de acesso dentro das variáveis de ambiente
 
-1. Clonar repositório GitHub:
+1. Criar o Diretório
 ```yaml
-cd /opt
-git clone https://github.com/havaleiros/hassio-haval-h6-to-mqtt.git
+mkdir -p /opt/hassio-haval-h6-to-mqtt
 ```
-2. Criar o Dockerfile:
-```yaml
-sudo nano /opt/hassio-haval-h6-to-mqtt/Dockerfile
-```
-3. Incluir o conteúdo abaixo:
-```yaml
-FROM node:20-alpine
-
-WORKDIR /app
-
-COPY haval-h6-mqtt/ .
-
-RUN npm ci --only=production
-
-EXPOSE 3000
-
-CMD ["node", "index.js"]
-```
-4. `CTRL+O` + `ENTER` para salvar
-5. `CTRL+X` para sair
-
-#### 2. Configurando as credenciais de acesso dentro das variáveis de ambiente
-
-1. Editar o arquivo ENV:
+2. Editar o arquivo ENV:
 ```yaml
 sudo nano /opt/hassio-haval-h6-to-mqtt/haval-h6.env
 ```
-2. Incluir o conteúdo abaixo, editando os dados pessoais:
+3. Incluir o conteúdo abaixo, editando os dados pessoais:
 ```yaml
 USERNAME=XXXX
 PASSWORD=XXXX
@@ -137,8 +113,8 @@ MQTT_USER=XXXX
 MQTT_PASS=XXXX
 MQTT_HOST=mqtt://IP_DO_SERVER_MQTT:1883
 ```
-3. `CTRL+O` + `ENTER` para salvar
-4. `CTRL+X` para sair
+4. `CTRL+O` + `ENTER` para salvar
+5. `CTRL+X` para sair
 
 #### 3. Configurando o Serviço dentro do Docker
 
@@ -151,19 +127,24 @@ sudo nano docker-compose.yaml
 ```yaml
   hassio-haval-h6-to-mqtt:
     container_name: hassio-haval-h6-to-mqtt
-    build:
-      context: /opt/hassio-haval-h6-to-mqtt
-      dockerfile: Dockerfile
+    image: ghcr.io/havaleiros/hassio-haval-h6-to-mqtt:latest
     depends_on:
       mosquitto:
-        condition: service_started
+        condition: service_healthy
     restart: always
     volumes:
       - /opt/hassio-haval-h6-to-mqtt/data:/hassio-haval-h6-to-mqtt/data
-    ports:
-      - 10001:10001
     env_file:
       - /opt/hassio-haval-h6-to-mqtt/haval-h6.env
+    command: >
+      sh -c '
+        echo "[boot] waiting for MQTT...";
+        for i in $(seq 1 60); do
+          (echo > /dev/tcp/mosquitto/1883) >/dev/null 2>&1 && break;
+          sleep 1;
+        done;
+        echo "[boot] starting app...";
+        node index.js
 ```
 4. `CTRL+O` + `ENTER` para salvar
 5. `CTRL+X` para sair
