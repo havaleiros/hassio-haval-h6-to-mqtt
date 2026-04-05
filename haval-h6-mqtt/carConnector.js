@@ -408,11 +408,11 @@ const carData = {
         
         if(chargingLogs && chargingLogs.data && chargingLogs.data.data.list && chargingLogs.data.data.list.length > 0) {
           const formattedList = chargingLogs.data.data.list.map(({ startTime, endTime }) => {
-            const startDate = new Date(startTime).toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo', });
-            const endDate = new Date(endTime).toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo', });
+            const startDate = new Date(parseInt(startTime)).toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' });
+            const endDate = new Date(parseInt(endTime)).toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' });
           
-            const startTimeFormatted = new Date(startTime).toLocaleTimeString('pt-BR', { timeZone: 'America/Sao_Paulo', hour: '2-digit', minute: '2-digit', });
-            const endTimeFormatted = new Date(endTime).toLocaleTimeString('pt-BR', { timeZone: 'America/Sao_Paulo', hour: '2-digit', minute: '2-digit', });
+            const startTimeFormatted = new Date(parseInt(startTime)).toLocaleTimeString('pt-BR', { timeZone: 'America/Sao_Paulo', hour: '2-digit', minute: '2-digit' });
+            const endTimeFormatted = new Date(parseInt(endTime)).toLocaleTimeString('pt-BR', { timeZone: 'America/Sao_Paulo', hour: '2-digit', minute: '2-digit' });
           
             return `${startDate} ${startTimeFormatted} ~ ${endDate} ${endTimeFormatted}`;
           });

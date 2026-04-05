@@ -1833,6 +1833,8 @@ views:
                     entity: sensor.gwmbrasil_${VEICULO}_endereco_atual
                     name: ' '
                   - type: map
+                    tile_layer_options:
+                      referrerPolicy: "origin-when-cross-origin"
                     entities:
                       - entity: device_tracker.gwmbrasil_${VEICULO}
                     theme_mode: dark
@@ -2546,6 +2548,8 @@ views:
             card:
               type: custom:map-card
               history_date_selection: true
+              tile_layer_options:
+                referrerPolicy: "origin-when-cross-origin"
               card_mod:
                 style: |
                   ha-card {

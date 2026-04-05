@@ -1,12 +1,20 @@
 {
   "name": "GWM Brasil com MQTT",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "slug": "hassio_haval_h6_to_mqtt",
   "description": "Integração com o Home Assistant usando MQTT para veículos GWM.",
   "init": false,
-  "arch": ["armhf", "armv7", "aarch64", "amd64", "i386"],
+  "arch": [
+    "armhf",
+    "armv7",
+    "aarch64",
+    "amd64",
+    "i386"
+  ],
   "url": "https://github.com/havaleiros/hassio-haval-h6-to-mqtt",
-  "map": ["config:rw"],
+  "map": [
+    "config:rw"
+  ],
   "options": {
     "refresh_time": 30,
     "mqtt_server": "mqtt://homeassistant.local:1883",

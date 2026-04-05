@@ -190,10 +190,10 @@ const mqttModule = {
 
     mqttModule.sendMqtt(json_attributes_topic, JSON.stringify(attributesPayload), { retain: false });
   },
-  sendMessage(vin, code, value) {
+  sendMessage(vin, code, value, retain = true) {
     const topic = `${prefix}_${vin.toLowerCase()}/${code.toLowerCase()}/state`;
 
-    mqttModule.sendMqtt(topic, String(value), { retain: false });
+    mqttModule.sendMqtt(topic, String(value), { retain });
   },
 };
 

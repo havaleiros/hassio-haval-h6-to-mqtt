@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.0.5] - 2026-04-05
+## Consertado
+- Arquivo `HomeAssistant_Dashboard_GWM.yaml` ajustado para adicionar configuração ao card "custom:map-card" para remover mensagens de uso incorreto.
+- Tratamento do histórico de recargas para exibir a data corretamente.
+- Tratamento para exibir o endereço atual corretamente.
+
+## Modificado
+- Retenção de mensagens para persistir informações de estado dos veículos.
+
 ## [1.0.4] - 2026-02-19
 ## Adicionado
 - Nova entidade `sensor.gwmbrasil_{chassis}_endereco_atual` com o endereço aproximado com base na latitude/longitude.
