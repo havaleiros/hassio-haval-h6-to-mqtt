@@ -135,7 +135,7 @@ const mqttModule = {
       payload.default_entity_id = `${entityType.toLowerCase()}.${code.toLowerCase()}`;
     }
 
-    mqttModule.sendMqtt(topic, JSON.stringify(payload), { retain: false });
+    mqttModule.sendMqtt(topic, JSON.stringify(payload), { retain: true });
 
     if (!Array.isArray(actionable) && String(actionable) !== "Y") actionable = [actionable];
     

@@ -554,7 +554,7 @@ const carUtil = {
     async windows(action, vin) {
         return this.windows_skyWindow(action, Options.Windows.WINDOWS, vin);
     },
-    async skyWindow(action) {
+    async skyWindow(action, vin) {
         return this.windows_skyWindow(action, Options.Windows.SKYWINDOW, vin);
     },
     async doors_trunk(action, doorsOption, vin) {
@@ -599,8 +599,8 @@ const carUtil = {
         return this.doors_trunk(action, Options.Doors.TRUNK, vin);
     },
     async stopCharging(vin) {
-        await chargingSchedule(true);
-        setTimeout(async () => { 
+        await chargingSchedule(true, vin);
+        setTimeout(async () => {
             await chargingSchedule(false, vin);
             printLog(LogType.INFO, `>>>${UserMessages.CHARGING_SCHEDULE_REVERSAL}<<<`);
         }, 2 * 60 * 1000);
