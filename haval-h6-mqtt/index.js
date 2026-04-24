@@ -18,11 +18,11 @@ const getCarList = async () => {
   try {
     const { data } = await carConnector.carData.getCarList();
     var carList;
-    if(data)
+    if (data)
       carList = data.data;
 
     return carList;
-  } catch(e) {
+  } catch (e) {
     printLog(LogType.ERROR, "***Error retrieving car data: ", e.message);
   }
 }
@@ -41,7 +41,7 @@ printLog(LogType.INFO, "Flight check:");
 const fs = require("fs");
 if (!fs.existsSync("./certs/gwm_general.cer")) printLog(LogType.ERROR, "¡¡¡GWM general certicate not found!!!");
 if (!fs.existsSync("./certs/gwm_general.key")) printLog(LogType.ERROR, "¡¡¡GWM general certificate key not found!!!");
-if (!fs.existsSync("./certs/gwm_root.cer"))    printLog(LogType.ERROR, "¡¡¡GWM root certificate not found!!!");
+if (!fs.existsSync("./certs/gwm_root.cer")) printLog(LogType.ERROR, "¡¡¡GWM root certificate not found!!!");
 
 validationSchema.validate(process.env)
   .then(() => {
@@ -52,9 +52,9 @@ validationSchema.validate(process.env)
     printLog(LogType.INFO, "  Retrieving car list");
     return await getCarList();
   })
-  .then(async (data)=> {
+  .then(async (data) => {
     var carList = data;
-    if(carList.length > 0){
+    if (carList.length > 0) {
 
       printLog(LogType.INFO, "  Registering car list");
       const vinArray = carList.map(car => car.vin);
@@ -64,23 +64,23 @@ validationSchema.validate(process.env)
         const _code = "gwmbrasil_veiculos_registrados";
         const _name = "Veículos registrados no My GWM";
         const topic = `homeassistant/select/${_code.toLowerCase()}/state`;
-        register(entityType = EntityType.SELECT, 
-                 vin = VIN,
-                 code = _code, 
-                 entity_name = _name, 
-                 unit = null, 
-                 device_class = null, 
-                 icon = "mdi:car-2-plus", 
-                 actionable = null,
-                 initial_value = vinArray,
-                 state_class = null);
+        register(entityType = EntityType.SELECT,
+          vin = VIN,
+          code = _code,
+          entity_name = _name,
+          unit = null,
+          device_class = null,
+          icon = "mdi:car-2-plus",
+          actionable = null,
+          initial_value = vinArray,
+          state_class = null);
 
         sendMqtt(topic, String(VIN).toUpperCase(), { retain: true }); //Set the default VIN
       }
 
       printLog(LogType.INFO, "  Retrieving car data");
       for (const key of Object.keys(carList)) {
-        printLog(LogType.INFO, `  Registering car: ${carList[key].vin}`);      
+        printLog(LogType.INFO, `  Registering car: ${carList[key].vin}`);
 
         var _vin = carList[key].vin;
 
@@ -90,11 +90,11 @@ validationSchema.validate(process.env)
 
           remove(entity_type, "haval", _vin, code);
           remove(entity_type, "haval", _vin, null);
-          remove(entity_type, "haval", _vin, "None");          
+          remove(entity_type, "haval", _vin, "None");
           remove(EntityType.DEVICE_TRACKER, "haval", _vin, null);
           remove(EntityType.IMAGE, "haval", _vin, "image");
           remove(EntityType.SENSOR, "haval", _vin, "hyEngSts");
-          if(actionable && actionable.action){
+          if (actionable && actionable.action) {
             remove(actionable.entity_type, "haval", _vin, `${code}_${actionable.action}`);
             remove(actionable.entity_type, "haval", _vin, `${code.toLowerCase()}_${actionable.action.toLowerCase()}`);
             remove(EntityType.SWITCH, "haval", _vin, `${code.toLowerCase()}_${actionable.action.toLowerCase()}`);
@@ -114,9 +114,9 @@ validationSchema.validate(process.env)
           remove(EntityType.IMAGE, "haval", _vin, code);
         });
 
-        if(carList[key].staticImageUrl){
+        if (carList[key].staticImageUrl) {
           printLog(LogType.INFO, "    Registering static entities");
-          
+
           const powerType = String(carList[key].powerType || "").trim();
           const seriesName = String(carList[key].appShowSeriesName || "").trim();
           const modelValue = powerType === ""
@@ -161,52 +161,52 @@ validationSchema.validate(process.env)
           Object.keys(staticEntities).forEach((code) => {
             var { description, entity_type, value, icon } = staticEntities[code];
 
-            register(entityType = entity_type, 
-                     vin = _vin, 
-                     code = code, 
-                     entity_name = description, 
-                     unit = null, 
-                     device_class = null, 
-                     icon = icon, 
-                     actionable = null, 
-                     initial_value = null, 
-                     state_class = null);
-              
+            register(entityType = entity_type,
+              vin = _vin,
+              code = code,
+              entity_name = description,
+              unit = null,
+              device_class = null,
+              icon = icon,
+              actionable = null,
+              initial_value = null,
+              state_class = null);
+
             sendMessage(_vin, code, value);
           });
 
           storage.setItem('imsi-' + _vin, carList[key].imsi);
           storage.setItem('model-' + _vin, `${modelValue} - ${carList[key].color}`);
         }
-        
+
         printLog(LogType.INFO, "    Retrieving car status");
         const data = await GetCarLastStatus(_vin);
-            
-        if(data && data.items){
+
+        if (data && data.items) {
           printLog(LogType.INFO, "    Registering entities");
           //---------------------
           Object.keys(sensorTopics).forEach((code) => {
             var { description, unit, device_class, entity_type, icon, actionable, state_class } = sensorTopics[code];
-  
+
             register(entityType = EntityType[entity_type.toUpperCase()],
-                     vin = _vin,
-                     code = code, 
-                     entity_name = description, 
-                     unit = unit, 
-                     device_class = device_class, 
-                     icon = icon, 
-                     actionable = actionable, 
-                     initial_value = null, 
-                     state_class = state_class);
+              vin = _vin,
+              code = code,
+              entity_name = description,
+              unit = unit,
+              device_class = device_class,
+              icon = icon,
+              actionable = actionable,
+              initial_value = null,
+              state_class = state_class);
           });
 
           data.items.forEach(({ code, value }) => {
             if (sensorTopics.hasOwnProperty(code)) {
               var entity_value = value;
-              if(sensorTopics[code].formula) entity_value = eval(sensorTopics[code].formula.replace("value", value));
+              if (sensorTopics[code].formula && !isNaN(entity_value)) entity_value = eval(sensorTopics[code].formula.replace("value", value));
               sendMessage(_vin, code, entity_value);
             }
-          });          
+          });
           //---------------------
           const engineStatus = {
             code: "hyEngSts",
@@ -215,46 +215,46 @@ validationSchema.validate(process.env)
             value: `${data.hyEngSts ? data.hyEngSts : '0'}`,
             icon: "mdi:engine",
             actionable: [
-                          {
-                            action: "engineOn",
-                            description: "Ligar o motor",
-                            entity_type: "button",
-                            icon: "mdi:engine",
-                            link_type: "press"
-                          },
-                          {
-                            action: "engineOff",
-                            description: "Desligar o motor",
-                            entity_type: "button",
-                            icon: "mdi:engine-outline",
-                            link_type: "press"
-                          }
-                        ]
+              {
+                action: "engineOn",
+                description: "Ligar o motor",
+                entity_type: "button",
+                icon: "mdi:engine",
+                link_type: "press"
+              },
+              {
+                action: "engineOff",
+                description: "Desligar o motor",
+                entity_type: "button",
+                icon: "mdi:engine-outline",
+                link_type: "press"
+              }
+            ]
           };
-          
-          register(entityType = EntityType[engineStatus.entity_type.toUpperCase()], 
-                   vin = _vin, 
-                   code = engineStatus.code, 
-                   entity_name = engineStatus.description, 
-                   unit = null, 
-                   device_class = null, 
-                   icon = engineStatus.icon, 
-                   actionable = engineStatus.actionable, 
-                   initial_value = null, 
-                   state_class = null);
-  
-          if(data.hasOwnProperty(engineStatus.code)){
+
+          register(entityType = EntityType[engineStatus.entity_type.toUpperCase()],
+            vin = _vin,
+            code = engineStatus.code,
+            entity_name = engineStatus.description,
+            unit = null,
+            device_class = null,
+            icon = engineStatus.icon,
+            actionable = engineStatus.actionable,
+            initial_value = null,
+            state_class = null);
+
+          if (data.hasOwnProperty(engineStatus.code)) {
             sendMessage(_vin, engineStatus.code, engineStatus.value);
-          }          
+          }
           //---------------------
           const isDeviceTrackerEnabled = Boolean(DEVICE_TRACKER_ENABLED === 'true');
-          if(isDeviceTrackerEnabled){
+          if (isDeviceTrackerEnabled) {
             printLog(LogType.INFO, "    Registering device tracker");
 
             register(EntityType.DEVICE_TRACKER,
-                     vin = _vin,
-                     code = "DeviceTracker",
-                     entity_name = storage.getItem('model-' + vin));
+              vin = _vin,
+              code = "DeviceTracker",
+              entity_name = storage.getItem('model-' + vin));
 
             let attributes = {};
             attributes['imsi'] = storage.getItem('imsi-' + vin);
@@ -264,41 +264,41 @@ validationSchema.validate(process.env)
             //---------------------
             printLog(LogType.INFO, "    Registering address entity");
             register(entityType = EntityType.SENSOR,
-                    vin = _vin,
-                    code = 'endereco_atual',
-                    entity_name = 'Endereço Atual',
-                    unit = null,
-                    device_class = null,
-                    icon = 'mdi:map-marker',
-                    actionable = null,
-                    initial_value = null,
-                    state_class = null);
+              vin = _vin,
+              code = 'endereco_atual',
+              entity_name = 'Endereço Atual',
+              unit = null,
+              device_class = null,
+              icon = 'mdi:map-marker',
+              actionable = null,
+              initial_value = null,
+              state_class = null);
 
-            if(data.hasOwnProperty("latitude")) {
+            if (data.hasOwnProperty("latitude")) {
               let endereco = await carConnector.carTextUtil.getformattedAddress(String(data.latitude), String(data.longitude));
-              if(endereco) sendMessage(vin, "endereco_atual", endereco);
+              if (endereco) sendMessage(vin, "endereco_atual", endereco);
             }
           }
-          else{
+          else {
             remove(EntityType.DEVICE_TRACKER, "gwmbrasil", _vin, "DeviceTracker");
             remove(EntityType.SENSOR, "gwmbrasil", _vin, "endereco_atual");
           }
           //---------------------
           printLog(LogType.INFO, "    Registering status message entity");
-          register(entityType = EntityType.SENSOR, 
-                   vin = _vin, 
-                   code = 'status_message',
-                   entity_name = 'Status Message', 
-                   unit = null, 
-                   device_class = null, 
-                   icon = 'mdi:message-text', 
-                   actionable = null,
-                   initial_value = null, 
-                   state_class = null);
+          register(entityType = EntityType.SENSOR,
+            vin = _vin,
+            code = 'status_message',
+            entity_name = 'Status Message',
+            unit = null,
+            device_class = null,
+            icon = 'mdi:message-text',
+            actionable = null,
+            initial_value = null,
+            state_class = null);
 
           const carStatus = await carConnector.carData.getStatus(vin);
           let message = carConnector.carTextUtil.getVehicleStatusHardAnalysis(JSON.stringify(carStatus));
-          if(message) {
+          if (message) {
             const formattedMessage = message.replace(/(\r\n|\n|\r)/g, " | ");
             sendMessage(vin, "status_message", formattedMessage);
           }
@@ -306,7 +306,7 @@ validationSchema.validate(process.env)
           printLog(LogType.INFO, "    Activating actionables and linked entities");
           ActionableAndLink.execute();
         }
-        else{
+        else {
           printLog(LogType.ERROR, "   ¡¡¡No data found. Check your configuration!!!");
         }
       }
@@ -321,61 +321,61 @@ validationSchema.validate(process.env)
     process.exit(0);
   });
 
-  const updateState = async () => {
-    const vinList = storage.getItem('vinList') ? storage.getItem('vinList').split(',') : [];
-  
-    for (const vin of vinList) {
-      const data = await GetCarLastStatus(vin);
+const updateState = async () => {
+  const vinList = storage.getItem('vinList') ? storage.getItem('vinList').split(',') : [];
 
-      let attributes = {};
-      var slugify = require("slugify");
-    
-      try{
-          if(data && data.items){
-            printLog(LogType.INFO, "Updating status");
-            data.items.forEach(({ code, value }) => {
-              var entity_value = value;
-              if (sensorTopics.hasOwnProperty(code)) {
-                if(sensorTopics[code].formula) entity_value = eval(sensorTopics[code].formula.replace("value", value));
-                
-                sendMessage(vin, code, entity_value);
-              }
-              
-              if (attributeTopics.hasOwnProperty(code)) {
-                attributes[slugify(attributeTopics[code].description.toLowerCase(), "_")] = String(value);
-              }
-            });
+  for (const vin of vinList) {
+    const data = await GetCarLastStatus(vin);
 
-            const isDeviceTrackerEnabled = Boolean(DEVICE_TRACKER_ENABLED === 'true');
-            if(isDeviceTrackerEnabled){
-              attributes['imsi'] = storage.getItem('imsi-' + vin);
-              attributes['icon'] = "mdi:car-electric-outline";
+    let attributes = {};
+    var slugify = require("slugify");
 
-              sendDeviceTrackerUpdate(vin, String(data.latitude), String(data.longitude), attributes);
+    try {
+      if (data && data.items) {
+        printLog(LogType.INFO, "Updating status");
+        data.items.forEach(({ code, value }) => {
+          var entity_value = value;
+          if (sensorTopics.hasOwnProperty(code)) {
+            if (sensorTopics[code].formula && !isNaN(entity_value)) entity_value = eval(sensorTopics[code].formula.replace("value", value));
 
-              if(data.hasOwnProperty("latitude")) {
-                let endereco = await carConnector.carTextUtil.getformattedAddress(String(data.latitude), String(data.longitude));
-                if(endereco) sendMessage(vin, "endereco_atual", endereco);
-              }
-            }
-
-            if(data.hasOwnProperty("hyEngSts")){
-              sendMessage(vin, "hyEngSts", data.hyEngSts);
-            }
-
-            const carStatus = await carConnector.carData.getStatus(vin);
-            let message = carConnector.carTextUtil.getVehicleStatusHardAnalysis(JSON.stringify(carStatus));
-            if(message) {
-              const formattedMessage = message.replace(/(\r\n|\n|\r)/g, " | ");
-              sendMessage(vin, "status_message", formattedMessage);
-            }
+            sendMessage(vin, code, entity_value);
           }
-          else
-            printLog(LogType.ERROR, "***Failed to update status");
-      } catch (e) {
-        printLog(LogType.ERROR, `***Error updating information: ${e.message}`);
-        process.exit(0);
+
+          if (attributeTopics.hasOwnProperty(code)) {
+            attributes[slugify(attributeTopics[code].description.toLowerCase(), "_")] = String(value);
+          }
+        });
+
+        const isDeviceTrackerEnabled = Boolean(DEVICE_TRACKER_ENABLED === 'true');
+        if (isDeviceTrackerEnabled) {
+          attributes['imsi'] = storage.getItem('imsi-' + vin);
+          attributes['icon'] = "mdi:car-electric-outline";
+
+          sendDeviceTrackerUpdate(vin, String(data.latitude), String(data.longitude), attributes);
+
+          if (data.hasOwnProperty("latitude")) {
+            let endereco = await carConnector.carTextUtil.getformattedAddress(String(data.latitude), String(data.longitude));
+            if (endereco) sendMessage(vin, "endereco_atual", endereco);
+          }
+        }
+
+        if (data.hasOwnProperty("hyEngSts")) {
+          sendMessage(vin, "hyEngSts", data.hyEngSts);
+        }
+
+        const carStatus = await carConnector.carData.getStatus(vin);
+        let message = carConnector.carTextUtil.getVehicleStatusHardAnalysis(JSON.stringify(carStatus));
+        if (message) {
+          const formattedMessage = message.replace(/(\r\n|\n|\r)/g, " | ");
+          sendMessage(vin, "status_message", formattedMessage);
+        }
       }
+      else
+        printLog(LogType.ERROR, "***Failed to update status");
+    } catch (e) {
+      printLog(LogType.ERROR, `***Error updating information: ${e.message}`);
+      process.exit(0);
+    }
   }
 };
 

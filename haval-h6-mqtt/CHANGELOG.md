@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.6] - 2026-04-24
+## Consertado
+- Tratamento para verificar se o valor do campo de pressão dos pneus é um número antes de aplicar a fórmula de conversão.
+
+### Segurança
+- Atualizada a versão do Axios.
+
 ## [1.0.5] - 2026-04-05
 ## Consertado
 - Arquivo `HomeAssistant_Dashboard_GWM.yaml` ajustado para adicionar configuração ao card "custom:map-card" para remover mensagens de uso incorreto.
