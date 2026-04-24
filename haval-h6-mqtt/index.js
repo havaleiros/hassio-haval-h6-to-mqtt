@@ -203,7 +203,13 @@ validationSchema.validate(process.env)
           data.items.forEach(({ code, value }) => {
             if (sensorTopics.hasOwnProperty(code)) {
               var entity_value = value;
-              if(sensorTopics[code].formula) entity_value = eval(sensorTopics[code].formula.replace("value", value));
+              if(sensorTopics[code].formula) {
+                try {
+                  entity_value = new Function('value', `return ${sensorTopics[code].formula}`)(value);
+                } catch(formulaError) {
+                  printLog(LogType.ERROR, `***Formula eval error for ${code} with value "${value}": ${formulaError.message}`);
+                }
+              }
               sendMessage(_vin, code, entity_value);
             }
           });          
@@ -336,8 +342,13 @@ validationSchema.validate(process.env)
             data.items.forEach(({ code, value }) => {
               var entity_value = value;
               if (sensorTopics.hasOwnProperty(code)) {
-                if(sensorTopics[code].formula) entity_value = eval(sensorTopics[code].formula.replace("value", value));
-                
+                if(sensorTopics[code].formula) {
+                  try {
+                    entity_value = new Function('value', `return ${sensorTopics[code].formula}`)(value);
+                  } catch(formulaError) {
+                    printLog(LogType.ERROR, `***Formula eval error for ${code} with value "${value}": ${formulaError.message}`);
+                  }
+                }
                 sendMessage(vin, code, entity_value);
               }
               
@@ -374,7 +385,7 @@ validationSchema.validate(process.env)
             printLog(LogType.ERROR, "***Failed to update status");
       } catch (e) {
         printLog(LogType.ERROR, `***Error updating information: ${e.message}`);
-        process.exit(0);
+        // Do not exit — skip this cycle and retry on next interval
       }
   }
 };
