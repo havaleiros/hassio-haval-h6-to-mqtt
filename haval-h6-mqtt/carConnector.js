@@ -58,10 +58,10 @@ const UserMessages = {
     ERROR_RETRIEVING_CAR_LIST: "Erro ao obter a lista de veículos registrados.",
     ERROR_RETRIEVING_CAR_STATUS: "Erro ao obter o status do veículo.",
     ERROR_RETRIEVING_COMMAND_STATUS: "Erro ao obter o status do último comando.",
-    ERROR_FORMATTING_ADDRESS: "Não foi possível definir o endereço formatado para a localização atual.", 
+    ERROR_FORMATTING_ADDRESS: "Não foi possível definir o endereço formatado para a localização atual.",
     ERROR_READING_CERTIFICATES: "Erro ao ler os arquivos de certificado.",
     ERROR_RETRIEVING_CHARGING_LOGS: "Erro ao obter os registros de recarga.",
-    UNKNOWN_COMMAND: "Comando desconhecido",    
+    UNKNOWN_COMMAND: "Comando desconhecido",
 };
 
 const Services = {
@@ -95,50 +95,50 @@ const Services = {
 };
 
 async function auth() {
-  let { accessToken, refreshToken } = "";
+    let { accessToken, refreshToken } = "";
 
-  accessToken = storage.getItem("accessToken");
-  refreshToken = storage.getItem("refreshToken");
+    accessToken = storage.getItem("accessToken");
+    refreshToken = storage.getItem("refreshToken");
 
-  if (accessToken && !isTokenExpired(accessToken))
-    return { accessToken, refreshToken };
+    if (accessToken && !isTokenExpired(accessToken))
+        return { accessToken, refreshToken };
 
-  const deviceid = storage.getItem("deviceid") ? storage.getItem("deviceid") : md5(Math.random().toString());
-  storage.setItem("deviceid", deviceid);
+    const deviceid = storage.getItem("deviceid") ? storage.getItem("deviceid") : md5(Math.random().toString());
+    storage.setItem("deviceid", deviceid);
 
-  const params = { deviceid, password: md5(PASSWORD), account: USERNAME };
+    const params = { deviceid, password: md5(PASSWORD), account: USERNAME };
 
-  const userHeaders = {
-    appid: "6",
-    brand: "6",
-    brandid: "CCZ001",
-    country: "BR",
-    devicetype: "0",
-    enterpriseid: "CC01",
-    gwid: "",
-    language: "pt_BR",
-    rs: "5",
-    terminal: "GW_PC_GWM",
-  };
-  
-  try {
-    const { data } = await axios.post(Endpoints.apiLogin, params, { headers: userHeaders });
+    const userHeaders = {
+        appid: "6",
+        brand: "6",
+        brandid: "CCZ001",
+        country: "BR",
+        devicetype: "0",
+        enterpriseid: "CC01",
+        gwid: "",
+        language: "pt_BR",
+        rs: "5",
+        terminal: "GW_PC_GWM",
+    };
 
-    if (data.description === "SUCCESS") {
-      Object.keys(data.data).forEach((key) => {
-        if(key === "accessToken")
-            accessToken = data.data[key];
+    try {
+        const { data } = await axios.post(Endpoints.apiLogin, params, { headers: userHeaders });
 
-        if(key === "refreshToken")
-            refreshToken = data.data[key];
-      });
-      return { accessToken, refreshToken };
+        if (data.description === "SUCCESS") {
+            Object.keys(data.data).forEach((key) => {
+                if (key === "accessToken")
+                    accessToken = data.data[key];
+
+                if (key === "refreshToken")
+                    refreshToken = data.data[key];
+            });
+            return { accessToken, refreshToken };
+        }
+        throw data;
+    } catch (err) {
+        printLog(LogType.ERROR, `---${UserMessages.ERROR_AUTHENTICATION_LOG}---`, err);
+        throw new Error(UserMessages.ERROR_AUTHENTICATION);
     }
-    throw data;
-  } catch (err) {
-    printLog(LogType.ERROR, `---${UserMessages.ERROR_AUTHENTICATION_LOG}---`, err);
-    throw new Error(UserMessages.ERROR_AUTHENTICATION);
-  }
 };
 
 let headers = {}
@@ -202,10 +202,10 @@ async function getLastCommandResult(seqNo, vin) {
     }
 }
 
-async function sendCmd (instructions, vin) {
+async function sendCmd(instructions, vin) {
     try {
-        if(PIN === undefined || PIN === "")
-            return { code:"9999", message: UserMessages.PIN_NOT_CONFIGURED }
+        if (PIN === undefined || PIN === "")
+            return { code: "9999", message: UserMessages.PIN_NOT_CONFIGURED }
 
         const currentTime = Date.now();
         const _timeout = 60000;
@@ -226,7 +226,7 @@ async function sendCmd (instructions, vin) {
             lastResult = await getLastCommandResult(lastCommand.seqNo, vin);
 
             if (lastResult) {
-                if(!['6', '10'].includes(lastResult.resultCode)) {
+                if (!['6', '10'].includes(lastResult.resultCode)) {
                     const service = Object.values(Services).find(s => s.code === lastResult.remoteType);
                     const description = service ? service.description : UserMessages.UNKNOWN_COMMAND;
                     return {
@@ -242,7 +242,7 @@ async function sendCmd (instructions, vin) {
         lastCommands[vin] = { seqNo, timestamp: currentTime };
         storage.setItem("lastCommands", JSON.stringify(lastCommands));
 
-        const options = { headers };    
+        const options = { headers };
         const remoteType = 0;
         const securityPassword = md5(PIN);
         const type = 2;
@@ -253,7 +253,7 @@ async function sendCmd (instructions, vin) {
             `${Endpoints.apiVehicle}/vehicle/T5/sendCmd`,
             {
                 instructions,
-                remoteType, 
+                remoteType,
                 securityPassword,
                 seqNo,
                 type,
@@ -274,19 +274,19 @@ async function sendCmd (instructions, vin) {
 
 async function chargingSchedule(enable, vin) {
     try {
-        if(PIN === undefined || PIN === "")
-            return { code:"9999", message: UserMessages.PIN_NOT_CONFIGURED }
-    
-        const seqNo = require('crypto').randomUUID().replaceAll('-', '') + '1234';  
+        if (PIN === undefined || PIN === "")
+            return { code: "9999", message: UserMessages.PIN_NOT_CONFIGURED }
+
+        const seqNo = require('crypto').randomUUID().replaceAll('-', '') + '1234';
         const startTimeAdd = 5 * 60 * 1000;
         const endTimeAdd = 6 * 60 * 1000;
         const startTime = new Date().getTime() + startTimeAdd;
         const endTime = new Date().getTime() + endTimeAdd;
-    
+
         let options = {
-        headers,
-        };   
-    
+            headers,
+        };
+
         const body = {
             enable: enable,
             startTime: enable ? startTime : "",
@@ -295,13 +295,13 @@ async function chargingSchedule(enable, vin) {
             planType: "1",
             vin: vin
         };
-    
+
         const res = await axios.post(
             `${Endpoints.apiVehicle}/vehicleCharge/setChargingPlan?vin=${vin}`,
             body,
             options
         );
-    
+
         return res.data;
     } catch (e) {
         printLog(LogType.ERROR, `---${UserMessages.ERROR_SETTING_CHARGING}---`, e);
@@ -309,28 +309,28 @@ async function chargingSchedule(enable, vin) {
     }
 }
 
-function apiReturnHandle(returnData, functionName){
-    if(returnData && returnData.description === "SUCCESS") {
+function apiReturnHandle(returnData, functionName) {
+    if (returnData && returnData.description === "SUCCESS") {
         return { result: true, message: UserMessages.COMMAND_SUCCESS(functionName.toString()) };
     }
-    else if(returnData) {
-        if(returnData.running === true || (returnData.code && returnData.code === "9999"))
-            return { result: false, message: returnData.message};
-        
-        if(returnData.code && returnData.code === "REMOTE250502")
-            return { result: false, message: UserMessages.SYSTEM_BUSY};
-        
-        if(returnData.result === false){
+    else if (returnData) {
+        if (returnData.running === true || (returnData.code && returnData.code === "9999"))
+            return { result: false, message: returnData.message };
+
+        if (returnData.code && returnData.code === "REMOTE250502")
+            return { result: false, message: UserMessages.SYSTEM_BUSY };
+
+        if (returnData.result === false) {
             printLog(LogType.ERROR, `---${UserMessages.ERROR_EXECUTING_COMMAND("de", functionName.toString())}--- `, returnData);
-            return { result: false, message: returnData.message, error: true};
+            return { result: false, message: returnData.message, error: true };
         }
     }
-    else{
+    else {
         let errorCode = "";
-        if(returnData.code)
+        if (returnData.code)
             errorCode = returnData.code;
         printLog(LogType.INFO, `---${UserMessages.ERROR_EXECUTING_COMMAND("de", functionName.toString())}---`, errorCode);
-        return { result: false, message: UserMessages.COMMAND_FAILED(functionName.toString()), error: true};
+        return { result: false, message: UserMessages.COMMAND_FAILED(functionName.toString()), error: true };
     }
 }
 
@@ -339,8 +339,8 @@ const carData = {
         try {
             await updateHeaders();
             return await axios.get(`${Endpoints.apiVehicle}/globalapp/vehicle/acquireVehicles`, { headers });
-            
-        } catch(e) {
+
+        } catch (e) {
             printLog(LogType.ERROR, `---${UserMessages.ERROR_RETRIEVING_CAR_DATA}---`, e.Message);
         }
     },
@@ -352,9 +352,9 @@ const carData = {
         } catch (e) {
             printLog(LogType.ERROR, `---${UserMessages.ERROR_RETRIEVING_CAR_LIST}---`, e.Message);
         }
-    },    
-    async getStatus(vin) {        
-        try{
+    },
+    async getStatus(vin) {
+        try {
             await updateHeaders();
             const data = await carData.getCarInfo(vin);
 
@@ -371,61 +371,61 @@ const carData = {
                     }
                 });
 
-                if(data.hasOwnProperty("hyEngSts")) {
+                if (data.hasOwnProperty("hyEngSts")) {
                     const topicInfo = {
-                                        code: "hyEngSts",
-                                        description: "Estado do Motor",
-                                        entity_type: "sensor",
-                                        value: `${data.hyEngSts ? data.hyEngSts : '0'}`,
-                                        icon: "mdi:engine",
-                                        state_on: "1",
-                                        state_off: "0"
-                                      };
-                    status[slugify(topicInfo.description.replace(/[\(\)-]/g, '').toLowerCase(), "_")] = { 
-                        ...topicInfo, 
-                        value: `${data.hyEngSts}` 
+                        code: "hyEngSts",
+                        description: "Estado do Motor",
+                        entity_type: "sensor",
+                        value: `${data.hyEngSts ? data.hyEngSts : '0'}`,
+                        icon: "mdi:engine",
+                        state_on: "1",
+                        state_off: "0"
+                    };
+                    status[slugify(topicInfo.description.replace(/[\(\)-]/g, '').toLowerCase(), "_")] = {
+                        ...topicInfo,
+                        value: `${data.hyEngSts}`
                     };
                 }
             }
             return status;
-        }catch(e){
+        } catch (e) {
             printLog(LogType.ERROR, `---${UserMessages.ERROR_RETRIEVING_CAR_STATUS}---`, e);
             return UserMessages.ERROR_RETRIEVING_CAR_STATUS
         }
     },
     async getChargingLogs(vin) {
-      try {
-        await updateHeaders();
+        try {
+            await updateHeaders();
 
-        const body = {
-          vin: vin.toUpperCase(),
-          pageNum: "1",
-          pageSize: "100",
-          continuation: "0"    
-        };
-    
-        const chargingLogs = await axios.post(`${Endpoints.apiVehicle}/vehicleCharge/getChargeLogs`, body, { headers });
-        
-        if(chargingLogs && chargingLogs.data && chargingLogs.data.data.list && chargingLogs.data.data.list.length > 0) {
-          const formattedList = chargingLogs.data.data.list.map(({ startTime, endTime }) => {
-            const startDate = new Date(parseInt(startTime)).toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' });
-            const endDate = new Date(parseInt(endTime)).toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' });
-          
-            const startTimeFormatted = new Date(parseInt(startTime)).toLocaleTimeString('pt-BR', { timeZone: 'America/Sao_Paulo', hour: '2-digit', minute: '2-digit' });
-            const endTimeFormatted = new Date(parseInt(endTime)).toLocaleTimeString('pt-BR', { timeZone: 'America/Sao_Paulo', hour: '2-digit', minute: '2-digit' });
-          
-            return `${startDate} ${startTimeFormatted} ~ ${endDate} ${endTimeFormatted}`;
-          });
-          
-          return formattedList;
+            const body = {
+                vin: vin.toUpperCase(),
+                pageNum: "1",
+                pageSize: "100",
+                continuation: "0"
+            };
+
+            const chargingLogs = await axios.post(`${Endpoints.apiVehicle}/vehicleCharge/getChargeLogs`, body, { headers });
+
+            if (chargingLogs && chargingLogs.data && chargingLogs.data.data.list && chargingLogs.data.data.list.length > 0) {
+                const formattedList = chargingLogs.data.data.list.map(({ startTime, endTime }) => {
+                    const startDate = new Date(parseInt(startTime)).toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' });
+                    const endDate = new Date(parseInt(endTime)).toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' });
+
+                    const startTimeFormatted = new Date(parseInt(startTime)).toLocaleTimeString('pt-BR', { timeZone: 'America/Sao_Paulo', hour: '2-digit', minute: '2-digit' });
+                    const endTimeFormatted = new Date(parseInt(endTime)).toLocaleTimeString('pt-BR', { timeZone: 'America/Sao_Paulo', hour: '2-digit', minute: '2-digit' });
+
+                    return `${startDate} ${startTimeFormatted} ~ ${endDate} ${endTimeFormatted}`;
+                });
+
+                return formattedList;
+            }
+            else
+                return "";
+
+        } catch (e) {
+            printLog(LogType.ERROR, `---${UserMessages.ERROR_RETRIEVING_CHARGING_LOGS}---`, e.message);
+            return "";
         }
-        else
-          return "";
-
-      } catch (e) {
-        printLog(LogType.ERROR, `---${UserMessages.ERROR_RETRIEVING_CHARGING_LOGS}---`, e.message);
-        return "";
-      }
     }
 }
 
@@ -434,59 +434,59 @@ const carUtil = {
         const actualStatus = await carData.getStatus(vin);
         let airConAction = "";
 
-        if(actualStatus && actualStatus["estado_do_ar_condicionado"]){
-            if((action === Actions.AirCon.TURN_OFF && actualStatus["estado_do_ar_condicionado"].value === States.AirCon.OFF)
-             ||(action === Actions.AirCon.TURN_ON  && actualStatus["estado_do_ar_condicionado"].value === States.AirCon.ON)){
-                return { result: false, message: UserMessages.COMMAND_NOT_EXECUTED("ar-condicionado")};
+        if (actualStatus && actualStatus["estado_do_ar_condicionado"]) {
+            if ((action === Actions.AirCon.TURN_OFF && actualStatus["estado_do_ar_condicionado"].value === States.AirCon.OFF)
+                || (action === Actions.AirCon.TURN_ON && actualStatus["estado_do_ar_condicionado"].value === States.AirCon.ON)) {
+                return { result: false, message: UserMessages.COMMAND_NOT_EXECUTED("ar-condicionado") };
             }
-            if(actualStatus["estado_da_trava"].value !== States.Doors.CLOSED) {
-                return { result: false, message: UserMessages.VEHICLE_LOCKED_REQUIRED("ar-condicionado")};
+            if (actualStatus["estado_da_trava"].value !== States.Doors.CLOSED) {
+                return { result: false, message: UserMessages.VEHICLE_LOCKED_REQUIRED("ar-condicionado") };
             }
             airConAction = action;
         }
         else
             airConAction = Actions.AirCon.TURN_OFF;
 
-        try{
+        try {
             const acData = await sendCmd({
-                                          [Services.airCon.code]: {
-                                              "airConditioner": {
-                                                  "operationTime": "15",
-                                                  "switchOrder": airConAction,
-                                                  "temperature": "18"
-                                              }
-                                          }
-                                         }, vin);
+                [Services.airCon.code]: {
+                    "airConditioner": {
+                        "operationTime": "15",
+                        "switchOrder": airConAction,
+                        "temperature": "18"
+                    }
+                }
+            }, vin);
 
             return apiReturnHandle(acData, "ar-condicionado");
-        }catch(e){
-            printLog(LogType.ERROR, UserMessages.ERROR_EXECUTING_COMMAND({preposition: "do",  functionName: "ar-condicionado" }), e);
-            return { result: false, message: UserMessages.ERROR_EXECUTING_COMMAND({preposition: "do",  functionName: "ar-condicionado" }) };
+        } catch (e) {
+            printLog(LogType.ERROR, UserMessages.ERROR_EXECUTING_COMMAND({ preposition: "do", functionName: "ar-condicionado" }), e);
+            return { result: false, message: UserMessages.ERROR_EXECUTING_COMMAND({ preposition: "do", functionName: "ar-condicionado" }) };
         }
     },
     async engine(action, vin) {
         const actualStatus = await carData.getStatus(vin);
-        if(actualStatus["estado_da_trava"].value !== States.Doors.CLOSED) {
-            return { result: false, message: UserMessages.VEHICLE_LOCKED_REQUIRED("motor")};
+        if (actualStatus["estado_da_trava"].value !== States.Doors.CLOSED) {
+            return { result: false, message: UserMessages.VEHICLE_LOCKED_REQUIRED("motor") };
         }
 
-        if((action === Actions.Engine.TURN_OFF && actualStatus["estado_do_motor"].value === States.Engine.OFF)
-         ||(action === Actions.Engine.TURN_ON  && actualStatus["estado_do_motor"].value === States.Engine.ON)){
-            return { result: false, message: UserMessages.COMMAND_NOT_EXECUTED("motor")};
+        if ((action === Actions.Engine.TURN_OFF && actualStatus["estado_do_motor"].value === States.Engine.OFF)
+            || (action === Actions.Engine.TURN_ON && actualStatus["estado_do_motor"].value === States.Engine.ON)) {
+            return { result: false, message: UserMessages.COMMAND_NOT_EXECUTED("motor") };
         }
 
-        try{
+        try {
             const engineData = await sendCmd({
-                                          [Services.engine.code]: {
-                                              "operationTime": "15",
-                                              "switchOrder": action
-                                          }
-                                         }, vin);
+                [Services.engine.code]: {
+                    "operationTime": "15",
+                    "switchOrder": action
+                }
+            }, vin);
 
             return apiReturnHandle(engineData, "motor");
-        }catch(e){
-            printLog(LogType.ERROR, UserMessages.ERROR_EXECUTING_COMMAND({preposition: "do",  functionName: "motor" }), e);
-            return { result: false, message: UserMessages.ERROR_EXECUTING_COMMAND({preposition: "do",  functionName: "motor" }), error: true };
+        } catch (e) {
+            printLog(LogType.ERROR, UserMessages.ERROR_EXECUTING_COMMAND({ preposition: "do", functionName: "motor" }), e);
+            return { result: false, message: UserMessages.ERROR_EXECUTING_COMMAND({ preposition: "do", functionName: "motor" }), error: true };
         }
     },
     async windows_skyWindow(action, windowsOption, vin) {
@@ -494,21 +494,21 @@ const carUtil = {
         let windowsAction = "";
         let skyWindowAction = "";
 
-        if(windowsOption === Options.Windows.WINDOWS){
-            if(actualStatus 
-               && actualStatus["vidro_dianteiro_esquerdo"]
-               && actualStatus["vidro_dianteiro_direito"]
-               && actualStatus["vidro_traseiro_esquerdo"]
-               && actualStatus["vidro_traseiro_direito"]) {
+        if (windowsOption === Options.Windows.WINDOWS) {
+            if (actualStatus
+                && actualStatus["vidro_dianteiro_esquerdo"]
+                && actualStatus["vidro_dianteiro_direito"]
+                && actualStatus["vidro_traseiro_esquerdo"]
+                && actualStatus["vidro_traseiro_direito"]) {
 
-                const actualWindowsState =  actualStatus["vidro_dianteiro_esquerdo"].value
-                                          + actualStatus["vidro_dianteiro_direito"].value
-                                          + actualStatus["vidro_traseiro_esquerdo"].value
-                                          + actualStatus["vidro_traseiro_direito"].value;
+                const actualWindowsState = actualStatus["vidro_dianteiro_esquerdo"].value
+                    + actualStatus["vidro_dianteiro_direito"].value
+                    + actualStatus["vidro_traseiro_esquerdo"].value
+                    + actualStatus["vidro_traseiro_direito"].value;
 
                 if ((action === Actions.Windows.CLOSE && !actualWindowsState.includes(States.Windows.OPEN) && !actualWindowsState.includes(States.Windows.PARTIALLY_OPEN))
-                  ||(action === Actions.Windows.OPEN  && actualWindowsState.includes(States.Windows.CLOSED))){
-                    return { result: false, message: UserMessages.COMMAND_NOT_EXECUTED("janelas")};
+                    || (action === Actions.Windows.OPEN && actualWindowsState.includes(States.Windows.CLOSED))) {
+                    return { result: false, message: UserMessages.COMMAND_NOT_EXECUTED("janelas") };
                 }
 
                 windowsAction = action;
@@ -517,13 +517,13 @@ const carUtil = {
             }
             else
                 windowsAction = Actions.Windows.CLOSE;
-        }        
+        }
 
-        if(windowsOption === Options.Windows.SKYWINDOW){
-            if(actualStatus && actualStatus["posicao_do_teto_solar"]){
+        if (windowsOption === Options.Windows.SKYWINDOW) {
+            if (actualStatus && actualStatus["posicao_do_teto_solar"]) {
                 if ((action === Actions.SkyWindow.CLOSE && actualStatus["posicao_do_teto_solar"].value === States.SkyWindow.CLOSED)
-                  ||(action === Actions.SkyWindow.OPEN  && actualStatus["posicao_do_teto_solar"].value !== States.SkyWindow.CLOSED)){
-                    return { result: false, message: UserMessages.COMMAND_NOT_EXECUTED("teto solar")};
+                    || (action === Actions.SkyWindow.OPEN && actualStatus["posicao_do_teto_solar"].value !== States.SkyWindow.CLOSED)) {
+                    return { result: false, message: UserMessages.COMMAND_NOT_EXECUTED("teto solar") };
                 }
                 skyWindowAction = action;
             }
@@ -531,30 +531,30 @@ const carUtil = {
                 skyWindowAction = Actions.SkyWindow.CLOSE;
         }
 
-        try{
+        try {
             const windowData = await sendCmd({
-                                              [Services.window.code]: {
-                                                  "switchOrder": "0",
-                                                  "window": {
-                                                      "leftFront": windowsAction,
-                                                      "leftBack": windowsAction,
-                                                      "rearFront": windowsAction,
-                                                      "rearBack": windowsAction,
-                                                      "skyLight": skyWindowAction
-                                                  }
-                                              }
-                                             }, vin);
-            
+                [Services.window.code]: {
+                    "switchOrder": "0",
+                    "window": {
+                        "leftFront": windowsAction,
+                        "leftBack": windowsAction,
+                        "rearFront": windowsAction,
+                        "rearBack": windowsAction,
+                        "skyLight": skyWindowAction
+                    }
+                }
+            }, vin);
+
             return apiReturnHandle(windowData, windowsOption === Options.Windows.SKYWINDOW ? "teto solar" : "janelas");
-        }catch(e){
-            printLog(LogType.ERROR, `---${UserMessages.ERROR_EXECUTING_COMMAND({preposition: "das",  functionName: Options.Windows.SKYWINDOW ? "teto solar" : "janelas" })}---`, e);
-            return { result: false, message: UserMessages.ERROR_EXECUTING_COMMAND({preposition: "das",  functionName: Options.Windows.SKYWINDOW ? "teto solar" : "janelas" }), error: true};
+        } catch (e) {
+            printLog(LogType.ERROR, `---${UserMessages.ERROR_EXECUTING_COMMAND({ preposition: "das", functionName: Options.Windows.SKYWINDOW ? "teto solar" : "janelas" })}---`, e);
+            return { result: false, message: UserMessages.ERROR_EXECUTING_COMMAND({ preposition: "das", functionName: Options.Windows.SKYWINDOW ? "teto solar" : "janelas" }), error: true };
         }
     },
     async windows(action, vin) {
         return this.windows_skyWindow(action, Options.Windows.WINDOWS, vin);
     },
-    async skyWindow(action) {
+    async skyWindow(action, vin) {
         return this.windows_skyWindow(action, Options.Windows.SKYWINDOW, vin);
     },
     async doors_trunk(action, doorsOption, vin) {
@@ -566,13 +566,13 @@ const carUtil = {
             const lockState = doorsOption === Options.Doors.TRUNK ? actualStatus["portamalas"] : actualStatus["estado_da_trava"];
 
             if (lockState) {
-            if ((action === Actions.Doors.CLOSE && lockState.value === States.Doors.CLOSED)
-             || (action === Actions.Doors.OPEN  && lockState.value === States.Doors.OPEN)) {
-                return { result: false, message: UserMessages.COMMAND_NOT_EXECUTED(doorsOption === Options.Doors.TRUNK ? "porta-malas" : "portas")};
-            }
-            doorsAction = action;
+                if ((action === Actions.Doors.CLOSE && lockState.value === States.Doors.CLOSED)
+                    || (action === Actions.Doors.OPEN && lockState.value === States.Doors.OPEN)) {
+                    return { result: false, message: UserMessages.COMMAND_NOT_EXECUTED(doorsOption === Options.Doors.TRUNK ? "porta-malas" : "portas") };
+                }
+                doorsAction = action;
             } else {
-            doorsAction = Actions.Doors.CLOSE;
+                doorsAction = Actions.Doors.CLOSE;
             }
         } else {
             doorsAction = Actions.Doors.CLOSE;
@@ -580,16 +580,16 @@ const carUtil = {
 
         try {
             const doorData = await sendCmd({
-                                            [serviceCode]: {
-                                                "operationTime": "0",
-                                                "switchOrder": doorsAction
-                                            }
-                                           }, vin);
+                [serviceCode]: {
+                    "operationTime": "0",
+                    "switchOrder": doorsAction
+                }
+            }, vin);
 
             return apiReturnHandle(doorData, doorsOption === Options.Doors.TRUNK ? "porta-malas" : "portas");
         } catch (e) {
-            printLog(LogType.ERROR, `---${UserMessages.ERROR_EXECUTING_COMMAND({preposition: doorsOption === Options.Doors.TRUNK ? "do" : "das",  functionName: doorsOption === Options.Doors.TRUNK ? "porta-malas" : "portas" })}---`, e);
-            return { result: false, message: UserMessages.ERROR_EXECUTING_COMMAND({preposition: doorsOption === Options.Doors.TRUNK ? "do" : "das",  functionName: doorsOption === Options.Doors.TRUNK ? "porta-malas" : "portas" }), error: true };
+            printLog(LogType.ERROR, `---${UserMessages.ERROR_EXECUTING_COMMAND({ preposition: doorsOption === Options.Doors.TRUNK ? "do" : "das", functionName: doorsOption === Options.Doors.TRUNK ? "porta-malas" : "portas" })}---`, e);
+            return { result: false, message: UserMessages.ERROR_EXECUTING_COMMAND({ preposition: doorsOption === Options.Doors.TRUNK ? "do" : "das", functionName: doorsOption === Options.Doors.TRUNK ? "porta-malas" : "portas" }), error: true };
         }
     },
     async doors(action, vin) {
@@ -599,8 +599,8 @@ const carUtil = {
         return this.doors_trunk(action, Options.Doors.TRUNK, vin);
     },
     async stopCharging(vin) {
-        await chargingSchedule(true);
-        setTimeout(async () => { 
+        await chargingSchedule(true, vin);
+        setTimeout(async () => {
             await chargingSchedule(false, vin);
             printLog(LogType.INFO, `>>>${UserMessages.CHARGING_SCHEDULE_REVERSAL}<<<`);
         }, 2 * 60 * 1000);
