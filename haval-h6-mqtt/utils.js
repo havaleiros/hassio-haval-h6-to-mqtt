@@ -39,7 +39,7 @@ function printLog(logType, message, ...optionalParams) {
   const envLogLevel = process.env.LOG_LEVEL || "INFO";
 
   if (envLogLevel === "INFO" && logType === LogType.DEBUG) return;
-  if (envLogLevel === "ERROR" && ![LogType.ERROR, LogType.CRITICAL, LogType.FATAL].includes(logType)) return;
+  if (envLogLevel === "ERROR" && ![LogType.ERROR, LogType.CRITICAL, LogType.FATAL, LogType.STARTUP].includes(logType)) return;
 
   if (logType && logType === LogType.STARTUP) logType = LogType.INFO;
 
