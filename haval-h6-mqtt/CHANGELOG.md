@@ -1,4 +1,10 @@
 # Changelog
+## [1.0.7] - 2026-05-10
+## Adicionado
+- Nova configuração para definir o nível de log entre INFO, DEBUG e ERROR.
+
+### Consertado
+- Tratamento para verificar se o valor dos campos antes de compor a mensagem de status.
 
 ## [1.0.6] - 2026-04-24
 ## Consertado

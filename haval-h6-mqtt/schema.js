@@ -9,5 +9,6 @@ module.exports = yup.object({
   PASSWORD: yup.string().required('Password from "My GWM" app'),
   VIN: yup.string().required('Vehicle identification number.'),
   PIN: yup.string('PIN code from "My GWM" application'),
-  DEVICE_TRACKER_ENABLED: yup.boolean()
+  DEVICE_TRACKER_ENABLED: yup.boolean(),
+  LOG_LEVEL: yup.string().oneOf(['INFO', 'ERROR', 'DEBUG']).default('INFO')
 });

@@ -36,8 +36,8 @@ const GetCarLastStatus = async (vin) => {
 };
 
 storage.setItem('Startup', "true");
-printLog(LogType.INFO, "***STARTUP PROCESS INITIATED***");
-printLog(LogType.INFO, "Flight check:");
+printLog(LogType.STARTUP, "***STARTUP PROCESS INITIATED***");
+printLog(LogType.STARTUP, "Flight check:");
 const fs = require("fs");
 if (!fs.existsSync("./certs/gwm_general.cer")) printLog(LogType.ERROR, "¡¡¡GWM general certicate not found!!!");
 if (!fs.existsSync("./certs/gwm_general.key")) printLog(LogType.ERROR, "¡¡¡GWM general certificate key not found!!!");
@@ -45,18 +45,18 @@ if (!fs.existsSync("./certs/gwm_root.cer")) printLog(LogType.ERROR, "¡¡¡GWM r
 
 validationSchema.validate(process.env)
   .then(() => {
-    printLog(LogType.INFO, "  MQTT parameters validated");
+    printLog(LogType.STARTUP, "  MQTT parameters validated");
     return checkConnection();
   })
   .then(async () => {
-    printLog(LogType.INFO, "  Retrieving car list");
+    printLog(LogType.STARTUP, "  Retrieving car list");
     return await getCarList();
   })
   .then(async (data) => {
     var carList = data;
     if (carList.length > 0) {
 
-      printLog(LogType.INFO, "  Registering car list");
+      printLog(LogType.STARTUP, "  Registering car list");
       const vinArray = carList.map(car => car.vin);
       storage.setItem('vinList', vinArray);
 
@@ -78,13 +78,13 @@ validationSchema.validate(process.env)
         sendMqtt(topic, String(VIN).toUpperCase(), { retain: true }); //Set the default VIN
       }
 
-      printLog(LogType.INFO, "  Retrieving car data");
+      printLog(LogType.STARTUP, "  Retrieving car data");
       for (const key of Object.keys(carList)) {
-        printLog(LogType.INFO, `  Registering car: ${carList[key].vin}`);
+        printLog(LogType.STARTUP, `  Registering car: ${carList[key].vin}`);
 
         var _vin = carList[key].vin;
 
-        printLog(LogType.INFO, "    Removing deprecated entities");
+        printLog(LogType.STARTUP, "    Removing deprecated entities");
         Object.keys(sensorTopics).forEach((code) => {
           var { entity_type, actionable } = sensorTopics[code];
 
@@ -115,7 +115,7 @@ validationSchema.validate(process.env)
         });
 
         if (carList[key].staticImageUrl) {
-          printLog(LogType.INFO, "    Registering static entities");
+          printLog(LogType.STARTUP, "    Registering static entities");
 
           const powerType = String(carList[key].powerType || "").trim();
           const seriesName = String(carList[key].appShowSeriesName || "").trim();
@@ -179,11 +179,11 @@ validationSchema.validate(process.env)
           storage.setItem('model-' + _vin, `${modelValue} - ${carList[key].color}`);
         }
 
-        printLog(LogType.INFO, "    Retrieving car status");
+        printLog(LogType.STARTUP, "    Retrieving car status");
         const data = await GetCarLastStatus(_vin);
 
         if (data && data.items) {
-          printLog(LogType.INFO, "    Registering entities");
+          printLog(LogType.STARTUP, "    Registering entities");
           //---------------------
           Object.keys(sensorTopics).forEach((code) => {
             var { description, unit, device_class, entity_type, icon, actionable, state_class } = sensorTopics[code];
@@ -249,7 +249,7 @@ validationSchema.validate(process.env)
           //---------------------
           const isDeviceTrackerEnabled = Boolean(DEVICE_TRACKER_ENABLED === 'true');
           if (isDeviceTrackerEnabled) {
-            printLog(LogType.INFO, "    Registering device tracker");
+            printLog(LogType.STARTUP, "    Registering device tracker");
 
             register(EntityType.DEVICE_TRACKER,
               vin = _vin,
@@ -262,7 +262,7 @@ validationSchema.validate(process.env)
 
             sendDeviceTrackerUpdate(vin, String(data.latitude), String(data.longitude), attributes);
             //---------------------
-            printLog(LogType.INFO, "    Registering address entity");
+            printLog(LogType.STARTUP, "    Registering address entity");
             register(entityType = EntityType.SENSOR,
               vin = _vin,
               code = 'endereco_atual',
@@ -284,7 +284,7 @@ validationSchema.validate(process.env)
             remove(EntityType.SENSOR, "gwmbrasil", _vin, "endereco_atual");
           }
           //---------------------
-          printLog(LogType.INFO, "    Registering status message entity");
+          printLog(LogType.STARTUP, "    Registering status message entity");
           register(entityType = EntityType.SENSOR,
             vin = _vin,
             code = 'status_message',
@@ -303,7 +303,7 @@ validationSchema.validate(process.env)
             sendMessage(vin, "status_message", formattedMessage);
           }
 
-          printLog(LogType.INFO, "    Activating actionables and linked entities");
+          printLog(LogType.STARTUP, "    Activating actionables and linked entities");
           ActionableAndLink.execute();
         }
         else {
@@ -313,7 +313,7 @@ validationSchema.validate(process.env)
     }
   })
   .then(() => {
-    printLog(LogType.INFO, "***STARTUP PROCESS FINISHED***");
+    printLog(LogType.STARTUP, "***STARTUP PROCESS FINISHED***");
     storage.setItem('Startup', "false");
   })
   .catch((e) => {

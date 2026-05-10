@@ -46,15 +46,15 @@ function getVehicleStatusHardAnalysis(content) {
 
         if (status && status.vidro_dianteiro_esquerdo) {
                 if (status.estado_de_carga_soc) {
-                        if (status.estado_de_carga_soc.value === 100 && status.estado_da_carga.value !== status.estado_da_carga.state_disconnected)
+                        if (status.estado_de_carga_soc.value === 100 && status.estado_da_carga && status.estado_da_carga.value !== status.estado_da_carga.state_disconnected)
                                 statusMessage.push(msgs.ALERT_HIGH_VOLTAGE_DISCONNECT);
 
-                        if (status.estado_da_carga && status.estado_da_carga.value === status.estado_da_carga.state_charging && status.tempo_de_carga.value !== '1022')
+                        if (status.estado_da_carga && status.estado_da_carga.value === status.estado_da_carga.state_charging && status.tempo_de_carga && status.tempo_de_carga.value !== '1022')
                                 statusMessage.push(msgs.VEHICLE_CHARGING_TIME(status.tempo_de_carga.value));
                 }
 
                 const checkWindowStatus = (windowStatus) => {
-                        if (windowStatus.value !== windowStatus.state_closed) {
+                        if (windowStatus && windowStatus.value !== windowStatus.state_closed) {
                                 statusMessage.push(msgs.WINDOW_OPEN(windowStatus.description));
                         }
                 };
@@ -68,7 +68,7 @@ function getVehicleStatusHardAnalysis(content) {
                         statusMessage.push(msgs.SUNROOF_OPEN);
 
                 const checkDoorStatus = (doorStatus) => {
-                        if (doorStatus.value !== doorStatus.state_closed) {
+                        if (doorStatus && doorStatus.value !== doorStatus.state_closed) {
                                 statusMessage.push(msgs.DOOR_OPEN(doorStatus.description));
                         }
                 };
@@ -93,21 +93,23 @@ function getVehicleStatusHardAnalysis(content) {
                 if (status.estado_da_trava && status.estado_da_trava.value === status.estado_da_trava.state_open)
                         statusMessage.push(msgs.UNLOCKED);
 
-                if (status.estado_da_trava && status.estado_da_trava.value === status.estado_da_trava.state_open && status.estado_do_motor.value === status.estado_do_motor.state_on)
+                if (status.estado_da_trava && status.estado_da_trava.value === status.estado_da_trava.state_open && status.estado_do_motor && status.estado_do_motor.value === status.estado_do_motor.state_on)
                         statusMessage.push(msgs.ENGINE_ON_AND_UNLOCKED);
 
                 if (status.nivel_de_combustivel && parseInt(status.nivel_de_combustivel.value, 10) <= 15)
                         statusMessage.push(msgs.FUEL_LOW);
 
-                if (status.estado_do_ar_condicionado && status.estado_do_ar_condicionado.value === status.estado_do_ar_condicionado.state_on && status.estado_do_motor.value === status.estado_do_motor.state_off)
+                if (status.estado_do_ar_condicionado && status.estado_do_ar_condicionado.value === status.estado_do_ar_condicionado.state_on && status.estado_do_motor && status.estado_do_motor.value === status.estado_do_motor.state_off)
                         statusMessage.push(msgs.AC_ON_WITH_ENGINE_OFF);
 
                 let tireAlertCount = 0;
                 const checkTirePressure = (tirePressure, tireTemperature) => {
-                        const psiPressure = Math.floor(parseInt(tirePressure.value) * 0.145038);
-                        if (psiPressure < tirePressure.pressure_threshold_min || psiPressure > tirePressure.pressure_threshold_max) {
-                                statusMessage.push(msgs.TIRE_PRESSURE(tirePressure.description, psiPressure, tireTemperature.value, tireTemperature.unit));
-                                tireAlertCount++;
+                        if (tirePressure && tireTemperature) {
+                                const psiPressure = Math.floor(parseInt(tirePressure.value) * 0.145038);
+                                if (psiPressure < tirePressure.pressure_threshold_min || psiPressure > tirePressure.pressure_threshold_max) {
+                                        statusMessage.push(msgs.TIRE_PRESSURE(tirePressure.description, psiPressure, tireTemperature.value, tireTemperature.unit));
+                                        tireAlertCount++;
+                                }
                         }
                 };
 
@@ -116,7 +118,7 @@ function getVehicleStatusHardAnalysis(content) {
                 checkTirePressure(status.pressao_do_pneu_traseiro_esquerdo, status.temperatura_do_pneu_traseiro_esquerdo);
                 checkTirePressure(status.pressao_do_pneu_traseiro_direito, status.temperatura_do_pneu_traseiro_direito);
 
-                if (tireAlertCount > 0) {
+                if (tireAlertCount > 0 && status.pressao_do_pneu_dianteiro_direito) {
                         statusMessage.push(msgs.TIRE_PRESSURE_DEFAULTS(status.pressao_do_pneu_dianteiro_direito.pressure_threshold_min, status.pressao_do_pneu_dianteiro_direito.pressure_threshold_max));
                 }
 

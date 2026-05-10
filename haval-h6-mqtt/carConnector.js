@@ -204,8 +204,11 @@ async function getLastCommandResult(seqNo, vin) {
 
 async function sendCmd(instructions, vin) {
     try {
-        if (PIN === undefined || PIN === "")
-            return { code: "9999", message: UserMessages.PIN_NOT_CONFIGURED }
+        if (PIN === undefined || PIN === "") {
+            const retData = { code: "9999", message: UserMessages.PIN_NOT_CONFIGURED };
+            printLog(LogType.DEBUG, `sendCmd returning data: ${Buffer.from(JSON.stringify(retData)).toString('base64')}`);
+            return retData;
+        }
 
         const currentTime = Date.now();
         const _timeout = 60000;
@@ -229,11 +232,13 @@ async function sendCmd(instructions, vin) {
                 if (!['6', '10'].includes(lastResult.resultCode)) {
                     const service = Object.values(Services).find(s => s.code === lastResult.remoteType);
                     const description = service ? service.description : UserMessages.UNKNOWN_COMMAND;
-                    return {
+                    const retData = {
                         result: false,
                         message: `${UserMessages.COMMAND_ALREADY_EXECUTING(description)} - (${lastResult.resultCode})`,
                         running: true
                     };
+                    printLog(LogType.DEBUG, `sendCmd returning data: ${Buffer.from(JSON.stringify(retData)).toString('base64')}`);
+                    return retData;
                 }
             }
         }
@@ -262,6 +267,7 @@ async function sendCmd(instructions, vin) {
             options
         );
 
+        printLog(LogType.DEBUG, `sendCmd returning data: ${Buffer.from(JSON.stringify(res.data)).toString('base64')}`);
         return res.data;
     } catch (err) {
         printLog(LogType.ERROR, `---${UserMessages.ERROR_SENDING_COMMAND}---`, err);
@@ -338,7 +344,9 @@ const carData = {
     async getCarList() {
         try {
             await updateHeaders();
-            return await axios.get(`${Endpoints.apiVehicle}/globalapp/vehicle/acquireVehicles`, { headers });
+            const response = await axios.get(`${Endpoints.apiVehicle}/globalapp/vehicle/acquireVehicles`, { headers });
+            printLog(LogType.DEBUG, `getCarList returning data: ${Buffer.from(JSON.stringify(response.data)).toString('base64')}`);
+            return response;
 
         } catch (e) {
             printLog(LogType.ERROR, `---${UserMessages.ERROR_RETRIEVING_CAR_DATA}---`, e.Message);
@@ -348,6 +356,7 @@ const carData = {
         try {
             await updateHeaders();
             const { data } = await axios.get(`${Endpoints.apiVehicle}/vehicle/getLastStatus?vin=${String(vin).toUpperCase()}&flag=true`, { headers });
+            printLog(LogType.DEBUG, `getCarInfo returning data: ${Buffer.from(JSON.stringify(data.data)).toString('base64')}`);
             return data.data;
         } catch (e) {
             printLog(LogType.ERROR, `---${UserMessages.ERROR_RETRIEVING_CAR_LIST}---`, e.Message);
@@ -387,6 +396,7 @@ const carData = {
                     };
                 }
             }
+            printLog(LogType.DEBUG, `getStatus returning data: ${Buffer.from(JSON.stringify(status)).toString('base64')}`);
             return status;
         } catch (e) {
             printLog(LogType.ERROR, `---${UserMessages.ERROR_RETRIEVING_CAR_STATUS}---`, e);
@@ -417,6 +427,7 @@ const carData = {
                     return `${startDate} ${startTimeFormatted} ~ ${endDate} ${endTimeFormatted}`;
                 });
 
+                printLog(LogType.DEBUG, `getChargingLogs returning data: ${Buffer.from(JSON.stringify(formattedList)).toString('base64')}`);
                 return formattedList;
             }
             else

@@ -10,9 +10,11 @@ export MQTT_HOST=$(bashio::config 'mqtt_server')
 export MQTT_USER=$(bashio::config 'mqtt_user')
 export MQTT_PASS=$(bashio::config 'mqtt_pass')
 export DEVICE_TRACKER_ENABLED=$(bashio::config 'device_tracker_enabled')
+export LOG_LEVEL=$(bashio::config 'log_level')
 bashio::log.info "Username: ${USERNAME}."
 bashio::log.info "VIN: ${VIN}."
 bashio::log.info "Refresh time: ${REFRESH_TIME}."
+bashio::log.info "Log Level: ${LOG_LEVEL}."
 
 bashio::log.info "Starting service."
 npm run start

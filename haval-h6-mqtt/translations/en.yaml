@@ -25,3 +25,6 @@ configuration:
   device_tracker_enabled:
     name: "Enable Device Tracker"
     description: "Registers vehicle positioning with tracking based on the configured interval. Used for display on the map."
+  log_level:
+    name: "Log Level"
+    description: "Set the verbosity level of the integration's logs."

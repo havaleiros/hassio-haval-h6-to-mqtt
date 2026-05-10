@@ -13,7 +13,7 @@ function getCurrentDateTime() {
 };
 
 function formatMessage(template, variables) {
-    return template.replace(/{{(.*?)}}/g, (_, key) => variables[key.trim()] || '');
+  return template.replace(/{{(.*?)}}/g, (_, key) => variables[key.trim()] || '');
 }
 
 function isTokenExpired(token) {
@@ -26,6 +26,7 @@ function isTokenExpired(token) {
 };
 
 const LogType = {
+  STARTUP: "startup",
   INFO: "info",
   ERROR: "error",
   WARNING: "warning",
@@ -34,7 +35,13 @@ const LogType = {
   FATAL: "fatal",
 };
 
-function printLog(logType, message, ...optionalParams){
+function printLog(logType, message, ...optionalParams) {
+  const envLogLevel = process.env.LOG_LEVEL || "INFO";
+
+  if (envLogLevel === "INFO" && logType === LogType.DEBUG) return;
+  if (envLogLevel === "ERROR" && ![LogType.ERROR, LogType.CRITICAL, LogType.FATAL].includes(logType)) return;
+
+  if (logType && logType === LogType.STARTUP) logType = LogType.INFO;
 
   if (logType && logType === LogType.ERROR) {
     let errorControl = parseInt(storage.getItem("errorControl") || "0", 10);
@@ -46,11 +53,11 @@ function printLog(logType, message, ...optionalParams){
       errorControl++;
       storage.setItem("errorControl", errorControl);
       if (errorControl > 3) {
-        
+
         let errorSequence = parseInt(storage.getItem("ErrorSequence") || "0", 10);
         if (errorSequence === 0) {
           storage.setItem("ErrorSequence", "1");
-            console.error(getCurrentDateTime() + " | !!! Sequential errors. Holding back messages. Please review the messages and restart the integration if required !!!", ...optionalParams);
+          console.error(getCurrentDateTime() + " | !!! Sequential errors. Holding back messages. Please review the messages and restart the integration if required !!!", ...optionalParams);
         }
         else {
           errorSequence++;
@@ -59,7 +66,7 @@ function printLog(logType, message, ...optionalParams){
 
         return;
       }
-    } else {      
+    } else {
       errorControl = 1;
       storage.setItem("errorControl", errorControl);
       if (lastError2 === "" && lastError1 !== "") {
@@ -84,7 +91,7 @@ function printLog(logType, message, ...optionalParams){
   }
 
   var _message = " | " + message;
-  switch(logType){
+  switch (logType) {
     case "info":
       console.info(getCurrentDateTime() + _message, ...optionalParams);
       break;
@@ -103,7 +110,7 @@ function printLog(logType, message, ...optionalParams){
     case "fatal":
       console.fatal(getCurrentDateTime() + _message, ...optionalParams);
       break;
-    }
+  }
 };
 
-module.exports = {isTokenExpired, getCurrentDateTime, LogType, printLog, formatMessage };
+module.exports = { isTokenExpired, getCurrentDateTime, LogType, printLog, formatMessage };

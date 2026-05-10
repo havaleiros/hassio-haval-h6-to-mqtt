@@ -25,3 +25,6 @@ configuration:
   device_tracker_enabled:
     name: "Ativar o device tracker"
     description: "Registrará o posicionamento do veículo com rastreamento com base no intervalo configurado. Utilizado para exibição no mapa."
+  log_level:
+    name: "Nível de Log"
+    description: "Define o nível de verbosidade dos logs da integração."
