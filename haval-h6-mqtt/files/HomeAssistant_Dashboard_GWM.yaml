@@ -2572,40 +2572,6 @@ views:
     title: gwm-3d
     icon: mdi:video-3d
     cards:
-      - type: custom:config-template-card
-        entities:
-          - sensor.gwmbrasil_${VEICULO}_modelo_do_veiculo
-          - sensor.gwmbrasil_${VEICULO}_tipo_de_motor
-        card:
-          type: iframe
-          aspect_ratio: 100%
-          url: >-
-            ${ (function () {
-
-            const modelo =
-            states[`sensor.gwmbrasil_${VEICULO}_modelo_do_veiculo`]?.state;
-            const motor  =
-            states[`sensor.gwmbrasil_${VEICULO}_tipo_de_motor`]?.state;
-
-            let name = "WEY07";
-
-            if (modelo === "HAVAL H6 HEV" && motor === "GW4B15M") name =
-            "NOVOH6HEV2"; else if (modelo === "HAVAL H6 HEV") name = "H6HEV2";
-            else if (modelo === "HAVAL H6 PHEV" && motor === "GW4B15M") name =
-            "NOVOH6PHEV35"; else if (modelo === "HAVAL H6 PHEV") name =
-            "H6PHEV"; else if (modelo === "HAVAL H6 PHEV (FWD)" && motor ===
-            "GW4B15M") name = "NOVOH6PHEV19"; else if (modelo === "HAVAL H6 PHEV
-            (FWD)") name = "H6PHEVFWD"; else if (modelo === "HAVAL H6 GT PHEV"
-            && motor === "GW4B15M") name = "NOVOH6GT"; else if (modelo ===
-            "HAVAL H6 GT PHEV") name = "H6GT"; else if (modelo === "ORA 03 Skin
-            (BEV48)") name = "ES11"; else if (modelo === "ORA 03 (BEV58)") name
-            = "ES11THA"; else if (modelo === "ORA 03 GT") name = "ES11GT"; else
-            if (modelo === "Tank 300") name = "TANK300"; else if (modelo ===
-            "Poer P30") name = "POER_Mid"; else if (modelo === "Poer P30
-            Exclusive") name = "POER_High"; else if (modelo === "HAVAL H9") name
-            = "H9";
-
-            return "https://br-h5-abroad-community.gwmcloud.com/br-vr/?name=" +
-            name;
-
-            })() }
+      - type: iframe
+        aspect_ratio: 100%
+        url: https://br-h5-abroad-community.gwmcloud.com/br-vr/
