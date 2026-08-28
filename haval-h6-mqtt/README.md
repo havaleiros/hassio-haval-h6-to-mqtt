@@ -189,7 +189,7 @@ Os seguintes custom cards são necessários:
 - [mushroom-title-card](https://github.com/piitaya/lovelace-mushroom)
 - [template-entity-row](https://github.com/thomasloven/lovelace-template-entity-row)
 - [card-mod](https://github.com/thomasloven/lovelace-card-mod)
-- [bar-card](https://github.com/custom-cards/bar-card)
+- [bar-card](https://github.com/spacerokk/bar-card)
 - [fold-entity-row](https://github.com/thomasloven/lovelace-fold-entity-row)
 - [config-template-card](https://github.com/iantrich/config-template-card) - _Utilize a versão `1.3.7-beta.1` do `config-template-card`_.
 - [lovelace-collapsable-cards](https://github.com/RossMcMillan92/lovelace-collapsable-cards)

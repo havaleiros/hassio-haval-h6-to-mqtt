@@ -379,4 +379,38 @@ const updateState = async () => {
   }
 };
 
-setInterval(async () => updateState(), (REFRESH_TIME || 5) * 1000);
+const FAST_REFRESH_INTERVAL_SEC = 5;
+const FAST_REFRESH_DURATION_MINUTES = 1;
+const MIN_REFRESH_TIME_SEC = 5;
+
+let fastRefreshUntil = 0;
+let refreshTimer = null;
+
+const getRefreshIntervalMs = () => {
+  const isFastRefresh = Date.now() < fastRefreshUntil;
+  const defaultInterval = Math.max(MIN_REFRESH_TIME_SEC, Number(REFRESH_TIME) || MIN_REFRESH_TIME_SEC);
+  const seconds = isFastRefresh ? FAST_REFRESH_INTERVAL_SEC : defaultInterval;
+  return seconds * 1000;
+};
+
+const scheduleNextUpdate = () => {
+  if (refreshTimer) clearTimeout(refreshTimer);
+
+  const delay = getRefreshIntervalMs();
+  refreshTimer = setTimeout(async () => {
+    await updateState();
+    scheduleNextUpdate();
+  }, delay);
+};
+
+const triggerFastRefresh = () => {
+  printLog(LogType.INFO, `Action executed: Temporarily setting refresh interval to ${FAST_REFRESH_INTERVAL_SEC} seconds for 1 minute.`);
+  fastRefreshUntil = Date.now() + FAST_REFRESH_DURATION_MINUTES * 60 * 1000;
+  scheduleNextUpdate();
+};
+
+ActionableAndLink.onActionExecuted(() => {
+  triggerFastRefresh();
+});
+
+scheduleNextUpdate();

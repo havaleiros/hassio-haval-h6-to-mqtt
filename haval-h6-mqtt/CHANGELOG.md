@@ -1,4 +1,13 @@
 # Changelog
+## [1.0.8] - 2026-08-27
+## Modificado
+- Atualização temporária do tempo de atualização (refresh_time) para 5 segundos durante 1 minuto após a execução bem-sucedida de um comando remoto (ActionableAndLink).
+- Substituído o repositório do bar-card por uma opção com manutenção. Isto não afeta instalações existentes, no entanto é uma recomendação remover o card atual e substituí-lo no HACS.
+- Alterado o device class do sensor de nível de combustível para `volume_storage`.
+
+### Segurança
+- Atualizações de dependências.
+
 ## [1.0.7] - 2026-05-10
 ## Adicionado
 - Nova configuração para definir o nível de log entre INFO, DEBUG e ERROR.

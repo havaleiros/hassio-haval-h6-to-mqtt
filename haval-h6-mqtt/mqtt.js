@@ -199,6 +199,10 @@ const mqttModule = {
 };
 
 const ActionableAndLink = {
+  onActionExecutedCallback: null,
+  onActionExecuted(cb) {
+    this.onActionExecutedCallback = cb;
+  },
   execute() {
     const client = mqttModule.connect();
 
@@ -289,12 +293,21 @@ const ActionableAndLink = {
             if (action && String(messageValue) === (String(topicsAndActions[key].link_type) === "press" ? 'PRESS' : 'ON')) {
               try {
                 const data = await action();
-                if (data && !data.result && data.error) {
-                  throw new Error(data.message)
+                if (data && data.result === false) {
+                  if (data.error) {
+                    throw new Error(data.message);
+                  }
+                  if (data.message) {
+                    SendStatusMessage(topicsAndActions[key].vin, data);
+                  }
+                  return;
                 }
 
                 if (data) SendStatusMessage(topicsAndActions[key].vin, data);
 
+                if (typeof ActionableAndLink.onActionExecutedCallback === "function") {
+                  ActionableAndLink.onActionExecutedCallback();
+                }
               } catch (e) {
                 printLog(LogType.ERROR, `***Error executing action [${String(topicsAndActions[key].action)}]***: ${e.message}`);
                 SendStatusMessage(topicsAndActions[key].vin, `Erro executando comando \"${String(topicsAndActions[key].action)}\".`);
