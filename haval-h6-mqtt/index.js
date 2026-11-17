@@ -4,6 +4,7 @@ const { LogType, printLog } = require('./utils');
 const carConnector = require("./carConnector");
 const { sensorTopics, attributeTopics } = require("./map");
 const { mqttModule, EntityType, ActionableAndLink } = require('./mqtt');
+const acSettings = require("./acSettings");
 const { checkConnection, register, remove, sendDeviceTrackerUpdate, sendMessage, sendMqtt } = mqttModule;
 
 require("dotenv").config();
@@ -302,6 +303,9 @@ validationSchema.validate(process.env)
             const formattedMessage = message.replace(/(\r\n|\n|\r)/g, " | ");
             sendMessage(vin, "status_message", formattedMessage);
           }
+
+          printLog(LogType.STARTUP, "    Registering A/C settings entities");
+          acSettings.start(_vin);
 
           printLog(LogType.STARTUP, "    Activating actionables and linked entities");
           ActionableAndLink.execute();

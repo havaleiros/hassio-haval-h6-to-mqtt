@@ -28,3 +28,9 @@ configuration:
   log_level:
     name: "Nível de Log"
     description: "Define o nível de verbosidade dos logs da integração."
+  ac_temperature:
+    name: "Temperatura do A/C (°C)"
+    description: "Somente valor inicial (16–32). Depois da primeira execução, use a entidade slider \"Temperatura do A/C\" no Home Assistant; alterar esta opção não tem mais efeito."
+  ac_duration_minutes:
+    name: "Duração do A/C (minutos)"
+    description: "Somente valor inicial (1–30). Depois da primeira execução, use a entidade slider \"Duração do A/C\" no Home Assistant; alterar esta opção não tem mais efeito."
