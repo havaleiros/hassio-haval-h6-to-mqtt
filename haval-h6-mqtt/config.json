@@ -19,7 +19,9 @@
     "refresh_time": 30,
     "mqtt_server": "mqtt://homeassistant.local:1883",
     "device_tracker_enabled": true,
-    "log_level": "INFO"
+    "log_level": "INFO",
+    "ac_temperature": 18,
+    "ac_duration_minutes": 15
   },
   "schema": {
     "gwm_username": "email",
@@ -31,6 +33,8 @@
     "mqtt_pass": "password?",
     "refresh_time": "int",
     "device_tracker_enabled": "bool",
-    "log_level": "list(INFO|ERROR|DEBUG)"
+    "log_level": "list(INFO|ERROR|DEBUG)",
+    "ac_temperature": "int(16,32)",
+    "ac_duration_minutes": "int(1,30)"
   }
 }

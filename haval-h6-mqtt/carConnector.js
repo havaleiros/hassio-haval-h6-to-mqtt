@@ -10,6 +10,8 @@ const { sensorTopics } = require("./map");
 const { error } = require("console");
 
 const { USERNAME, PASSWORD, PIN } = process.env;
+// A/C temperature/duration and purifier duration come from the HA number entities (see acSettings.js)
+const acSettings = require("./acSettings");
 
 const Actions = {
     Doors: { OPEN: "1", CLOSE: "2" },
@@ -441,6 +443,21 @@ const carData = {
 }
 
 const carUtil = {
+    // Air purifier (instruction 0x0C). Start: {operationTime: minutes, switchOrder: "1"}; stop: {"0", "2"}.
+    // The car runs A/C + engine together with it. Duration comes from the HA slider (acSettings).
+    async airPurifier(on, vin) {
+        const duration = on ? acSettings.get().purifierDuration : "0";
+        printLog(LogType.INFO, `Purifier command: ${on ? "on" : "off"}, ${duration} min`);
+        try {
+            const data = await sendCmd({
+                [Services.clearAir.code]: { "operationTime": duration, "switchOrder": on ? "1" : "2" }
+            }, vin);
+            return apiReturnHandle(data, "purificador de ar");
+        } catch (e) {
+            printLog(LogType.ERROR, UserMessages.ERROR_EXECUTING_COMMAND({ preposition: "do", functionName: "purificador de ar" }), e);
+            return { result: false, message: UserMessages.ERROR_EXECUTING_COMMAND({ preposition: "do", functionName: "purificador de ar" }) };
+        }
+    },
     async airConditioner(action, vin) {
         const actualStatus = await carData.getStatus(vin);
         let airConAction = "";
@@ -459,12 +476,14 @@ const carUtil = {
             airConAction = Actions.AirCon.TURN_OFF;
 
         try {
+            const ac = acSettings.get();
+            printLog(LogType.INFO, `A/C command: switchOrder ${airConAction}, ${ac.temperature} °C, ${ac.duration} min`);
             const acData = await sendCmd({
                 [Services.airCon.code]: {
                     "airConditioner": {
-                        "operationTime": "15",
+                        "operationTime": ac.duration,
                         "switchOrder": airConAction,
-                        "temperature": "18"
+                        "temperature": ac.temperature
                     }
                 }
             }, vin);

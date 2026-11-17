@@ -273,6 +273,12 @@ const ActionableAndLink = {
                   mqttModule.sendMqtt(json_attributes_topic, JSON.stringify({ charging_logs: "", last_update: last_update }), { retain: false });
                 }
               },
+              airPurifierOn: async () => {
+                return await carConnector.carUtil.airPurifier(true, topicsAndActions[key].vin);
+              },
+              airPurifierOff: async () => {
+                return await carConnector.carUtil.airPurifier(false, topicsAndActions[key].vin);
+              },
               stopCharging: async () => {
                 return await carConnector.carUtil.stopCharging(topicsAndActions[key].vin);
               },
