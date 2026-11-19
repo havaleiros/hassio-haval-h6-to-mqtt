@@ -16,14 +16,14 @@ if (REFRESH_TIME < 5) {
 
 const getCarList = async () => {
   try {
-    const { data } = await carConnector.carData.getCarList();
-    var carList;
-    if (data)
-      carList = data.data;
-
-    return carList;
+    const res = await carConnector.carData.getCarList();
+    if (res && res.data && Array.isArray(res.data.data)) {
+      return res.data.data;
+    }
+    return [];
   } catch (e) {
     printLog(LogType.ERROR, "***Error retrieving car data: ", e.message);
+    return [];
   }
 }
 
@@ -43,18 +43,18 @@ if (!fs.existsSync("./certs/gwm_general.cer")) printLog(LogType.ERROR, "¡¡¡GW
 if (!fs.existsSync("./certs/gwm_general.key")) printLog(LogType.ERROR, "¡¡¡GWM general certificate key not found!!!");
 if (!fs.existsSync("./certs/gwm_root.cer")) printLog(LogType.ERROR, "¡¡¡GWM root certificate not found!!!");
 
-validationSchema.validate(process.env)
-  .then(() => {
-    printLog(LogType.STARTUP, "  MQTT parameters validated");
-    return checkConnection();
-  })
-  .then(async () => {
-    printLog(LogType.STARTUP, "  Retrieving car list");
-    return await getCarList();
-  })
-  .then(async (data) => {
-    var carList = data;
-    if (carList.length > 0) {
+const runStartup = async () => {
+  await validationSchema.validate(process.env);
+  printLog(LogType.STARTUP, "  MQTT parameters validated");
+  await checkConnection();
+  printLog(LogType.STARTUP, "  Retrieving car list");
+  const carList = await getCarList();
+  if (!carList || carList.length === 0) {
+    printLog(LogType.ERROR, "  Car list unavailable (awaiting authentication/OTP or API error). Will retry on next cycle.");
+    return false;
+  }
+  const data = carList;
+  if (carList.length > 0) {
 
       printLog(LogType.STARTUP, "  Registering car list");
       const vinArray = carList.map(car => car.vin);
@@ -296,7 +296,7 @@ validationSchema.validate(process.env)
             initial_value = null,
             state_class = null);
 
-          const carStatus = await carConnector.carData.getStatus(vin);
+          const carStatus = await carConnector.carData.getStatus(vin, data);
           let message = carConnector.carTextUtil.getVehicleStatusHardAnalysis(JSON.stringify(carStatus));
           if (message) {
             const formattedMessage = message.replace(/(\r\n|\n|\r)/g, " | ");
@@ -311,10 +311,17 @@ validationSchema.validate(process.env)
         }
       }
     }
-  })
-  .then(() => {
-    printLog(LogType.STARTUP, "***STARTUP PROCESS FINISHED***");
-    storage.setItem('Startup', "false");
+  return true;
+};
+
+let startupCompleted = false;
+let startupPromise = runStartup()
+  .then((ok) => {
+    if (ok) {
+      startupCompleted = true;
+      printLog(LogType.STARTUP, "***STARTUP PROCESS FINISHED***");
+      storage.setItem('Startup', "false");
+    }
   })
   .catch((e) => {
     printLog(LogType.ERROR, '***Error on startup process: ', e.message);
@@ -322,6 +329,19 @@ validationSchema.validate(process.env)
   });
 
 const updateState = async () => {
+  if (startupPromise) {
+    await startupPromise;
+    startupPromise = null;
+  }
+  if (!startupCompleted) {
+    const ok = await runStartup();
+    if (ok) {
+      startupCompleted = true;
+      printLog(LogType.STARTUP, "***STARTUP PROCESS FINISHED***");
+      storage.setItem('Startup', "false");
+    }
+    return;
+  }
   const vinList = storage.getItem('vinList') ? storage.getItem('vinList').split(',') : [];
 
   for (const vin of vinList) {
@@ -363,7 +383,7 @@ const updateState = async () => {
           sendMessage(vin, "hyEngSts", data.hyEngSts);
         }
 
-        const carStatus = await carConnector.carData.getStatus(vin);
+        const carStatus = await carConnector.carData.getStatus(vin, data);
         let message = carConnector.carTextUtil.getVehicleStatusHardAnalysis(JSON.stringify(carStatus));
         if (message) {
           const formattedMessage = message.replace(/(\r\n|\n|\r)/g, " | ");

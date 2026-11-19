@@ -6,6 +6,11 @@ export USERNAME=$(bashio::config 'gwm_username')
 export PASSWORD=$(bashio::config 'gwm_password')
 export VIN=$(bashio::config 'gwm_vin')
 export PIN=$(bashio::config 'gwm_pin')
+if bashio::config.has_value 'gwm_verify_code'; then
+  export VERIFY_CODE=$(bashio::config 'gwm_verify_code')
+else
+  export VERIFY_CODE=""
+fi
 export MQTT_HOST=$(bashio::config 'mqtt_server')
 export MQTT_USER=$(bashio::config 'mqtt_user')
 export MQTT_PASS=$(bashio::config 'mqtt_pass')

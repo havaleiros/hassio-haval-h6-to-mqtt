@@ -16,14 +16,21 @@ function formatMessage(template, variables) {
   return template.replace(/{{(.*?)}}/g, (_, key) => variables[key.trim()] || '');
 }
 
-function isTokenExpired(token) {
-  const [, payloadBase64] = token.split('.');
-  const decodedJson = Buffer.from(payloadBase64, 'base64').toString();
-  const decoded = JSON.parse(decodedJson)
-  const { exp } = decoded;
-  const expired = (Date.now() >= exp * 1000)
-  return expired
-};
+function isTokenExpired(token, marginSeconds = 300) {
+  if (!token || typeof token !== "string") return true;
+  try {
+    const parts = token.split(".");
+    if (parts.length < 2) return true;
+    const payloadBase64 = parts[1].replace(/-/g, "+").replace(/_/g, "/");
+    const decodedJson = Buffer.from(payloadBase64, "base64").toString("utf8");
+    const decoded = JSON.parse(decodedJson);
+    const { exp } = decoded;
+    if (typeof exp !== "number" || !Number.isFinite(exp)) return true;
+    return Date.now() >= (exp - marginSeconds) * 1000;
+  } catch (e) {
+    return true;
+  }
+}
 
 const LogType = {
   STARTUP: "startup",
