@@ -13,6 +13,9 @@ configuration:
   gwm_pin:
     name: "PIN do aplicativo 'My GWM' para comandos"
     description: "Código PIN usado no aplicativo 'My GWM' para ativar a solicitação de comando, como ligar o ar condicionado."
+  gwm_verify_code:
+    name: "Código de verificação por e-mail (OTP)"
+    description: "Código recebido por e-mail na primeira autenticação de um novo dispositivo (erro 308103)."
   mqtt_server:
     name: "Endereço do servidor MQTT"
     description: "Endereço do servidor MQTT de sua instância do Home Assistant ou broker externo. Mantenha o padrão caso esteja instalado junto ao Home Assistant como um serviço."

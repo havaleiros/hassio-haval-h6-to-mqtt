@@ -1,4 +1,5 @@
 const fs = require("fs");
+const crypto = require("crypto");
 const axios = require("axios");
 const https = require("https");
 const md5 = require("md5");
@@ -6,10 +7,11 @@ const slugify = require("slugify");
 const storage = require("./storage");
 const carTextUtil = require("./carTextUtil");
 const { isTokenExpired, LogType, printLog } = require('./utils');
+const { signRequest } = require("./signing");
 const { sensorTopics } = require("./map");
-const { error } = require("console");
 
 const { USERNAME, PASSWORD, PIN } = process.env;
+const VERIFY_CODE_FILE = "/config/haval_h6_verify_code.txt";
 
 const Actions = {
     Doors: { OPEN: "1", CLOSE: "2" },
@@ -35,7 +37,24 @@ const Options = {
 
 const Endpoints = {
     apiVehicle: "https://br-app-gateway.gwmcloud.com/app-api/api/v1.0",
-    apiLogin: "https://br-front-service.gwmcloud.com/br-official-commerce/br-official-gateway/pc-api/api/v1.0/userAuth/loginAccount"
+    apiLoginBase: "https://br-h5-gateway.gwmcloud.com/app-api/api/v2.0",
+    apiH5Base: "https://br-h5-gateway.gwmcloud.com/app-api/api/v1.0",
+};
+
+const APP_HEADERS = {
+    rs: "2",
+    terminal: "GW_APP_GWM",
+    brand: "6",
+    language: "pt_BR",
+    systemtype: "2",
+    regioncode: "BR",
+    country: "BR",
+    appid: "6",
+    enterpriseid: "CC01",
+    channel: "APP",
+    cver: "1.4.2",
+    "User-Agent": "okhttp/4.9.3",
+    accept: "application/json",
 };
 
 const UserMessages = {
@@ -94,99 +113,383 @@ const Services = {
     slindingDoor: { code: "0x22", description: "Controle da porta deslizante" },
 };
 
-async function auth() {
-    let { accessToken, refreshToken } = "";
+const path = require("path");
+const { VERIFY_CODE } = process.env;
 
-    accessToken = storage.getItem("accessToken");
-    refreshToken = storage.getItem("refreshToken");
+let _loginHttpsAgent = null;
+let _vehicleHttpsAgent = null;
+let _authInFlight = null;
 
-    if (accessToken && !isTokenExpired(accessToken))
-        return { accessToken, refreshToken };
-
-    const deviceid = storage.getItem("deviceid") ? storage.getItem("deviceid") : md5(Math.random().toString());
-    storage.setItem("deviceid", deviceid);
-
-    const params = { deviceid, password: md5(PASSWORD), account: USERNAME };
-
-    const userHeaders = {
-        appid: "6",
-        brand: "6",
-        brandid: "CCZ001",
-        country: "BR",
-        devicetype: "0",
-        enterpriseid: "CC01",
-        gwid: "",
-        language: "pt_BR",
-        rs: "5",
-        terminal: "GW_PC_GWM",
-    };
-
-    try {
-        const { data } = await axios.post(Endpoints.apiLogin, params, { headers: userHeaders });
-
-        if (data.description === "SUCCESS") {
-            Object.keys(data.data).forEach((key) => {
-                if (key === "accessToken")
-                    accessToken = data.data[key];
-
-                if (key === "refreshToken")
-                    refreshToken = data.data[key];
-            });
-            return { accessToken, refreshToken };
-        }
-        throw data;
-    } catch (err) {
-        printLog(LogType.ERROR, `---${UserMessages.ERROR_AUTHENTICATION_LOG}---`, err);
-        throw new Error(UserMessages.ERROR_AUTHENTICATION);
+function getOrCreateDeviceId() {
+    let deviceid = storage.getItem("deviceid");
+    if (!deviceid || !/^[0-9a-f]{32}$/.test(deviceid)) {
+        deviceid = crypto.randomBytes(16).toString("hex");
+        storage.setItem("deviceid", deviceid);
     }
-};
+    return deviceid;
+}
 
-let headers = {}
-
-async function updateHeaders() {
-    if (headers.accessToken && axios.defaults.httpsAgent)
-        return;
-    let { certData, certKey, ca } = "";
-    try {
-        certData = fs.readFileSync("./certs/gwm_general.cer", { encoding: "utf8" });
-        certKey = fs.readFileSync("./certs/gwm_general.key", { encoding: "utf8" });
-        ca = fs.readFileSync("./certs/gwm_root.cer", { encoding: "utf8" });
+function getLoginHttpsAgent() {
+    if (!_loginHttpsAgent) {
+        _loginHttpsAgent = new https.Agent();
     }
-    catch (error) {
-        printLog(LogType.ERROR, UserMessages.ERROR_READING_CERTIFICATES, error);
+    return _loginHttpsAgent;
+}
+
+function getVehicleHttpsAgent() {
+    if (_vehicleHttpsAgent) {
+        return _vehicleHttpsAgent;
+    }
+    let certData = "";
+    let certKey = "";
+    let ca = "";
+    try {
+        const certsDir = path.join(__dirname, "certs");
+        certData = fs.readFileSync(path.join(certsDir, "gwm_general.cer"), { encoding: "utf8" });
+        certKey = fs.readFileSync(path.join(certsDir, "gwm_general.key"), { encoding: "utf8" });
+        ca = fs.readFileSync(path.join(certsDir, "gwm_root.cer"), { encoding: "utf8" });
+    } catch (error) {
+        printLog(LogType.ERROR, UserMessages.ERROR_READING_CERTIFICATES, error.message || error);
         return null;
     }
 
-    const httpsAgent = new https.Agent({
-        cert: certData,
-        ca: ca,
+    // Send leaf certificate concatenated with intermediates (IOV APP General SubCA in gwm_root.cer)
+    _vehicleHttpsAgent = new https.Agent({
+        cert: `${certData.trim()}\n${ca.trim()}\n`,
         key: certKey,
-        rejectUnauthorized: false,
+        minVersion: "TLSv1.2",
         ciphers: "DEFAULT:@SECLEVEL=0",
+        rejectUnauthorized: true,
     });
+    return _vehicleHttpsAgent;
+}
 
-    axios.defaults.httpsAgent = httpsAgent;
+function getPendingVerifyCode() {
+    let raw = "";
+    let fromFile = false;
+    if (VERIFY_CODE && !["null", "undefined"].includes(String(VERIFY_CODE).trim())) {
+        raw = String(VERIFY_CODE).trim();
+    } else if (fs.existsSync(VERIFY_CODE_FILE)) {
+        try {
+            raw = fs.readFileSync(VERIFY_CODE_FILE, { encoding: "utf8" }).trim();
+            fromFile = Boolean(raw);
+        } catch (_) {
+            raw = "";
+        }
+    }
+    if (!raw) return null;
+    const lastConsumed = storage.getItem("lastConsumedVerifyCode");
+    if (lastConsumed && lastConsumed === raw) return null;
+    return { code: raw, fromFile };
+}
 
-    const { accessToken, refreshToken } = await auth();
+function clearPendingVerifyFile(fromFile) {
+    if (fromFile && fs.existsSync(VERIFY_CODE_FILE)) {
+        try {
+            fs.unlinkSync(VERIFY_CODE_FILE);
+        } catch (_) {
+            // ignore cleanup errors
+        }
+    }
+}
+
+function persistSessionTokens(data) {
+    const accessToken = data.accessToken;
+    const refreshToken = data.refreshToken || storage.getItem("refreshToken") || "";
+    const gwId = data.gwId !== undefined && data.gwId !== null ? String(data.gwId) : (storage.getItem("gwId") || "");
+    if (accessToken) storage.setItem("accessToken", accessToken);
+    if (refreshToken) storage.setItem("refreshToken", refreshToken);
+    if (gwId) storage.setItem("gwId", gwId);
+    return { accessToken, refreshToken, gwId };
+}
+
+function clearStoredSession(clearRefresh = false) {
+    storage.removeItem("accessToken");
+    if (clearRefresh) {
+        storage.removeItem("refreshToken");
+    }
+}
+
+async function signedRequest({ method, url, data = undefined, extraHeaders = {}, httpsAgent }) {
+    const bodyStr = data !== undefined && data !== null ? JSON.stringify(data) : undefined;
+    const signHeaders = signRequest(method, url, bodyStr !== undefined ? bodyStr : null);
+    const reqHeaders = {
+        ...APP_HEADERS,
+        ...extraHeaders,
+        ...signHeaders,
+    };
+    if (bodyStr !== undefined) {
+        reqHeaders["content-type"] = "application/json";
+    }
+    return axios({
+        method,
+        url,
+        data: bodyStr,
+        headers: reqHeaders,
+        httpsAgent,
+        timeout: 20000,
+    });
+}
+
+async function refreshSession(deviceid) {
+    const accessToken = storage.getItem("accessToken");
+    const refreshToken = storage.getItem("refreshToken");
+    const gwId = storage.getItem("gwId");
+    if (!refreshToken) return null;
+
+    const vehicleAgent = getVehicleHttpsAgent();
+    if (!vehicleAgent) return null;
+
+    try {
+        const extraHeaders = {
+            accessToken: accessToken || "",
+            refreshToken,
+            deviceId: deviceid,
+            iccid: deviceid,
+        };
+        if (gwId) extraHeaders.gwId = gwId;
+
+        const { data } = await signedRequest({
+            method: "POST",
+            url: `${Endpoints.apiH5Base}/userAuth/refreshToken`,
+            data: {
+                accessToken: accessToken || "",
+                refreshToken,
+                deviceId: deviceid,
+            },
+            extraHeaders,
+            httpsAgent: vehicleAgent,
+        });
+
+        if (data && data.code === "000000" && data.data && data.data.accessToken) {
+            storage.removeItem("verifyCodeRequestedAt");
+            return persistSessionTokens(data.data);
+        }
+        printLog(LogType.WARNING, `Refresh token recusado (code=${data ? data.code : "unknown"}: ${data ? data.description : ""}). Tentando novo login.`);
+        return null;
+    } catch (err) {
+        const status = err.response ? err.response.status : err.message;
+        printLog(LogType.WARNING, `Falha ao renovar refreshToken (${status}). Tentando novo login.`);
+        return null;
+    }
+}
+
+async function loginWithAppPassword(deviceid) {
+    const account = String(USERNAME || "").trim();
+    const accountType = account.includes("@") ? "2" : "1";
+    const loginAgent = getLoginHttpsAgent();
+
+    const basePayload = {
+        account,
+        accountType,
+        countryCode: "55",
+        agreement: [1, 2],
+        password: PASSWORD,
+        deviceId: deviceid,
+        appType: "0",
+        pushToken: null,
+        country: "BR",
+    };
+
+    const extraHeaders = {
+        deviceId: deviceid,
+        iccid: deviceid,
+    };
+
+    try {
+        let { data } = await signedRequest({
+            method: "POST",
+            url: `${Endpoints.apiLoginBase}/userAuth/loginWithPassword`,
+            data: basePayload,
+            extraHeaders,
+            httpsAgent: loginAgent,
+        });
+
+        if (data && data.code === "308103") {
+            const pending = getPendingVerifyCode();
+            if (!pending) {
+                const lastReq = Number(storage.getItem("verifyCodeRequestedAt") || "0");
+                if (!lastReq || (Date.now() - lastReq) > 300000) {
+                    const verifyReq = await signedRequest({
+                        method: "POST",
+                        url: `${Endpoints.apiLoginBase}/userAuth/getVerifyCode`,
+                        data: {
+                            type: "17",
+                            account,
+                            accountType,
+                            countryCode: "55",
+                            validCodeMode: 1,
+                            operateCode: "",
+                            captchaType: "",
+                            captchaId: "",
+                            token: "",
+                        },
+                        extraHeaders,
+                        httpsAgent: loginAgent,
+                    });
+                    storage.setItem("verifyCodeRequestedAt", String(Date.now()));
+                    printLog(LogType.INFO, `Solicitado codigo de verificacao por e-mail (getVerifyCode code=${verifyReq.data ? verifyReq.data.code : "unknown"}).`);
+                }
+                const err308103 = new Error("Verificacao de dispositivo pendente (308103). Informe o codigo recebido por e-mail em gwm_verify_code ou /config/haval_h6_verify_code.txt.");
+                err308103.apiCode = "308103";
+                throw err308103;
+            }
+
+            const checkRes = await signedRequest({
+                method: "POST",
+                url: `${Endpoints.apiLoginBase}/userAuth/checkVerifyCode`,
+                data: {
+                    type: "17",
+                    account,
+                    accountType,
+                    countryCode: "55",
+                    validCodeMode: 1,
+                    verifyCode: pending.code,
+                },
+                extraHeaders,
+                httpsAgent: loginAgent,
+            });
+
+            if (!checkRes.data || checkRes.data.code !== "000000") {
+                const desc = checkRes.data ? `${checkRes.data.code} - ${checkRes.data.description}` : "resposta invalida";
+                throw new Error(`Codigo de verificacao rejeitado (${desc}).`);
+            }
+
+            const login2 = await signedRequest({
+                method: "POST",
+                url: `${Endpoints.apiLoginBase}/userAuth/loginWithPassword`,
+                data: {
+                    ...basePayload,
+                    verifyCode: pending.code,
+                    validCodeMode: "1",
+                },
+                extraHeaders,
+                httpsAgent: loginAgent,
+            });
+            data = login2.data;
+            if (data && data.code === "000000") {
+                storage.setItem("lastConsumedVerifyCode", pending.code);
+                clearPendingVerifyFile(pending.fromFile);
+            }
+        }
+
+        if (data && data.code === "000000" && data.data && data.data.accessToken) {
+            storage.removeItem("verifyCodeRequestedAt");
+            return persistSessionTokens(data.data);
+        }
+
+        const errMsg = data ? `code=${data.code} description=${data.description}` : "empty response";
+        throw new Error(errMsg);
+    } catch (err) {
+        const detail = err.response ? `HTTP ${err.response.status}: ${JSON.stringify(err.response.data)}` : err.message;
+        printLog(LogType.ERROR, `---${UserMessages.ERROR_AUTHENTICATION_LOG}---`, detail);
+        throw new Error(UserMessages.ERROR_AUTHENTICATION);
+    }
+}
+
+async function auth({ forceRefresh = false, forceRelogin = false } = {}) {
+    if (_authInFlight) {
+        return _authInFlight;
+    }
+
+    _authInFlight = (async () => {
+        const deviceid = getOrCreateDeviceId();
+        const storedAccess = storage.getItem("accessToken");
+        const storedRefresh = storage.getItem("refreshToken");
+        const storedGwId = storage.getItem("gwId") || "";
+
+        if (!forceRefresh && !forceRelogin && storedAccess && !isTokenExpired(storedAccess, 300)) {
+            return { accessToken: storedAccess, refreshToken: storedRefresh || "", gwId: storedGwId };
+        }
+
+        if (!forceRelogin && storedRefresh) {
+            const refreshed = await refreshSession(deviceid);
+            if (refreshed) return refreshed;
+        }
+
+        return loginWithAppPassword(deviceid);
+    })();
+
+    try {
+        return await _authInFlight;
+    } finally {
+        _authInFlight = null;
+    }
+}
+
+let headers = {};
+
+async function updateHeaders(forceRefresh = false, forceRelogin = false) {
+    const vehicleAgent = getVehicleHttpsAgent();
+    if (!vehicleAgent) return null;
+
+    if (!forceRefresh && !forceRelogin && headers.accessToken && !isTokenExpired(headers.accessToken, 300)) {
+        return headers;
+    }
+
+    const { accessToken, refreshToken, gwId } = await auth({ forceRefresh, forceRelogin });
+    const deviceid = getOrCreateDeviceId();
 
     headers = {
-        rs: "2",
-        terminal: "GW_APP_GWM",
-        brand: "6",
-        language: "pt_BR",
-        systemtype: "2",
-        regioncode: "BR",
-        country: "BR",
-        accessToken: accessToken,
-        refreshToken: refreshToken
+        ...APP_HEADERS,
+        accessToken,
+        refreshToken: refreshToken || "",
+        deviceId: deviceid,
+        iccid: deviceid,
     };
+    if (gwId) {
+        headers.gwId = gwId;
+    }
+    return headers;
+}
+
+async function vehicleRequest(method, url, data = undefined) {
+    const vehicleAgent = getVehicleHttpsAgent();
+    if (!vehicleAgent) {
+        throw new Error(UserMessages.ERROR_READING_CERTIFICATES);
+    }
+
+    let authHeaders = await updateHeaders(false, false);
+    const execute = async (hdrs) => signedRequest({
+        method,
+        url,
+        data,
+        extraHeaders: hdrs,
+        httpsAgent: vehicleAgent,
+    });
+
+    let res;
+    try {
+        res = await execute(authHeaders);
+    } catch (err) {
+        if (err.response && [401, 403].includes(err.response.status)) {
+            clearStoredSession(false);
+            authHeaders = await updateHeaders(true, false);
+            res = await execute(authHeaders);
+        } else {
+            throw err;
+        }
+    }
+
+    const code = res && res.data ? res.data.code : undefined;
+    if (code === "570062") {
+        printLog(LogType.WARNING, "Gateway retornou 570062 (token expirado/rejeitado). Renovando sessao e tentando novamente.");
+        clearStoredSession(false);
+        authHeaders = await updateHeaders(true, false);
+        res = await execute(authHeaders);
+    } else if (res && res.data && res.data.code === "607501") {
+        printLog(LogType.ERROR, "Sessao encerrada por acesso simultaneo em outro dispositivo (607501). Evite manter o app My GWM aberto com a mesma conta.");
+        clearStoredSession(true);
+    }
+
+    return res;
 }
 
 async function getLastCommandResult(seqNo, vin) {
     try {
-        const { data } = await axios.get(
-            `${Endpoints.apiVehicle}/vehicle/getRemoteCtrlResultT5?seqNo=${seqNo}&vin=${vin}`,
-            { headers }
+        const { data } = await vehicleRequest(
+            "GET",
+            `${Endpoints.apiVehicle}/vehicle/getRemoteCtrlResultT5?seqNo=${encodeURIComponent(seqNo)}&vin=${encodeURIComponent(vin)}`
         );
 
         if (data && data.data && data.description === "SUCCESS") {
@@ -197,7 +500,7 @@ async function getLastCommandResult(seqNo, vin) {
         }
         return null;
     } catch (e) {
-        printLog(LogType.ERROR, `---${UserMessages.ERROR_RETRIEVING_COMMAND_STATUS}---`, e);
+        printLog(LogType.ERROR, `---${UserMessages.ERROR_RETRIEVING_COMMAND_STATUS}---`, e.message || e);
         return null;
     }
 }
@@ -247,14 +550,12 @@ async function sendCmd(instructions, vin) {
         lastCommands[vin] = { seqNo, timestamp: currentTime };
         storage.setItem("lastCommands", JSON.stringify(lastCommands));
 
-        const options = { headers };
         const remoteType = 0;
         const securityPassword = md5(PIN);
         const type = 2;
 
-        await updateHeaders();
-
-        const res = await axios.post(
+        const res = await vehicleRequest(
+            "POST",
             `${Endpoints.apiVehicle}/vehicle/T5/sendCmd`,
             {
                 instructions,
@@ -263,14 +564,13 @@ async function sendCmd(instructions, vin) {
                 seqNo,
                 type,
                 vin
-            },
-            options
+            }
         );
 
         printLog(LogType.DEBUG, `sendCmd returning data: ${Buffer.from(JSON.stringify(res.data)).toString('base64')}`);
         return res.data;
     } catch (err) {
-        printLog(LogType.ERROR, `---${UserMessages.ERROR_SENDING_COMMAND}---`, err);
+        printLog(LogType.ERROR, `---${UserMessages.ERROR_SENDING_COMMAND}---`, err.message || err);
         return {
             result: false,
             message: UserMessages.ERROR_SENDING_COMMAND
@@ -289,10 +589,6 @@ async function chargingSchedule(enable, vin) {
         const startTime = new Date().getTime() + startTimeAdd;
         const endTime = new Date().getTime() + endTimeAdd;
 
-        let options = {
-            headers,
-        };
-
         const body = {
             enable: enable,
             startTime: enable ? startTime : "",
@@ -302,15 +598,15 @@ async function chargingSchedule(enable, vin) {
             vin: vin
         };
 
-        const res = await axios.post(
-            `${Endpoints.apiVehicle}/vehicleCharge/setChargingPlan?vin=${vin}`,
-            body,
-            options
+        const res = await vehicleRequest(
+            "POST",
+            `${Endpoints.apiVehicle}/vehicleCharge/setChargingPlan?vin=${encodeURIComponent(vin)}`,
+            body
         );
 
         return res.data;
     } catch (e) {
-        printLog(LogType.ERROR, `---${UserMessages.ERROR_SETTING_CHARGING}---`, e);
+        printLog(LogType.ERROR, `---${UserMessages.ERROR_SETTING_CHARGING}---`, e.message || e);
         return false;
     }
 }
@@ -333,7 +629,7 @@ function apiReturnHandle(returnData, functionName) {
     }
     else {
         let errorCode = "";
-        if (returnData.code)
+        if (returnData && returnData.code)
             errorCode = returnData.code;
         printLog(LogType.INFO, `---${UserMessages.ERROR_EXECUTING_COMMAND("de", functionName.toString())}---`, errorCode);
         return { result: false, message: UserMessages.COMMAND_FAILED(functionName.toString()), error: true };
@@ -343,29 +639,33 @@ function apiReturnHandle(returnData, functionName) {
 const carData = {
     async getCarList() {
         try {
-            await updateHeaders();
-            const response = await axios.get(`${Endpoints.apiVehicle}/globalapp/vehicle/acquireVehicles`, { headers });
+            const response = await vehicleRequest("GET", `${Endpoints.apiVehicle}/globalapp/vehicle/acquireVehicles`);
             printLog(LogType.DEBUG, `getCarList returning data: ${Buffer.from(JSON.stringify(response.data)).toString('base64')}`);
             return response;
-
         } catch (e) {
-            printLog(LogType.ERROR, `---${UserMessages.ERROR_RETRIEVING_CAR_DATA}---`, e.Message);
+            const detail = e.response ? `HTTP ${e.response.status}: ${JSON.stringify(e.response.data)}` : e.message;
+            printLog(LogType.ERROR, `---${UserMessages.ERROR_RETRIEVING_CAR_LIST}---`, detail);
+            return null;
         }
     },
     async getCarInfo(vin) {
         try {
-            await updateHeaders();
-            const { data } = await axios.get(`${Endpoints.apiVehicle}/vehicle/getLastStatus?vin=${String(vin).toUpperCase()}&flag=true`, { headers });
+            const { data } = await vehicleRequest("GET", `${Endpoints.apiVehicle}/vehicle/getLastStatus?vin=${encodeURIComponent(String(vin).toUpperCase())}&flag=true`);
+            if (!data || data.code !== "000000") {
+                printLog(LogType.ERROR, `---${UserMessages.ERROR_RETRIEVING_CAR_DATA}---`, data ? `code=${data.code} description=${data.description}` : "empty response");
+                return null;
+            }
             printLog(LogType.DEBUG, `getCarInfo returning data: ${Buffer.from(JSON.stringify(data.data)).toString('base64')}`);
             return data.data;
         } catch (e) {
-            printLog(LogType.ERROR, `---${UserMessages.ERROR_RETRIEVING_CAR_LIST}---`, e.Message);
+            const detail = e.response ? `HTTP ${e.response.status}: ${JSON.stringify(e.response.data)}` : e.message;
+            printLog(LogType.ERROR, `---${UserMessages.ERROR_RETRIEVING_CAR_DATA}---`, detail);
+            return null;
         }
     },
-    async getStatus(vin) {
+    async getStatus(vin, prefetchedData = null) {
         try {
-            await updateHeaders();
-            const data = await carData.getCarInfo(vin);
+            const data = prefetchedData || await carData.getCarInfo(vin);
 
             let status = {};
 
@@ -399,14 +699,12 @@ const carData = {
             printLog(LogType.DEBUG, `getStatus returning data: ${Buffer.from(JSON.stringify(status)).toString('base64')}`);
             return status;
         } catch (e) {
-            printLog(LogType.ERROR, `---${UserMessages.ERROR_RETRIEVING_CAR_STATUS}---`, e);
+            printLog(LogType.ERROR, `---${UserMessages.ERROR_RETRIEVING_CAR_STATUS}---`, e.message || e);
             return UserMessages.ERROR_RETRIEVING_CAR_STATUS
         }
     },
     async getChargingLogs(vin) {
         try {
-            await updateHeaders();
-
             const body = {
                 vin: vin.toUpperCase(),
                 pageNum: "1",
@@ -414,9 +712,9 @@ const carData = {
                 continuation: "0"
             };
 
-            const chargingLogs = await axios.post(`${Endpoints.apiVehicle}/vehicleCharge/getChargeLogs`, body, { headers });
+            const chargingLogs = await vehicleRequest("POST", `${Endpoints.apiVehicle}/vehicleCharge/getChargeLogs`, body);
 
-            if (chargingLogs && chargingLogs.data && chargingLogs.data.data.list && chargingLogs.data.data.list.length > 0) {
+            if (chargingLogs && chargingLogs.data && chargingLogs.data.data && chargingLogs.data.data.list && chargingLogs.data.data.list.length > 0) {
                 const formattedList = chargingLogs.data.data.list.map(({ startTime, endTime }) => {
                     const startDate = new Date(parseInt(startTime)).toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' });
                     const endDate = new Date(parseInt(endTime)).toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' });
@@ -434,7 +732,7 @@ const carData = {
                 return "";
 
         } catch (e) {
-            printLog(LogType.ERROR, `---${UserMessages.ERROR_RETRIEVING_CHARGING_LOGS}---`, e.message);
+            printLog(LogType.ERROR, `---${UserMessages.ERROR_RETRIEVING_CHARGING_LOGS}---`, e.message || e);
             return "";
         }
     }

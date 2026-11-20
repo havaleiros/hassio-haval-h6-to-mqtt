@@ -1,4 +1,15 @@
 # Changelog
+## [1.0.9] - 2026-11-19
+### Adicionado
+- Assinatura de requisições exigida pelo gateway GWM Brasil (`gwm-auth-*` / `signing.js`, atribuído sob licença MIT a `moryoav/ha-gwm-ev` em `THIRD_PARTY_NOTICES.md`).
+- Suporte ao fluxo de verificação por e-mail (OTP / código `308103`) com campo opcional `gwm_verify_code` na configuração do add-on e suporte a leitura via `/config/haval_h6_verify_code.txt`.
+- Persistência de sessão (`accessToken`, `refreshToken`, `gwId`, `deviceid`) em `/config/haval_h6_mqtt_storage` com renovação automática via `/refreshToken`.
+
+### Consertado
+- Migração do login para o endpoint móvel v2.0 (`br-h5-gateway.gwmcloud.com/app-api/api/v2.0/userAuth/loginWithPassword`), corrigindo os erros `607012`, `HTTP 418` e `570062`.
+- Envio da cadeia completa de certificados mTLS (folha + intermediário) no gateway veicular (`br-app-gateway.gwmcloud.com`).
+- Eliminação de polling duplicado em `getLastStatus` e recuperação resiliente em falhas transitórias de inicialização.
+
 ## [1.0.8] - 2026-08-27
 ## Modificado
 - Atualização temporária do tempo de atualização (refresh_time) para 5 segundos durante 1 minuto após a execução bem-sucedida de um comando remoto (ActionableAndLink).

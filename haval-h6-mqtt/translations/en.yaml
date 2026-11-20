@@ -13,6 +13,9 @@ configuration:
   gwm_pin:
     name: "'My GWM' app PIN for commands"
     description: "PIN code used in the 'My GWM' app to activate the command request like turning the air conditioner on."
+  gwm_verify_code:
+    name: "Email verification code (OTP)"
+    description: "Verification code received by email when authenticating a new device (code 308103)."
   mqtt_server:
     name: "MQTT Server Address"
     description: "Address of your Home Assistant's MQTT server or external broker. Keep default if installed alongside Home Assistant as a service."
