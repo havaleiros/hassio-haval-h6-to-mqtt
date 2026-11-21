@@ -4,6 +4,7 @@
 - Sliders MQTT Discovery para Temperatura do A/C (17–31 °C), Duração do A/C (5–30 min) e Duração do Purificador (5–30 min) com persistência via MQTT retain e isolamento por VIN (substitui e corrige o PR #31).
 - Botões acionáveis para Ligar e Desligar o Purificador de Ar (`clearAir` / código `0x0C`).
 - Validação preventiva da Senha de Segurança (PIN) na inicialização via `POST /userAuth/checkSecurityPassword` com instrução amigável caso não esteja cadastrada (`Configurações do carro -> PIN`).
+- Inclusão dos carimbos de satélite da GWM (`gps_acquisition_time` e `gps_acquisition_epoch_ms`) nos atributos do `device_tracker` e criação da entidade de timestamp `sensor...horario_aquisicao_gps` (`device_class: timestamp`).
 
 ### Consertado
 - Eliminação do reenvio automático de OTP (`getVerifyCode`) a cada 5 minutos e do polling contínuo de `loginWithPassword` enquanto a verificação de dispositivo (`308103`) está pendente, evitando bloqueio temporário por rate limit na GWM.
