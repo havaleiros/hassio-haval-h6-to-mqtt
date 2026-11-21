@@ -11,8 +11,8 @@ configuration:
     name: "Default Vehicle Chassis"
     description: "Check in the app or on the invoice."
   gwm_pin:
-    name: "'My GWM' app PIN for commands"
-    description: "PIN code used in the 'My GWM' app to activate the command request like turning the air conditioner on."
+    name: "'My GWM' Security PIN"
+    description: "6-digit security PIN configured in the My GWM app (Vehicle Settings -> PIN). Required for remote commands."
   gwm_verify_code:
     name: "Email verification code (OTP)"
     description: "Verification code received by email when authenticating a new device (code 308103)."
@@ -31,3 +31,12 @@ configuration:
   log_level:
     name: "Log Level"
     description: "Set the verbosity level of the integration's logs."
+  ac_temperature:
+    name: "Initial A/C Temperature (°C)"
+    description: "Initial value only (17–31). After first start, use the \"Temperatura do A/C\" slider entity in Home Assistant."
+  ac_duration_minutes:
+    name: "Initial A/C Duration (minutes)"
+    description: "Initial value only (5–30). After first start, use the \"Duração do A/C\" slider entity in Home Assistant."
+  purifier_duration_minutes:
+    name: "Initial Purifier Duration (minutes)"
+    description: "Initial value only (5–30). After first start, use the \"Duração do purificador\" slider entity in Home Assistant."

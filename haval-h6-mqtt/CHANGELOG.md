@@ -1,5 +1,10 @@
 # Changelog
 ## [1.0.10] - 2026-11-24
+### Adicionado
+- Sliders MQTT Discovery para Temperatura do A/C (17–31 °C), Duração do A/C (5–30 min) e Duração do Purificador (5–30 min) com persistência via MQTT retain e isolamento por VIN (substitui e corrige o PR #31).
+- Botões acionáveis para Ligar e Desligar o Purificador de Ar (`clearAir` / código `0x0C`).
+- Validação preventiva da Senha de Segurança (PIN) na inicialização via `POST /userAuth/checkSecurityPassword` com instrução amigável caso não esteja cadastrada (`Configurações do carro -> PIN`).
+
 ### Consertado
 - Eliminação do reenvio automático de OTP (`getVerifyCode`) a cada 5 minutos e do polling contínuo de `loginWithPassword` enquanto a verificação de dispositivo (`308103`) está pendente, evitando bloqueio temporário por rate limit na GWM.
 - Validação do retorno de `getVerifyCode` (registrando `code` e `description` em `WARNING`) com pausa de 30 minutos em caso de rejeição pelo gateway.
@@ -7,6 +12,7 @@
 - Vinculação da sessão persistida à conta configurada (`sessionAccount`), limpando tokens, estado de OTP e regenerando `deviceid` automaticamente ao trocar `gwm_username` (ex.: migração para conta compartilhada).
 - Limpeza do cache de `headers` em memória ao invalidar a sessão (`clearStoredSession`) e aplicação de cooldown de 5 minutos após `607501` ou falha de login, além da remoção de `refreshToken` recusado definitivamente pela API.
 - Proteção do retry de `runStartup()` em `updateState()` com `try/catch` e validação única do broker MQTT na inicialização.
+- Desligamento seguro do ar-condicionado com envio explícito de `switchOrder: "2"` e `operationTime: "0"`.
 
 ## [1.0.9] - 2026-11-19
 ### Adicionado
