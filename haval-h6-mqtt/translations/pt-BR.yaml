@@ -11,8 +11,8 @@ configuration:
     name: "Chassis do veículo principal"
     description: "Verifique no aplicativo ou na nota fiscal."
   gwm_pin:
-    name: "PIN do aplicativo 'My GWM' para comandos"
-    description: "Código PIN usado no aplicativo 'My GWM' para ativar a solicitação de comando, como ligar o ar condicionado."
+    name: "PIN de segurança do aplicativo 'My GWM'"
+    description: "Código PIN de segurança de 6 dígitos cadastrado no aplicativo 'My GWM' (Configurações do carro -> PIN). Necessário para envio de comandos remotos."
   gwm_verify_code:
     name: "Código de verificação por e-mail (OTP)"
     description: "Código recebido por e-mail na primeira autenticação de um novo dispositivo (erro 308103)."
@@ -31,3 +31,12 @@ configuration:
   log_level:
     name: "Nível de Log"
     description: "Define o nível de verbosidade dos logs da integração."
+  ac_temperature:
+    name: "Temperatura inicial do A/C (°C)"
+    description: "Somente valor inicial (17–31). Após a inicialização, ajuste diretamente pelo slider 'Temperatura do A/C' no Home Assistant."
+  ac_duration_minutes:
+    name: "Duração inicial do A/C (minutos)"
+    description: "Somente valor inicial (5–30). Após a inicialização, ajuste diretamente pelo slider 'Duração do A/C' no Home Assistant."
+  purifier_duration_minutes:
+    name: "Duração inicial do purificador (minutos)"
+    description: "Somente valor inicial (5–30). Após a inicialização, ajuste diretamente pelo slider 'Duração do purificador' no Home Assistant."

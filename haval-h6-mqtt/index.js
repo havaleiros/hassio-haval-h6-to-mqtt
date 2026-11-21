@@ -2,6 +2,7 @@ const storage = require("./storage");
 const validationSchema = require('./schema')
 const { LogType, printLog } = require('./utils');
 const carConnector = require("./carConnector");
+const acSettings = require("./acSettings");
 const { sensorTopics, attributeTopics } = require("./map");
 const { mqttModule, EntityType, ActionableAndLink } = require('./mqtt');
 const { checkConnection, register, remove, sendDeviceTrackerUpdate, sendMessage, sendMqtt } = mqttModule;
@@ -47,6 +48,8 @@ const runStartup = async () => {
   await validationSchema.validate(process.env);
   printLog(LogType.STARTUP, "  MQTT parameters validated");
   await checkConnection();
+  printLog(LogType.STARTUP, "  Validating security PIN status");
+  await carConnector.checkPinStatus();
   printLog(LogType.STARTUP, "  Retrieving car list");
   const carList = await getCarList();
   if (!carList || carList.length === 0) {
@@ -302,6 +305,8 @@ const runStartup = async () => {
             const formattedMessage = message.replace(/(\r\n|\n|\r)/g, " | ");
             sendMessage(vin, "status_message", formattedMessage);
           }
+
+          acSettings.start(_vin);
 
           printLog(LogType.STARTUP, "    Activating actionables and linked entities");
           ActionableAndLink.execute();
