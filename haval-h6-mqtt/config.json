@@ -1,6 +1,6 @@
 {
   "name": "GWM Brasil com MQTT",
-  "version": "1.0.9",
+  "version": "1.0.10",
   "slug": "hassio_haval_h6_to_mqtt",
   "description": "Integração com o Home Assistant usando MQTT para veículos GWM.",
   "init": false,
@@ -19,7 +19,10 @@
     "refresh_time": 30,
     "mqtt_server": "mqtt://homeassistant.local:1883",
     "device_tracker_enabled": true,
-    "log_level": "INFO"
+    "log_level": "INFO",
+    "ac_temperature": 23,
+    "ac_duration_minutes": 10,
+    "purifier_duration_minutes": 10
   },
   "schema": {
     "gwm_username": "email",
@@ -32,6 +35,9 @@
     "mqtt_pass": "password?",
     "refresh_time": "int",
     "device_tracker_enabled": "bool",
-    "log_level": "list(INFO|ERROR|DEBUG)"
+    "log_level": "list(INFO|ERROR|DEBUG)",
+    "ac_temperature": "int(17,31)?",
+    "ac_duration_minutes": "int(5,30)?",
+    "purifier_duration_minutes": "int(5,30)?"
   }
 }

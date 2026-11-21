@@ -224,8 +224,18 @@ const ActionableAndLink = {
             if (storage.getItem('Startup') == "true") return;
 
             const actions = {
-              airConditioner: async () => {
-                return await carConnector.carUtil.airConditioner(carConnector.Actions.AirCon.TURN_ON, topicsAndActions[key].vin);
+              airConditioner: async (val) => {
+                const actualStatus = await carConnector.carData.getStatus(topicsAndActions[key].vin);
+                let targetAction;
+                if (val === "OFF" || val === "0" || val === "TURN_OFF") {
+                  targetAction = carConnector.Actions.AirCon.TURN_OFF;
+                } else if (val === "ON" || val === "1" || val === "TURN_ON") {
+                  targetAction = carConnector.Actions.AirCon.TURN_ON;
+                } else {
+                  const isAcOn = actualStatus && actualStatus["estado_do_ar_condicionado"] && String(actualStatus["estado_do_ar_condicionado"].value) === String(carConnector.States.AirCon.ON);
+                  targetAction = isAcOn ? carConnector.Actions.AirCon.TURN_OFF : carConnector.Actions.AirCon.TURN_ON;
+                }
+                return await carConnector.carUtil.airConditioner(targetAction, topicsAndActions[key].vin);
               },
               engineOn: async () => {
                 return await carConnector.carUtil.engine(carConnector.Actions.Engine.TURN_ON, topicsAndActions[key].vin);
@@ -273,6 +283,12 @@ const ActionableAndLink = {
                   mqttModule.sendMqtt(json_attributes_topic, JSON.stringify({ charging_logs: "", last_update: last_update }), { retain: false });
                 }
               },
+              airPurifierOn: async () => {
+                return await carConnector.carUtil.airPurifier(true, topicsAndActions[key].vin);
+              },
+              airPurifierOff: async () => {
+                return await carConnector.carUtil.airPurifier(false, topicsAndActions[key].vin);
+              },
               stopCharging: async () => {
                 return await carConnector.carUtil.stopCharging(topicsAndActions[key].vin);
               },
@@ -290,9 +306,10 @@ const ActionableAndLink = {
             };
 
             const action = actions[String(topicsAndActions[key].action)];
-            if (action && String(messageValue) === (String(topicsAndActions[key].link_type) === "press" ? 'PRESS' : 'ON')) {
+            const isAirConExplicit = String(topicsAndActions[key].action) === "airConditioner" && ["OFF", "0", "TURN_OFF", "ON", "1", "TURN_ON"].includes(messageValue);
+            if (action && (String(messageValue) === (String(topicsAndActions[key].link_type) === "press" ? 'PRESS' : 'ON') || isAirConExplicit)) {
               try {
-                const data = await action();
+                const data = await action(messageValue);
                 if (data && data.result === false) {
                   if (data.error) {
                     throw new Error(data.message);

@@ -1,4 +1,13 @@
 # Changelog
+## [1.0.10] - 2026-11-21
+### Adicionado
+- Sliders MQTT Discovery para Temperatura do A/C (17–31 °C), Duração do A/C (5–30 min) e Duração do Purificador (5–30 min) com persistência via MQTT retain (substitui e corrige o PR #31).
+- Botões acionáveis para Ligar e Desligar o Purificador de Ar (`clearAir` / código `0x0C`).
+- Validação preventiva da Senha de Segurança (PIN) na inicialização via `POST /userAuth/checkSecurityPassword` com instrução amigável caso não esteja cadastrada (`Configurações do carro -> PIN`).
+
+### Consertado
+- Desligamento seguro do ar-condicionado com envio explícito de `switchOrder: "2"` e `operationTime: "0"`.
+
 ## [1.0.9] - 2026-11-19
 ### Adicionado
 - Assinatura de requisições exigida pelo gateway GWM Brasil (`gwm-auth-*` / `signing.js`, atribuído sob licença MIT a `moryoav/ha-gwm-ev` em `THIRD_PARTY_NOTICES.md`).

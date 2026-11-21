@@ -9,6 +9,7 @@ const carTextUtil = require("./carTextUtil");
 const { isTokenExpired, LogType, printLog } = require('./utils');
 const { signRequest } = require("./signing");
 const { sensorTopics } = require("./map");
+const acSettings = require("./acSettings");
 
 const { USERNAME, PASSWORD, PIN } = process.env;
 const VERIFY_CODE_FILE = "/config/haval_h6_verify_code.txt";
@@ -68,7 +69,11 @@ const UserMessages = {
     CHARGING_SCHEDULE_REVERSAL: "Reversão da solução de contorno para paralizar o carregamento solicitado com sucesso.",
     ERROR_SENDING_COMMAND: "Ocorreu um erro ao enviar o comando para o veículo.",
     ERROR_RETRIEVING_CAR_DATA: "Erro ao obter as informações do veículo",
-    ERROR_EXECUTING_COMMAND: (preposition, functionName) => `Ocorreu um erro no acionamento ${preposition} ${functionName}.`,
+    ERROR_EXECUTING_COMMAND: (prepositionOrObj, maybeFunctionName) => {
+        const p = typeof prepositionOrObj === "object" ? prepositionOrObj.preposition : prepositionOrObj;
+        const f = typeof prepositionOrObj === "object" ? prepositionOrObj.functionName : maybeFunctionName;
+        return `Ocorreu um erro no acionamento ${p} ${f}.`;
+    },
     ERROR_STOPPING_CHARGING: "Erro ao parar o carregamento do veículo.",
     ERROR_SETTING_CHARGING: "Erro ao criar um agendamento de carregamento.",
     ERROR_AUTHENTICATION: "Erro de autenticação. Por favor, verifique suas credenciais.",
@@ -612,7 +617,7 @@ async function chargingSchedule(enable, vin) {
 }
 
 function apiReturnHandle(returnData, functionName) {
-    if (returnData && returnData.description === "SUCCESS") {
+    if (returnData && (returnData.code === "000000" || returnData.description === "SUCCESS")) {
         return { result: true, message: UserMessages.COMMAND_SUCCESS(functionName.toString()) };
     }
     else if (returnData) {
@@ -739,6 +744,23 @@ const carData = {
 }
 
 const carUtil = {
+    // Air purifier (instruction 0x0C). Start: {operationTime: minutes, switchOrder: "1"}; stop: {"0", "2"}.
+    async airPurifier(on, vin) {
+        const duration = on ? acSettings.get().purifierDuration : "0";
+        printLog(LogType.INFO, `Purifier command: ${on ? "on" : "off"}, ${duration} min`);
+        try {
+            const data = await sendCmd({
+                [Services.clearAir.code]: {
+                    "operationTime": duration,
+                    "switchOrder": on ? "1" : "2"
+                }
+            }, vin);
+            return apiReturnHandle(data, "purificador de ar");
+        } catch (e) {
+            printLog(LogType.ERROR, UserMessages.ERROR_EXECUTING_COMMAND("do", "purificador de ar"), e);
+            return { result: false, message: UserMessages.ERROR_EXECUTING_COMMAND("do", "purificador de ar") };
+        }
+    },
     async airConditioner(action, vin) {
         const actualStatus = await carData.getStatus(vin);
         let airConAction = "";
@@ -754,23 +776,29 @@ const carUtil = {
             airConAction = action;
         }
         else
-            airConAction = Actions.AirCon.TURN_OFF;
+            airConAction = action || Actions.AirCon.TURN_OFF;
 
         try {
+            const ac = acSettings.get();
+            const isTurnOff = airConAction === Actions.AirCon.TURN_OFF;
+            const opTime = isTurnOff ? "0" : ac.duration;
+            const temp = ac.temperature;
+
+            printLog(LogType.INFO, `A/C command: switchOrder ${airConAction}, ${temp} °C, ${opTime} min`);
             const acData = await sendCmd({
                 [Services.airCon.code]: {
                     "airConditioner": {
-                        "operationTime": "15",
+                        "operationTime": opTime,
                         "switchOrder": airConAction,
-                        "temperature": "18"
+                        "temperature": temp
                     }
                 }
             }, vin);
 
             return apiReturnHandle(acData, "ar-condicionado");
         } catch (e) {
-            printLog(LogType.ERROR, UserMessages.ERROR_EXECUTING_COMMAND({ preposition: "do", functionName: "ar-condicionado" }), e);
-            return { result: false, message: UserMessages.ERROR_EXECUTING_COMMAND({ preposition: "do", functionName: "ar-condicionado" }) };
+            printLog(LogType.ERROR, UserMessages.ERROR_EXECUTING_COMMAND("do", "ar-condicionado"), e);
+            return { result: false, message: UserMessages.ERROR_EXECUTING_COMMAND("do", "ar-condicionado") };
         }
     },
     async engine(action, vin) {
@@ -916,4 +944,53 @@ const carUtil = {
     }
 }
 
-module.exports = { carData, carUtil, Actions, States, Options, auth, carTextUtil, UserMessages };
+async function checkPinStatus() {
+    if (!PIN || String(PIN).trim() === "") {
+        printLog(LogType.WARNING, "PIN de seguranca nao configurado no add-on. Comandos remotos (A/C, portas, etc.) nao poderao ser executados.");
+        return { valid: false, code: "NO_PIN" };
+    }
+
+    try {
+        const authHeaders = await updateHeaders(false, false);
+        const deviceid = getOrCreateDeviceId();
+        const extraHeaders = {
+            accessToken: authHeaders.accessToken || "",
+            deviceId: deviceid,
+            iccid: deviceid,
+        };
+        if (authHeaders.gwId) extraHeaders.gwId = authHeaders.gwId;
+
+        const body = {
+            securityPassword: md5(String(PIN).trim()),
+            type: "2",
+        };
+
+        const { data } = await signedRequest({
+            method: "POST",
+            url: `${Endpoints.apiH5Base}/userAuth/checkSecurityPassword`,
+            data: body,
+            extraHeaders,
+            httpsAgent: getLoginHttpsAgent(),
+        });
+
+        if (data && data.code === "000000") {
+            printLog(LogType.STARTUP, "    Senha de seguranca (PIN) validada com sucesso no backend GWM.");
+            return { valid: true, code: "000000" };
+        } else if (data && data.code === "308013") {
+            printLog(LogType.ERROR, "ATENCAO: Nenhuma senha de seguranca (PIN) cadastrada para este usuario no backend GWM (308013). Para habilitar comandos remotos, cadastre um PIN de 6 digitos no aplicativo My GWM em 'Configuracoes do carro -> PIN' e configure o mesmo valor no add-on.");
+            return { valid: false, code: "308013", message: data.description };
+        } else if (data && (data.code === "308002" || data.code === "308011")) {
+            printLog(LogType.ERROR, `ATENCAO: Senha de seguranca (PIN) incorreta ou rejeitada pelo backend GWM (${data.code}: ${data.description}). Verifique o PIN configurado nas opcoes do add-on.`);
+            return { valid: false, code: data.code, message: data.description };
+        } else {
+            printLog(LogType.WARNING, `Resposta da validacao de PIN: ${data ? `${data.code} - ${data.description}` : "sem resposta"}`);
+            return { valid: false, code: data ? data.code : "UNKNOWN", message: data ? data.description : "" };
+        }
+    } catch (err) {
+        const detail = err.response ? `HTTP ${err.response.status}: ${JSON.stringify(err.response.data)}` : err.message;
+        printLog(LogType.WARNING, `Falha ao validar PIN no backend GWM (${detail}).`);
+        return { valid: false, error: err.message };
+    }
+}
+
+module.exports = { carData, carUtil, Actions, States, Options, auth, carTextUtil, UserMessages, checkPinStatus };
