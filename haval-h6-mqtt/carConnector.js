@@ -9,6 +9,7 @@ const carTextUtil = require("./carTextUtil");
 const { isTokenExpired, LogType, printLog } = require('./utils');
 const { signRequest } = require("./signing");
 const { sensorTopics } = require("./map");
+const acSettings = require("./acSettings");
 
 const { USERNAME, PASSWORD, PIN } = process.env;
 const VERIFY_CODE_FILE = "/config/haval_h6_verify_code.txt";
@@ -68,7 +69,11 @@ const UserMessages = {
     CHARGING_SCHEDULE_REVERSAL: "Reversão da solução de contorno para paralizar o carregamento solicitado com sucesso.",
     ERROR_SENDING_COMMAND: "Ocorreu um erro ao enviar o comando para o veículo.",
     ERROR_RETRIEVING_CAR_DATA: "Erro ao obter as informações do veículo",
-    ERROR_EXECUTING_COMMAND: (preposition, functionName) => `Ocorreu um erro no acionamento ${preposition} ${functionName}.`,
+    ERROR_EXECUTING_COMMAND: (prepositionOrObj, maybeFunctionName) => {
+        const p = typeof prepositionOrObj === "object" ? prepositionOrObj.preposition : prepositionOrObj;
+        const f = typeof prepositionOrObj === "object" ? prepositionOrObj.functionName : maybeFunctionName;
+        return `Ocorreu um erro no acionamento ${p} ${f}.`;
+    },
     ERROR_STOPPING_CHARGING: "Erro ao parar o carregamento do veículo.",
     ERROR_SETTING_CHARGING: "Erro ao criar um agendamento de carregamento.",
     ERROR_AUTHENTICATION: "Erro de autenticação. Por favor, verifique suas credenciais.",
@@ -267,6 +272,28 @@ function ensureSessionAccount() {
         storage.removeItem("lastConsumedVerifyCode");
         resetAuthCooldowns();
         storage.setItem("sessionAccount", currentAccount);
+    }
+}
+
+function formatHttpError(err) {
+    if (!err || !err.response) {
+        return err && err.message ? err.message : String(err);
+    }
+    const status = err.response.status;
+    const body = err.response.data;
+    if (typeof body === "string") {
+        const trimmed = body.trim();
+        if (/^<!doctype\s+html|^<html/i.test(trimmed) || trimmed.includes("CloudWAF")) {
+            const eventMatch = trimmed.match(/id="d">([^<]+)</i);
+            const eventInfo = eventMatch ? `, Event ID: ${eventMatch[1].trim()}` : "";
+            return `HTTP ${status}: bloqueado por CloudWAF/HTML${eventInfo}`;
+        }
+        return `HTTP ${status}: ${trimmed.slice(0, 240)}`;
+    }
+    try {
+        return `HTTP ${status}: ${JSON.stringify(body).slice(0, 240)}`;
+    } catch (_) {
+        return `HTTP ${status}`;
     }
 }
 
@@ -495,7 +522,7 @@ async function loginWithAppPassword(deviceid) {
         }
         throw new Error(errMsg);
     } catch (err) {
-        const detail = err.response ? `HTTP ${err.response.status}: ${JSON.stringify(err.response.data)}` : err.message;
+        const detail = formatHttpError(err);
         if (!err.isAuthPaused && err.apiCode !== "308103" && _authBlockedUntil <= Date.now()) {
             _authBlockedUntil = Date.now() + AUTH_RETRY_COOLDOWN_MS;
             _authBlockedReason = detail;
@@ -735,7 +762,7 @@ async function chargingSchedule(enable, vin) {
 }
 
 function apiReturnHandle(returnData, functionName) {
-    if (returnData && returnData.description === "SUCCESS") {
+    if (returnData && (returnData.code === "000000" || returnData.description === "SUCCESS")) {
         return { result: true, message: UserMessages.COMMAND_SUCCESS(functionName.toString()) };
     }
     else if (returnData) {
@@ -745,16 +772,29 @@ function apiReturnHandle(returnData, functionName) {
         if (returnData.code && returnData.code === "REMOTE250502")
             return { result: false, message: UserMessages.SYSTEM_BUSY };
 
+        if (returnData.code === "308013") {
+            const pinMsg = "Nenhuma senha de seguranca (PIN) cadastrada no aplicativo My GWM (308013). Cadastre um PIN de 6 digitos em 'Configuracoes do carro -> PIN' e configure o mesmo valor no add-on.";
+            printLog(LogType.ERROR, `ATENCAO: ${pinMsg}`);
+            return { result: false, message: pinMsg, error: true };
+        }
+
+        if (returnData.code === "308002" || returnData.code === "308011") {
+            const pinErrMsg = `Senha de seguranca (PIN) incorreta ou rejeitada pelo backend GWM (${returnData.code}: ${returnData.description || ""}). Verifique o PIN configurado nas opcoes do add-on.`;
+            printLog(LogType.ERROR, `ATENCAO: ${pinErrMsg}`);
+            return { result: false, message: pinErrMsg, error: true };
+        }
+
         if (returnData.result === false) {
             printLog(LogType.ERROR, `---${UserMessages.ERROR_EXECUTING_COMMAND("de", functionName.toString())}--- `, returnData);
             return { result: false, message: returnData.message, error: true };
         }
+
+        const errorCode = returnData.code ? `${returnData.code}${returnData.description ? ` (${returnData.description})` : ""}` : "";
+        printLog(LogType.WARNING, `---${UserMessages.ERROR_EXECUTING_COMMAND("de", functionName.toString())}---`, errorCode);
+        return { result: false, message: UserMessages.COMMAND_FAILED(functionName.toString()), error: true };
     }
     else {
-        let errorCode = "";
-        if (returnData && returnData.code)
-            errorCode = returnData.code;
-        printLog(LogType.INFO, `---${UserMessages.ERROR_EXECUTING_COMMAND("de", functionName.toString())}---`, errorCode);
+        printLog(LogType.INFO, `---${UserMessages.ERROR_EXECUTING_COMMAND("de", functionName.toString())}---`, "");
         return { result: false, message: UserMessages.COMMAND_FAILED(functionName.toString()), error: true };
     }
 }
@@ -766,7 +806,7 @@ const carData = {
             printLog(LogType.DEBUG, `getCarList returning data: ${Buffer.from(JSON.stringify(response.data)).toString('base64')}`);
             return response;
         } catch (e) {
-            const detail = e.response ? `HTTP ${e.response.status}: ${JSON.stringify(e.response.data)}` : e.message;
+            const detail = formatHttpError(e);
             printLog(LogType.ERROR, `---${UserMessages.ERROR_RETRIEVING_CAR_LIST}---`, detail);
             return null;
         }
@@ -781,7 +821,7 @@ const carData = {
             printLog(LogType.DEBUG, `getCarInfo returning data: ${Buffer.from(JSON.stringify(data.data)).toString('base64')}`);
             return data.data;
         } catch (e) {
-            const detail = e.response ? `HTTP ${e.response.status}: ${JSON.stringify(e.response.data)}` : e.message;
+            const detail = formatHttpError(e);
             printLog(LogType.ERROR, `---${UserMessages.ERROR_RETRIEVING_CAR_DATA}---`, detail);
             return null;
         }
@@ -862,6 +902,23 @@ const carData = {
 }
 
 const carUtil = {
+    // Air purifier (instruction 0x0C). Start: {operationTime: minutes, switchOrder: "1"}; stop: {"0", "2"}.
+    async airPurifier(on, vin) {
+        const duration = on ? acSettings.get(vin).purifierDuration : "0";
+        printLog(LogType.INFO, `Purifier command: ${on ? "on" : "off"}, ${duration} min`);
+        try {
+            const data = await sendCmd({
+                [Services.clearAir.code]: {
+                    "operationTime": duration,
+                    "switchOrder": on ? "1" : "2"
+                }
+            }, vin);
+            return apiReturnHandle(data, "purificador de ar");
+        } catch (e) {
+            printLog(LogType.ERROR, UserMessages.ERROR_EXECUTING_COMMAND("do", "purificador de ar"), e);
+            return { result: false, message: UserMessages.ERROR_EXECUTING_COMMAND("do", "purificador de ar") };
+        }
+    },
     async airConditioner(action, vin) {
         const actualStatus = await carData.getStatus(vin);
         let airConAction = "";
@@ -877,23 +934,29 @@ const carUtil = {
             airConAction = action;
         }
         else
-            airConAction = Actions.AirCon.TURN_OFF;
+            airConAction = action || Actions.AirCon.TURN_OFF;
 
         try {
+            const ac = acSettings.get(vin);
+            const isTurnOff = airConAction === Actions.AirCon.TURN_OFF;
+            const opTime = isTurnOff ? "0" : ac.duration;
+            const temp = ac.temperature;
+
+            printLog(LogType.INFO, `A/C command: switchOrder ${airConAction}, ${temp} °C, ${opTime} min`);
             const acData = await sendCmd({
                 [Services.airCon.code]: {
                     "airConditioner": {
-                        "operationTime": "15",
+                        "operationTime": opTime,
                         "switchOrder": airConAction,
-                        "temperature": "18"
+                        "temperature": temp
                     }
                 }
             }, vin);
 
             return apiReturnHandle(acData, "ar-condicionado");
         } catch (e) {
-            printLog(LogType.ERROR, UserMessages.ERROR_EXECUTING_COMMAND({ preposition: "do", functionName: "ar-condicionado" }), e);
-            return { result: false, message: UserMessages.ERROR_EXECUTING_COMMAND({ preposition: "do", functionName: "ar-condicionado" }) };
+            printLog(LogType.ERROR, UserMessages.ERROR_EXECUTING_COMMAND("do", "ar-condicionado"), e);
+            return { result: false, message: UserMessages.ERROR_EXECUTING_COMMAND("do", "ar-condicionado") };
         }
     },
     async engine(action, vin) {
@@ -1039,4 +1102,18 @@ const carUtil = {
     }
 }
 
-module.exports = { carData, carUtil, Actions, States, Options, auth, carTextUtil, UserMessages };
+async function checkPinStatus() {
+    const pinStr = PIN !== undefined && PIN !== null ? String(PIN).trim() : "";
+    if (!pinStr) {
+        printLog(LogType.WARNING, "PIN de seguranca nao configurado no add-on. Para habilitar comandos remotos (A/C, portas, purificador), cadastre um PIN de 6 digitos no aplicativo My GWM em 'Configuracoes do carro -> PIN' e configure o mesmo valor em gwm_pin.");
+        return { valid: false, code: "NO_PIN" };
+    }
+    if (!/^\d{6}$/.test(pinStr)) {
+        printLog(LogType.WARNING, "PIN de seguranca configurado no add-on nao possui 6 digitos numericos. Verifique o valor em gwm_pin (Configuracoes do carro -> PIN no app My GWM).");
+        return { valid: false, code: "INVALID_PIN_FORMAT" };
+    }
+    printLog(LogType.STARTUP, "    Formato do PIN de seguranca validado localmente (6 digitos).");
+    return { valid: true, code: "FORMAT_OK" };
+}
+
+module.exports = { carData, carUtil, Actions, States, Options, auth, carTextUtil, UserMessages, checkPinStatus };

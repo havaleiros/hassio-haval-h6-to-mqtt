@@ -2,6 +2,7 @@ const storage = require("./storage");
 const validationSchema = require('./schema')
 const { LogType, printLog } = require('./utils');
 const carConnector = require("./carConnector");
+const acSettings = require("./acSettings");
 const { sensorTopics, attributeTopics } = require("./map");
 const { mqttModule, EntityType, ActionableAndLink } = require('./mqtt');
 const { checkConnection, register, remove, sendDeviceTrackerUpdate, sendMessage, sendMqtt } = mqttModule;
@@ -13,6 +14,26 @@ if (REFRESH_TIME < 5) {
   printLog(LogType.ERROR, "The param `refresh_time` cannot be lower than 5.");
   return;
 }
+
+const attachVehicleTimestamps = (attributes, data) => {
+  if (data) {
+    if (data.acquisitionTime) {
+      const acqMs = Number(data.acquisitionTime);
+      if (Number.isFinite(acqMs) && acqMs > 0) {
+        attributes['gps_acquisition_time'] = new Date(acqMs).toISOString();
+        attributes['gps_acquisition_epoch_ms'] = acqMs;
+      }
+    }
+    if (data.updateTime) {
+      const updMs = Number(data.updateTime);
+      if (Number.isFinite(updMs) && updMs > 0) {
+        attributes['cloud_update_time'] = new Date(updMs).toISOString();
+        attributes['cloud_update_epoch_ms'] = updMs;
+      }
+    }
+  }
+  return attributes;
+};
 
 const getCarList = async () => {
   try {
@@ -57,6 +78,8 @@ const runStartup = async () => {
     printLog(LogType.ERROR, "  Car list unavailable (awaiting authentication/OTP or API error). Will retry on next cycle.");
     return false;
   }
+  printLog(LogType.STARTUP, "  Validating security PIN status");
+  await carConnector.checkPinStatus();
   const data = carList;
   if (carList.length > 0) {
 
@@ -258,13 +281,14 @@ const runStartup = async () => {
             register(EntityType.DEVICE_TRACKER,
               vin = _vin,
               code = "DeviceTracker",
-              entity_name = storage.getItem('model-' + vin));
+              entity_name = storage.getItem('model-' + _vin));
 
             let attributes = {};
-            attributes['imsi'] = storage.getItem('imsi-' + vin);
+            attributes['imsi'] = storage.getItem('imsi-' + _vin);
             attributes['icon'] = "mdi:car-electric-outline";
+            attachVehicleTimestamps(attributes, data);
 
-            sendDeviceTrackerUpdate(vin, String(data.latitude), String(data.longitude), attributes);
+            sendDeviceTrackerUpdate(_vin, String(data.latitude), String(data.longitude), attributes);
             //---------------------
             printLog(LogType.STARTUP, "    Registering address entity");
             register(entityType = EntityType.SENSOR,
@@ -278,14 +302,34 @@ const runStartup = async () => {
               initial_value = null,
               state_class = null);
 
+            printLog(LogType.STARTUP, "    Registering GPS acquisition timestamp entity");
+            register(entityType = EntityType.SENSOR,
+              vin = _vin,
+              code = 'horario_aquisicao_gps',
+              entity_name = 'Horário de Aquisição GPS',
+              unit = null,
+              device_class = 'timestamp',
+              icon = 'mdi:clock-check-outline',
+              actionable = null,
+              initial_value = null,
+              state_class = null);
+
             if (data.hasOwnProperty("latitude")) {
               let endereco = await carConnector.carTextUtil.getformattedAddress(String(data.latitude), String(data.longitude));
-              if (endereco) sendMessage(vin, "endereco_atual", endereco);
+              if (endereco) sendMessage(_vin, "endereco_atual", endereco);
+            }
+
+            if (data && data.acquisitionTime) {
+              const acqMs = Number(data.acquisitionTime);
+              if (Number.isFinite(acqMs) && acqMs > 0) {
+                sendMessage(_vin, "horario_aquisicao_gps", new Date(acqMs).toISOString());
+              }
             }
           }
           else {
             remove(EntityType.DEVICE_TRACKER, "gwmbrasil", _vin, "DeviceTracker");
             remove(EntityType.SENSOR, "gwmbrasil", _vin, "endereco_atual");
+            remove(EntityType.SENSOR, "gwmbrasil", _vin, "horario_aquisicao_gps");
           }
           //---------------------
           printLog(LogType.STARTUP, "    Registering status message entity");
@@ -306,6 +350,8 @@ const runStartup = async () => {
             const formattedMessage = message.replace(/(\r\n|\n|\r)/g, " | ");
             sendMessage(vin, "status_message", formattedMessage);
           }
+
+          acSettings.start(_vin);
 
           printLog(LogType.STARTUP, "    Activating actionables and linked entities");
           ActionableAndLink.execute();
@@ -378,12 +424,20 @@ const updateState = async () => {
         if (isDeviceTrackerEnabled) {
           attributes['imsi'] = storage.getItem('imsi-' + vin);
           attributes['icon'] = "mdi:car-electric-outline";
+          attachVehicleTimestamps(attributes, data);
 
           sendDeviceTrackerUpdate(vin, String(data.latitude), String(data.longitude), attributes);
 
           if (data.hasOwnProperty("latitude")) {
             let endereco = await carConnector.carTextUtil.getformattedAddress(String(data.latitude), String(data.longitude));
             if (endereco) sendMessage(vin, "endereco_atual", endereco);
+          }
+
+          if (data && data.acquisitionTime) {
+            const acqMs = Number(data.acquisitionTime);
+            if (Number.isFinite(acqMs) && acqMs > 0) {
+              sendMessage(vin, "horario_aquisicao_gps", new Date(acqMs).toISOString());
+            }
           }
         }
 
