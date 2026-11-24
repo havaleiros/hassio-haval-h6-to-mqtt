@@ -43,10 +43,14 @@ if (!fs.existsSync("./certs/gwm_general.cer")) printLog(LogType.ERROR, "¡¡¡GW
 if (!fs.existsSync("./certs/gwm_general.key")) printLog(LogType.ERROR, "¡¡¡GWM general certificate key not found!!!");
 if (!fs.existsSync("./certs/gwm_root.cer")) printLog(LogType.ERROR, "¡¡¡GWM root certificate not found!!!");
 
+let mqttValidated = false;
 const runStartup = async () => {
-  await validationSchema.validate(process.env);
-  printLog(LogType.STARTUP, "  MQTT parameters validated");
-  await checkConnection();
+  if (!mqttValidated) {
+    await validationSchema.validate(process.env);
+    printLog(LogType.STARTUP, "  MQTT parameters validated");
+    await checkConnection();
+    mqttValidated = true;
+  }
   printLog(LogType.STARTUP, "  Retrieving car list");
   const carList = await getCarList();
   if (!carList || carList.length === 0) {
@@ -334,11 +338,15 @@ const updateState = async () => {
     startupPromise = null;
   }
   if (!startupCompleted) {
-    const ok = await runStartup();
-    if (ok) {
-      startupCompleted = true;
-      printLog(LogType.STARTUP, "***STARTUP PROCESS FINISHED***");
-      storage.setItem('Startup', "false");
+    try {
+      const ok = await runStartup();
+      if (ok) {
+        startupCompleted = true;
+        printLog(LogType.STARTUP, "***STARTUP PROCESS FINISHED***");
+        storage.setItem('Startup', "false");
+      }
+    } catch (e) {
+      printLog(LogType.ERROR, '***Error on startup retry: ', e.message || e);
     }
     return;
   }

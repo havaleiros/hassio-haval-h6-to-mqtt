@@ -1,4 +1,13 @@
 # Changelog
+## [1.0.10] - 2026-11-24
+### Consertado
+- Eliminação do reenvio automático de OTP (`getVerifyCode`) a cada 5 minutos e do polling contínuo de `loginWithPassword` enquanto a verificação de dispositivo (`308103`) está pendente, evitando bloqueio temporário por rate limit na GWM.
+- Validação do retorno de `getVerifyCode` (registrando `code` e `description` em `WARNING`) com pausa de 30 minutos em caso de rejeição pelo gateway.
+- Priorização do arquivo `/config/haval_h6_verify_code.txt` sobre um código antigo mantido em `gwm_verify_code`, além do descarte de códigos rejeitados ou já consumidos em `checkVerifyCode` para impedir loops de tentativa.
+- Vinculação da sessão persistida à conta configurada (`sessionAccount`), limpando tokens, estado de OTP e regenerando `deviceid` automaticamente ao trocar `gwm_username` (ex.: migração para conta compartilhada).
+- Limpeza do cache de `headers` em memória ao invalidar a sessão (`clearStoredSession`) e aplicação de cooldown de 5 minutos após `607501` ou falha de login, além da remoção de `refreshToken` recusado definitivamente pela API.
+- Proteção do retry de `runStartup()` em `updateState()` com `try/catch` e validação única do broker MQTT na inicialização.
+
 ## [1.0.9] - 2026-11-19
 ### Adicionado
 - Assinatura de requisições exigida pelo gateway GWM Brasil (`gwm-auth-*` / `signing.js`, atribuído sob licença MIT a `moryoav/ha-gwm-ev` em `THIRD_PARTY_NOTICES.md`).

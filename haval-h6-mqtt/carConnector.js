@@ -116,9 +116,22 @@ const Services = {
 const path = require("path");
 const { VERIFY_CODE } = process.env;
 
+const OTP_MIN_REISSUE_COOLDOWN_MS = 10 * 60 * 1000;
+const OTP_ERROR_COOLDOWN_MS = 30 * 60 * 1000;
+const AUTH_RETRY_COOLDOWN_MS = 5 * 60 * 1000;
+
 let _loginHttpsAgent = null;
 let _vehicleHttpsAgent = null;
 let _authInFlight = null;
+let _otpRequestedThisRun = false;
+let _awaitingOtp = false;
+let _authBlockedUntil = 0;
+let _authBlockedReason = "";
+let headers = {};
+
+function getNormalizedAccount() {
+    return String(USERNAME || "").trim().toLowerCase();
+}
 
 function getOrCreateDeviceId() {
     let deviceid = storage.getItem("deviceid");
@@ -164,23 +177,36 @@ function getVehicleHttpsAgent() {
     return _vehicleHttpsAgent;
 }
 
+function isVerifyCodeAlreadyUsed(code) {
+    if (!code) return true;
+    const lastConsumed = storage.getItem("lastConsumedVerifyCode");
+    const lastRejected = storage.getItem("lastRejectedVerifyCode");
+    return Boolean((lastConsumed && lastConsumed === code) || (lastRejected && lastRejected === code));
+}
+
 function getPendingVerifyCode() {
-    let raw = "";
-    let fromFile = false;
-    if (VERIFY_CODE && !["null", "undefined"].includes(String(VERIFY_CODE).trim())) {
-        raw = String(VERIFY_CODE).trim();
-    } else if (fs.existsSync(VERIFY_CODE_FILE)) {
+    if (fs.existsSync(VERIFY_CODE_FILE)) {
         try {
-            raw = fs.readFileSync(VERIFY_CODE_FILE, { encoding: "utf8" }).trim();
-            fromFile = Boolean(raw);
+            const fileRaw = fs.readFileSync(VERIFY_CODE_FILE, { encoding: "utf8" }).trim();
+            if (fileRaw) {
+                if (!isVerifyCodeAlreadyUsed(fileRaw)) {
+                    return { code: fileRaw, fromFile: true };
+                }
+                clearPendingVerifyFile(true);
+            }
         } catch (_) {
-            raw = "";
+            // ignore read errors and fall back to env var
         }
     }
-    if (!raw) return null;
-    const lastConsumed = storage.getItem("lastConsumedVerifyCode");
-    if (lastConsumed && lastConsumed === raw) return null;
-    return { code: raw, fromFile };
+
+    if (VERIFY_CODE && !["null", "undefined"].includes(String(VERIFY_CODE).trim())) {
+        const envRaw = String(VERIFY_CODE).trim();
+        if (envRaw && !isVerifyCodeAlreadyUsed(envRaw)) {
+            return { code: envRaw, fromFile: false };
+        }
+    }
+
+    return null;
 }
 
 function clearPendingVerifyFile(fromFile) {
@@ -193,10 +219,22 @@ function clearPendingVerifyFile(fromFile) {
     }
 }
 
+function resetAuthCooldowns() {
+    storage.removeItem("verifyCodeRequestedAt");
+    storage.removeItem("otpCooldownUntil");
+    storage.removeItem("lastRejectedVerifyCode");
+    _otpRequestedThisRun = false;
+    _awaitingOtp = false;
+    _authBlockedUntil = 0;
+    _authBlockedReason = "";
+}
+
 function persistSessionTokens(data) {
     const accessToken = data.accessToken;
     const refreshToken = data.refreshToken || storage.getItem("refreshToken") || "";
     const gwId = data.gwId !== undefined && data.gwId !== null ? String(data.gwId) : (storage.getItem("gwId") || "");
+    const account = getNormalizedAccount();
+    if (account) storage.setItem("sessionAccount", account);
     if (accessToken) storage.setItem("accessToken", accessToken);
     if (refreshToken) storage.setItem("refreshToken", refreshToken);
     if (gwId) storage.setItem("gwId", gwId);
@@ -204,9 +242,31 @@ function persistSessionTokens(data) {
 }
 
 function clearStoredSession(clearRefresh = false) {
+    headers = {};
     storage.removeItem("accessToken");
     if (clearRefresh) {
         storage.removeItem("refreshToken");
+    }
+}
+
+function ensureSessionAccount() {
+    const currentAccount = getNormalizedAccount();
+    if (!currentAccount) return;
+
+    const storedAccount = (storage.getItem("sessionAccount") || "").trim().toLowerCase();
+    if (!storedAccount) {
+        storage.setItem("sessionAccount", currentAccount);
+        return;
+    }
+
+    if (storedAccount !== currentAccount) {
+        printLog(LogType.WARNING, `Conta GWM alterada (${storedAccount} -> ${currentAccount}). Limpando sessao anterior e gerando novo deviceId.`);
+        clearStoredSession(true);
+        storage.removeItem("gwId");
+        storage.removeItem("deviceid");
+        storage.removeItem("lastConsumedVerifyCode");
+        resetAuthCooldowns();
+        storage.setItem("sessionAccount", currentAccount);
     }
 }
 
@@ -262,10 +322,13 @@ async function refreshSession(deviceid) {
         });
 
         if (data && data.code === "000000" && data.data && data.data.accessToken) {
-            storage.removeItem("verifyCodeRequestedAt");
+            resetAuthCooldowns();
             return persistSessionTokens(data.data);
         }
-        printLog(LogType.WARNING, `Refresh token recusado (code=${data ? data.code : "unknown"}: ${data ? data.description : ""}). Tentando novo login.`);
+        printLog(LogType.WARNING, `Refresh token recusado (code=${data ? data.code : "unknown"}: ${data ? data.description : ""}). Limpando refreshToken e tentando novo login.`);
+        if (data && data.code && data.code !== "000000") {
+            storage.removeItem("refreshToken");
+        }
         return null;
     } catch (err) {
         const status = err.response ? err.response.status : err.message;
@@ -297,6 +360,22 @@ async function loginWithAppPassword(deviceid) {
     };
 
     try {
+        const pending = getPendingVerifyCode();
+
+        if (_awaitingOtp && !pending) {
+            const pausedErr = new Error("Verificacao de dispositivo pendente (308103). Aguardando codigo OTP em gwm_verify_code ou /config/haval_h6_verify_code.txt (sem novas chamadas a API GWM).");
+            pausedErr.apiCode = "308103";
+            pausedErr.isAuthPaused = true;
+            throw pausedErr;
+        }
+
+        if (_authBlockedUntil > Date.now() && !pending) {
+            const remainingSec = Math.ceil((_authBlockedUntil - Date.now()) / 1000);
+            const pausedErr = new Error(`Autenticacao em pausa por ${remainingSec}s (${_authBlockedReason}).`);
+            pausedErr.isAuthPaused = true;
+            throw pausedErr;
+        }
+
         let { data } = await signedRequest({
             method: "POST",
             url: `${Endpoints.apiLoginBase}/userAuth/loginWithPassword`,
@@ -306,10 +385,13 @@ async function loginWithAppPassword(deviceid) {
         });
 
         if (data && data.code === "308103") {
-            const pending = getPendingVerifyCode();
             if (!pending) {
-                const lastReq = Number(storage.getItem("verifyCodeRequestedAt") || "0");
-                if (!lastReq || (Date.now() - lastReq) > 300000) {
+                const storedCooldownUntil = Number(storage.getItem("otpCooldownUntil") || "0");
+                const legacyLastReq = Number(storage.getItem("verifyCodeRequestedAt") || "0");
+                const legacyCooldownUntil = legacyLastReq > 0 ? (legacyLastReq + OTP_MIN_REISSUE_COOLDOWN_MS) : 0;
+                const otpCooldownUntil = Math.max(storedCooldownUntil, legacyCooldownUntil);
+
+                if (!_otpRequestedThisRun && Date.now() >= otpCooldownUntil) {
                     const verifyReq = await signedRequest({
                         method: "POST",
                         url: `${Endpoints.apiLoginBase}/userAuth/getVerifyCode`,
@@ -327,8 +409,26 @@ async function loginWithAppPassword(deviceid) {
                         extraHeaders,
                         httpsAgent: loginAgent,
                     });
-                    storage.setItem("verifyCodeRequestedAt", String(Date.now()));
-                    printLog(LogType.INFO, `Solicitado codigo de verificacao por e-mail (getVerifyCode code=${verifyReq.data ? verifyReq.data.code : "unknown"}).`);
+                    const now = Date.now();
+                    _otpRequestedThisRun = true;
+                    _awaitingOtp = true;
+                    storage.setItem("verifyCodeRequestedAt", String(now));
+
+                    const vCode = verifyReq.data ? verifyReq.data.code : "unknown";
+                    const vDesc = verifyReq.data ? (verifyReq.data.description || "") : "";
+                    if (vCode === "000000") {
+                        storage.setItem("otpCooldownUntil", String(now + OTP_MIN_REISSUE_COOLDOWN_MS));
+                        printLog(LogType.WARNING, "Codigo de verificacao (OTP) solicitado por e-mail (000000). Informe o codigo em gwm_verify_code (e reinicie) ou grave em /config/haval_h6_verify_code.txt. Nenhum novo OTP sera solicitado automaticamente enquanto o add-on permanecer em execucao.");
+                    } else {
+                        storage.setItem("otpCooldownUntil", String(now + OTP_ERROR_COOLDOWN_MS));
+                        _authBlockedUntil = now + OTP_ERROR_COOLDOWN_MS;
+                        _authBlockedReason = `getVerifyCode ${vCode}${vDesc ? `: ${vDesc}` : ""}`;
+                        printLog(LogType.WARNING, `Falha ao solicitar OTP por e-mail (getVerifyCode code=${vCode}: ${vDesc}). Pausando novas solicitacoes de OTP por ${Math.round(OTP_ERROR_COOLDOWN_MS / 60000)} minutos.`);
+                    }
+                } else {
+                    _awaitingOtp = true;
+                    const waitMin = Math.max(1, Math.ceil((otpCooldownUntil - Date.now()) / 60000));
+                    printLog(LogType.WARNING, `Verificacao de dispositivo pendente (308103). Um OTP ja foi solicitado recentemente; informe o codigo em gwm_verify_code ou /config/haval_h6_verify_code.txt (novo envio bloqueado por ~${waitMin} min).`);
                 }
                 const err308103 = new Error("Verificacao de dispositivo pendente (308103). Informe o codigo recebido por e-mail em gwm_verify_code ou /config/haval_h6_verify_code.txt.");
                 err308103.apiCode = "308103";
@@ -352,8 +452,18 @@ async function loginWithAppPassword(deviceid) {
 
             if (!checkRes.data || checkRes.data.code !== "000000") {
                 const desc = checkRes.data ? `${checkRes.data.code} - ${checkRes.data.description}` : "resposta invalida";
-                throw new Error(`Codigo de verificacao rejeitado (${desc}).`);
+                storage.setItem("lastRejectedVerifyCode", pending.code);
+                clearPendingVerifyFile(pending.fromFile);
+                _awaitingOtp = true;
+                printLog(LogType.WARNING, `Codigo de verificacao rejeitado pela GWM (${desc}). O codigo foi descartado para evitar tentativas repetidas; informe um novo codigo valido ou reinicie o add-on apos o intervalo de seguranca.`);
+                const rejErr = new Error(`Codigo de verificacao rejeitado (${desc}).`);
+                rejErr.apiCode = "308103";
+                throw rejErr;
             }
+
+            // Code validated/consumed by GWM backend: prevent infinite retries with the same code if login2 fails
+            storage.setItem("lastConsumedVerifyCode", pending.code);
+            clearPendingVerifyFile(pending.fromFile);
 
             const login2 = await signedRequest({
                 method: "POST",
@@ -367,22 +477,34 @@ async function loginWithAppPassword(deviceid) {
                 httpsAgent: loginAgent,
             });
             data = login2.data;
-            if (data && data.code === "000000") {
-                storage.setItem("lastConsumedVerifyCode", pending.code);
-                clearPendingVerifyFile(pending.fromFile);
+            if (data && data.code === "308103") {
+                _awaitingOtp = true;
             }
         }
 
         if (data && data.code === "000000" && data.data && data.data.accessToken) {
-            storage.removeItem("verifyCodeRequestedAt");
+            resetAuthCooldowns();
             return persistSessionTokens(data.data);
         }
 
         const errMsg = data ? `code=${data.code} description=${data.description}` : "empty response";
+        if (!data || data.code !== "308103") {
+            _authBlockedUntil = Date.now() + AUTH_RETRY_COOLDOWN_MS;
+            _authBlockedReason = errMsg;
+            printLog(LogType.WARNING, `Login recusado pela GWM (${errMsg}). Pausando novas tentativas de login por ${Math.round(AUTH_RETRY_COOLDOWN_MS / 60000)} minutos.`);
+        }
         throw new Error(errMsg);
     } catch (err) {
         const detail = err.response ? `HTTP ${err.response.status}: ${JSON.stringify(err.response.data)}` : err.message;
-        printLog(LogType.ERROR, `---${UserMessages.ERROR_AUTHENTICATION_LOG}---`, detail);
+        if (!err.isAuthPaused && err.apiCode !== "308103" && _authBlockedUntil <= Date.now()) {
+            _authBlockedUntil = Date.now() + AUTH_RETRY_COOLDOWN_MS;
+            _authBlockedReason = detail;
+        }
+        if (err.isAuthPaused) {
+            printLog(LogType.DEBUG, `---${UserMessages.ERROR_AUTHENTICATION_LOG}---`, detail);
+        } else {
+            printLog(LogType.ERROR, `---${UserMessages.ERROR_AUTHENTICATION_LOG}---`, detail);
+        }
         throw new Error(UserMessages.ERROR_AUTHENTICATION);
     }
 }
@@ -393,6 +515,7 @@ async function auth({ forceRefresh = false, forceRelogin = false } = {}) {
     }
 
     _authInFlight = (async () => {
+        ensureSessionAccount();
         const deviceid = getOrCreateDeviceId();
         const storedAccess = storage.getItem("accessToken");
         const storedRefresh = storage.getItem("refreshToken");
@@ -416,8 +539,6 @@ async function auth({ forceRefresh = false, forceRelogin = false } = {}) {
         _authInFlight = null;
     }
 }
-
-let headers = {};
 
 async function updateHeaders(forceRefresh = false, forceRelogin = false) {
     const vehicleAgent = getVehicleHttpsAgent();
@@ -477,9 +598,11 @@ async function vehicleRequest(method, url, data = undefined) {
         clearStoredSession(false);
         authHeaders = await updateHeaders(true, false);
         res = await execute(authHeaders);
-    } else if (res && res.data && res.data.code === "607501") {
-        printLog(LogType.ERROR, "Sessao encerrada por acesso simultaneo em outro dispositivo (607501). Evite manter o app My GWM aberto com a mesma conta.");
+    } else if (code === "607501") {
+        printLog(LogType.WARNING, `Sessao encerrada por acesso simultaneo em outro dispositivo (607501). Evite manter o app My GWM aberto com a mesma conta. Pausando novas tentativas de login por ${Math.round(AUTH_RETRY_COOLDOWN_MS / 60000)} minutos.`);
         clearStoredSession(true);
+        _authBlockedUntil = Date.now() + AUTH_RETRY_COOLDOWN_MS;
+        _authBlockedReason = "sessao encerrada por acesso simultaneo (607501)";
     }
 
     return res;
