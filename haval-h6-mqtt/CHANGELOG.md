@@ -3,10 +3,11 @@
 ### Adicionado
 - Sliders MQTT Discovery para Temperatura do A/C (17–31 °C), Duração do A/C (5–30 min) e Duração do Purificador (5–30 min) com persistência via MQTT retain e isolamento por VIN (substitui e corrige o PR #31).
 - Botões acionáveis para Ligar e Desligar o Purificador de Ar (`clearAir` / código `0x0C`).
-- Validação preventiva da Senha de Segurança (PIN) na inicialização via `POST /userAuth/checkSecurityPassword` com instrução amigável caso não esteja cadastrada (`Configurações do carro -> PIN`).
+- Validação local do formato do PIN (6 dígitos) na inicialização e tratamento explícito dos códigos de PIN (`308013`, `308002`, `308011`) no retorno de comandos remotos com instrução objetiva (`Configurações do carro -> PIN`).
 - Inclusão dos carimbos de satélite da GWM (`gps_acquisition_time` e `gps_acquisition_epoch_ms`) nos atributos do `device_tracker` e criação da entidade de timestamp `sensor...horario_aquisicao_gps` (`device_class: timestamp`).
 
 ### Consertado
+- Sanitização de logs de erro HTTP para não despejar páginas HTML brutas de bloqueio do CloudWAF (`HTTP 418`).
 - Eliminação do reenvio automático de OTP (`getVerifyCode`) a cada 5 minutos e do polling contínuo de `loginWithPassword` enquanto a verificação de dispositivo (`308103`) está pendente, evitando bloqueio temporário por rate limit na GWM.
 - Validação do retorno de `getVerifyCode` (registrando `code` e `description` em `WARNING`) com pausa de 30 minutos em caso de rejeição pelo gateway.
 - Priorização do arquivo `/config/haval_h6_verify_code.txt` sobre um código antigo mantido em `gwm_verify_code`, além do descarte de códigos rejeitados ou já consumidos em `checkVerifyCode` para impedir loops de tentativa.

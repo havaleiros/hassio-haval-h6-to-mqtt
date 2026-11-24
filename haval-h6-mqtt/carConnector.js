@@ -275,6 +275,28 @@ function ensureSessionAccount() {
     }
 }
 
+function formatHttpError(err) {
+    if (!err || !err.response) {
+        return err && err.message ? err.message : String(err);
+    }
+    const status = err.response.status;
+    const body = err.response.data;
+    if (typeof body === "string") {
+        const trimmed = body.trim();
+        if (/^<!doctype\s+html|^<html/i.test(trimmed) || trimmed.includes("CloudWAF")) {
+            const eventMatch = trimmed.match(/id="d">([^<]+)</i);
+            const eventInfo = eventMatch ? `, Event ID: ${eventMatch[1].trim()}` : "";
+            return `HTTP ${status}: bloqueado por CloudWAF/HTML${eventInfo}`;
+        }
+        return `HTTP ${status}: ${trimmed.slice(0, 240)}`;
+    }
+    try {
+        return `HTTP ${status}: ${JSON.stringify(body).slice(0, 240)}`;
+    } catch (_) {
+        return `HTTP ${status}`;
+    }
+}
+
 async function signedRequest({ method, url, data = undefined, extraHeaders = {}, httpsAgent }) {
     const bodyStr = data !== undefined && data !== null ? JSON.stringify(data) : undefined;
     const signHeaders = signRequest(method, url, bodyStr !== undefined ? bodyStr : null);
@@ -500,7 +522,7 @@ async function loginWithAppPassword(deviceid) {
         }
         throw new Error(errMsg);
     } catch (err) {
-        const detail = err.response ? `HTTP ${err.response.status}: ${JSON.stringify(err.response.data)}` : err.message;
+        const detail = formatHttpError(err);
         if (!err.isAuthPaused && err.apiCode !== "308103" && _authBlockedUntil <= Date.now()) {
             _authBlockedUntil = Date.now() + AUTH_RETRY_COOLDOWN_MS;
             _authBlockedReason = detail;
@@ -750,16 +772,29 @@ function apiReturnHandle(returnData, functionName) {
         if (returnData.code && returnData.code === "REMOTE250502")
             return { result: false, message: UserMessages.SYSTEM_BUSY };
 
+        if (returnData.code === "308013") {
+            const pinMsg = "Nenhuma senha de seguranca (PIN) cadastrada no aplicativo My GWM (308013). Cadastre um PIN de 6 digitos em 'Configuracoes do carro -> PIN' e configure o mesmo valor no add-on.";
+            printLog(LogType.ERROR, `ATENCAO: ${pinMsg}`);
+            return { result: false, message: pinMsg, error: true };
+        }
+
+        if (returnData.code === "308002" || returnData.code === "308011") {
+            const pinErrMsg = `Senha de seguranca (PIN) incorreta ou rejeitada pelo backend GWM (${returnData.code}: ${returnData.description || ""}). Verifique o PIN configurado nas opcoes do add-on.`;
+            printLog(LogType.ERROR, `ATENCAO: ${pinErrMsg}`);
+            return { result: false, message: pinErrMsg, error: true };
+        }
+
         if (returnData.result === false) {
             printLog(LogType.ERROR, `---${UserMessages.ERROR_EXECUTING_COMMAND("de", functionName.toString())}--- `, returnData);
             return { result: false, message: returnData.message, error: true };
         }
+
+        const errorCode = returnData.code ? `${returnData.code}${returnData.description ? ` (${returnData.description})` : ""}` : "";
+        printLog(LogType.WARNING, `---${UserMessages.ERROR_EXECUTING_COMMAND("de", functionName.toString())}---`, errorCode);
+        return { result: false, message: UserMessages.COMMAND_FAILED(functionName.toString()), error: true };
     }
     else {
-        let errorCode = "";
-        if (returnData && returnData.code)
-            errorCode = returnData.code;
-        printLog(LogType.INFO, `---${UserMessages.ERROR_EXECUTING_COMMAND("de", functionName.toString())}---`, errorCode);
+        printLog(LogType.INFO, `---${UserMessages.ERROR_EXECUTING_COMMAND("de", functionName.toString())}---`, "");
         return { result: false, message: UserMessages.COMMAND_FAILED(functionName.toString()), error: true };
     }
 }
@@ -771,7 +806,7 @@ const carData = {
             printLog(LogType.DEBUG, `getCarList returning data: ${Buffer.from(JSON.stringify(response.data)).toString('base64')}`);
             return response;
         } catch (e) {
-            const detail = e.response ? `HTTP ${e.response.status}: ${JSON.stringify(e.response.data)}` : e.message;
+            const detail = formatHttpError(e);
             printLog(LogType.ERROR, `---${UserMessages.ERROR_RETRIEVING_CAR_LIST}---`, detail);
             return null;
         }
@@ -786,7 +821,7 @@ const carData = {
             printLog(LogType.DEBUG, `getCarInfo returning data: ${Buffer.from(JSON.stringify(data.data)).toString('base64')}`);
             return data.data;
         } catch (e) {
-            const detail = e.response ? `HTTP ${e.response.status}: ${JSON.stringify(e.response.data)}` : e.message;
+            const detail = formatHttpError(e);
             printLog(LogType.ERROR, `---${UserMessages.ERROR_RETRIEVING_CAR_DATA}---`, detail);
             return null;
         }
@@ -1068,52 +1103,17 @@ const carUtil = {
 }
 
 async function checkPinStatus() {
-    if (!PIN || String(PIN).trim() === "") {
-        printLog(LogType.WARNING, "PIN de seguranca nao configurado no add-on. Comandos remotos (A/C, portas, etc.) nao poderao ser executados.");
+    const pinStr = PIN !== undefined && PIN !== null ? String(PIN).trim() : "";
+    if (!pinStr) {
+        printLog(LogType.WARNING, "PIN de seguranca nao configurado no add-on. Para habilitar comandos remotos (A/C, portas, purificador), cadastre um PIN de 6 digitos no aplicativo My GWM em 'Configuracoes do carro -> PIN' e configure o mesmo valor em gwm_pin.");
         return { valid: false, code: "NO_PIN" };
     }
-
-    try {
-        const authHeaders = await updateHeaders(false, false);
-        const deviceid = getOrCreateDeviceId();
-        const extraHeaders = {
-            accessToken: authHeaders.accessToken || "",
-            deviceId: deviceid,
-            iccid: deviceid,
-        };
-        if (authHeaders.gwId) extraHeaders.gwId = authHeaders.gwId;
-
-        const body = {
-            securityPassword: md5(String(PIN).trim()),
-            type: "2",
-        };
-
-        const { data } = await signedRequest({
-            method: "POST",
-            url: `${Endpoints.apiH5Base}/userAuth/checkSecurityPassword`,
-            data: body,
-            extraHeaders,
-            httpsAgent: getLoginHttpsAgent(),
-        });
-
-        if (data && data.code === "000000") {
-            printLog(LogType.STARTUP, "    Senha de seguranca (PIN) validada com sucesso no backend GWM.");
-            return { valid: true, code: "000000" };
-        } else if (data && data.code === "308013") {
-            printLog(LogType.ERROR, "ATENCAO: Nenhuma senha de seguranca (PIN) cadastrada para este usuario no backend GWM (308013). Para habilitar comandos remotos, cadastre um PIN de 6 digitos no aplicativo My GWM em 'Configuracoes do carro -> PIN' e configure o mesmo valor no add-on.");
-            return { valid: false, code: "308013", message: data.description };
-        } else if (data && (data.code === "308002" || data.code === "308011")) {
-            printLog(LogType.ERROR, `ATENCAO: Senha de seguranca (PIN) incorreta ou rejeitada pelo backend GWM (${data.code}: ${data.description}). Verifique o PIN configurado nas opcoes do add-on.`);
-            return { valid: false, code: data.code, message: data.description };
-        } else {
-            printLog(LogType.WARNING, `Resposta da validacao de PIN: ${data ? `${data.code} - ${data.description}` : "sem resposta"}`);
-            return { valid: false, code: data ? data.code : "UNKNOWN", message: data ? data.description : "" };
-        }
-    } catch (err) {
-        const detail = err.response ? `HTTP ${err.response.status}: ${JSON.stringify(err.response.data)}` : err.message;
-        printLog(LogType.WARNING, `Falha ao validar PIN no backend GWM (${detail}).`);
-        return { valid: false, error: err.message };
+    if (!/^\d{6}$/.test(pinStr)) {
+        printLog(LogType.WARNING, "PIN de seguranca configurado no add-on nao possui 6 digitos numericos. Verifique o valor em gwm_pin (Configuracoes do carro -> PIN no app My GWM).");
+        return { valid: false, code: "INVALID_PIN_FORMAT" };
     }
+    printLog(LogType.STARTUP, "    Formato do PIN de seguranca validado localmente (6 digitos).");
+    return { valid: true, code: "FORMAT_OK" };
 }
 
 module.exports = { carData, carUtil, Actions, States, Options, auth, carTextUtil, UserMessages, checkPinStatus };
