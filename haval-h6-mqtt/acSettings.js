@@ -1,7 +1,7 @@
 // A/C temperature/duration and air purifier duration as Home Assistant number entities (MQTT discovery).
 // Values live in retained MQTT state topics, so they survive add-on/HA restarts; the add-on options
-// (AC_TEMPERATURE / AC_DURATION_MINUTES) are only the initial values when nothing is retained yet.
-// Note: one global set of values (not per VIN); fine for a single car.
+// (AC_TEMPERATURE / AC_DURATION_MINUTES / PURIFIER_DURATION_MINUTES) are only the initial values when nothing is retained yet.
+// State is tracked per VIN so multi-vehicle accounts have independent slider values.
 const mqtt = require("mqtt");
 const { LogType, printLog } = require("./utils");
 
@@ -18,18 +18,43 @@ const parse = (value, s) => {
   return Number.isFinite(n) && n >= s.min && n <= s.max ? n : null;
 };
 
-const values = {};
-for (const [key, s] of Object.entries(SETTINGS)) values[key] = parse(process.env[s.env], s) ?? s.def;
+const defaults = {};
+for (const [key, s] of Object.entries(SETTINGS)) defaults[key] = parse(process.env[s.env], s) ?? s.def;
 
-const get = () => ({
-  temperature: String(values.ac_temperature),
-  duration: String(values.ac_duration_minutes),
-  purifierDuration: String(values.purifier_duration_minutes),
-});
+const valuesByVin = new Map();
+const startedVins = new Set();
+
+const normalizeVin = (vin) => (vin ? String(vin).trim().toLowerCase() : "");
+
+const getBucket = (vin) => {
+  const key = normalizeVin(vin);
+  if (!key) {
+    const first = valuesByVin.values().next();
+    return first.done ? defaults : first.value;
+  }
+  if (!valuesByVin.has(key)) {
+    valuesByVin.set(key, { ...defaults });
+  }
+  return valuesByVin.get(key);
+};
+
+const get = (vin) => {
+  const b = getBucket(vin);
+  return {
+    temperature: String(b.ac_temperature),
+    duration: String(b.ac_duration_minutes),
+    purifierDuration: String(b.purifier_duration_minutes),
+  };
+};
 
 function start(vin) {
+  const v = normalizeVin(vin);
+  if (!v || startedVins.has(v)) return;
+  startedVins.add(v);
+
+  const values = getBucket(v);
+  const vinUpper = v.toUpperCase();
   const { MQTT_HOST, MQTT_PASS, MQTT_USER } = process.env;
-  const v = vin.toLowerCase();
   const stateTopic = (key) => `gwmbrasil_${v}/${key}/state`;
   const setTopic = (key) => `gwmbrasil_${v}/${key}/set`;
   const restored = new Set();
@@ -52,14 +77,14 @@ function start(vin) {
         mode: "slider",
         state_topic: stateTopic(key),
         command_topic: setTopic(key),
-        device: { identifiers: [vin.toUpperCase()], name: vin.toUpperCase(), model: "BR", manufacturer: "GWM" },
+        device: { identifiers: [vinUpper], name: vinUpper, model: "BR", manufacturer: "GWM" },
       };
       client.publish(`homeassistant/number/gwmbrasil_${v}_${key}/config`, JSON.stringify(config), { retain: true });
       topics.push(stateTopic(key), setTopic(key));
     }
 
     client.subscribe(topics, (err) => {
-      if (err) return printLog(LogType.ERROR, `***Error subscribing to A/C settings topics: ${err.message}`);
+      if (err) return printLog(LogType.ERROR, `***Error subscribing to A/C settings topics [${vinUpper}]: ${err.message}`);
       if (initialised) return;
       initialised = true;
       // Retained values arrive right after the subscription is acknowledged; give them a few seconds,
@@ -68,7 +93,7 @@ function start(vin) {
         for (const key of Object.keys(SETTINGS)) {
           if (!restored.has(key)) client.publish(stateTopic(key), String(values[key]), { retain: true });
         }
-        printLog(LogType.STARTUP, `    A/C settings in use: ${values.ac_temperature} °C, ${values.ac_duration_minutes} min, purifier ${values.purifier_duration_minutes} min (restored from MQTT: ${[...restored].join(", ") || "none"})`);
+        printLog(LogType.STARTUP, `    A/C settings in use [${vinUpper}]: ${values.ac_temperature} °C, ${values.ac_duration_minutes} min, purifier ${values.purifier_duration_minutes} min (restored from MQTT: ${[...restored].join(", ") || "none"})`);
       }, 5000);
     });
   });
@@ -79,20 +104,20 @@ function start(vin) {
       if (!isState && topic !== setTopic(key)) continue;
       const n = parse(message.toString(), s);
       if (n === null) {
-        printLog(LogType.ERROR, `***Ignoring invalid ${key} value "${message.toString()}" (allowed ${s.min}-${s.max})`);
+        printLog(LogType.ERROR, `***Ignoring invalid ${key} value [${vinUpper}] "${message.toString()}" (allowed ${s.min}-${s.max})`);
         return;
       }
       values[key] = n;
       if (isState) restored.add(key);
       else {
         client.publish(stateTopic(key), String(n), { retain: true });
-        printLog(LogType.INFO, `A/C setting ${key} set to ${n}`);
+        printLog(LogType.INFO, `A/C setting [${vinUpper}] ${key} set to ${n}`);
       }
       return;
     }
   });
 
-  client.on("error", (e) => printLog(LogType.ERROR, `***Error on MQTT [acSettings] connection: ${e.message}`));
+  client.on("error", (e) => printLog(LogType.ERROR, `***Error on MQTT [acSettings:${vinUpper}] connection: ${e.message}`));
 }
 
 module.exports = { start, get, parse, SETTINGS };

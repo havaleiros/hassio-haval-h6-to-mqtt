@@ -869,7 +869,7 @@ const carData = {
 const carUtil = {
     // Air purifier (instruction 0x0C). Start: {operationTime: minutes, switchOrder: "1"}; stop: {"0", "2"}.
     async airPurifier(on, vin) {
-        const duration = on ? acSettings.get().purifierDuration : "0";
+        const duration = on ? acSettings.get(vin).purifierDuration : "0";
         printLog(LogType.INFO, `Purifier command: ${on ? "on" : "off"}, ${duration} min`);
         try {
             const data = await sendCmd({
@@ -902,7 +902,7 @@ const carUtil = {
             airConAction = action || Actions.AirCon.TURN_OFF;
 
         try {
-            const ac = acSettings.get();
+            const ac = acSettings.get(vin);
             const isTurnOff = airConAction === Actions.AirCon.TURN_OFF;
             const opTime = isTurnOff ? "0" : ac.duration;
             const temp = ac.temperature;
