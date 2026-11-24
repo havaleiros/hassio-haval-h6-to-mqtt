@@ -123,9 +123,11 @@ function getVehicleStatusHardAnalysis(content) {
                 }
 
                 if (status.quilometragem_total) {
-                        let km = status.quilometragem_total.value;
-                        if ((km % 12000 >= 11000) || (km % 12000 > 0 && km % 12000 < 1000)) {
-                                const tolerance = km % 12000 >= 1000 ? 13000 - km % 12000 : 1000 - km % 12000;
+                        // Service every 12,000 km with a 1,000 km tolerance; no warning before the first one (#30).
+                        const km = Number(status.quilometragem_total.value);
+                        const r = km % 12000;
+                        if (km >= 11000 && (r >= 11000 || r < 1000)) {
+                                const tolerance = r >= 11000 ? 13000 - r : 1000 - r;
                                 statusMessage.push(msgs.SERVICE_WITH_TOLERANCE(tolerance));
                         }
                 }
